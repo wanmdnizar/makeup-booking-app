@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Makeup by Nureen — Bridal Booking & Payment Studio</title>
+  <title>Makeup by Nureen — Boutique Booking & Receipt Studio</title>
+  <meta name="theme-color" content="#BE185D" />
 
   <!-- Google Fonts: Inter & Playfair Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,10 +12,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+
+  <!-- html2pdf.js for PDF receipts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -50,26 +54,22 @@
       color: #231F20;
       -webkit-tap-highlight-color: transparent;
     }
-    .glass-bar {
+    .glass-header {
       background: rgba(255, 248, 250, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    #receipt-printable-area { background: #ffffff; color: #231F20; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-blush-200 selection:text-blush-900">
+<body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
 
-  <!-- Toast Notification Banner -->
-  <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- ==================== 1. AUTHENTICATION / LOGIN VIEW ==================== -->
+  <!-- ==================== AUTHENTICATION SCREEN ==================== -->
   <section id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blush-100 via-blush-50 to-rose-100">
     <div class="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-blush-200/70 border border-blush-200 p-6 sm:p-8 space-y-6">
       <div class="text-center space-y-2">
@@ -78,23 +78,21 @@
         </div>
         <h1 class="font-serif text-2xl sm:text-3xl font-bold text-charcoal">Makeup by Nureen</h1>
         <p class="text-[11px] tracking-[0.22em] uppercase font-semibold text-blush-700">ART • BEAUTY • BRIDAL</p>
-        <p class="text-xs text-slate-500 pt-1">Sign in to sync your client bookings across desktop & mobile</p>
+        <p class="text-xs text-slate-500 pt-1">Sign in to sync bookings, packages, expenses &amp; receipts in the cloud</p>
       </div>
 
-      <!-- Firebase Setup Notice (Shown if placeholder config is still active) -->
-      <div id="firebase-config-banner" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5">
+      <div id="firebase-config-banner" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
         <div class="flex items-center gap-1.5 font-bold">
           <i data-lucide="info" class="w-4 h-4 text-amber-600 shrink-0"></i>
-          <span>Firebase Config Required for Cloud Sync</span>
+          <span>Firebase Config Needed</span>
         </div>
         <p class="leading-relaxed text-[11px]">
-          Paste your <code>firebaseConfig</code> object in the script section of <code>index.html</code> (and authorize <code>wanmdnizar.github.io</code> in Firebase Auth) to enable live multi-device login &amp; syncing.
+          Paste your <code>firebaseConfig</code> keys in the script section to connect Firebase Auth &amp; Firestore.
         </p>
       </div>
 
-      <!-- Auth Mode Toggle -->
       <div class="grid grid-cols-2 p-1 rounded-2xl bg-blush-100 text-xs font-semibold">
-        <button type="button" id="auth-tab-login" onclick="setAuthMode('login')" class="py-2 rounded-xl bg-white text-blush-800 shadow-xs transition">
+        <button type="button" id="auth-tab-login" onclick="setAuthMode('login')" class="py-2 rounded-xl bg-white text-blush-800 shadow-sm transition">
           Sign In
         </button>
         <button type="button" id="auth-tab-register" onclick="setAuthMode('register')" class="py-2 rounded-xl text-slate-600 hover:text-blush-800 transition">
@@ -102,7 +100,6 @@
         </button>
       </div>
 
-      <!-- Auth Form -->
       <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-charcoal mb-1">Email Address</label>
@@ -130,358 +127,777 @@
           <span>Sign In to Studio</span>
         </button>
       </form>
-
-      <div class="pt-2 border-t border-blush-100 text-center">
-        <p class="text-[11px] text-slate-400">Protected studio access • Real-time Firestore Cloud Sync</p>
-      </div>
     </div>
   </section>
 
-  <!-- ==================== 2. MAIN STUDIO APPLICATION ==================== -->
-  <div id="app-shell" class="hidden flex-1 flex flex-col">
+  <!-- ==================== MAIN STUDIO APPLICATION ==================== -->
+  <div id="app-shell" class="hidden">
 
-    <!-- Sticky Boutique Header -->
-    <header class="glass-bar sticky top-0 z-30 border-b border-blush-200/80">
-      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+    <!-- Top App Bar -->
+    <header class="glass-header sticky top-0 z-30 border-b border-blush-200/80">
+      <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blush-700 to-blush-500 text-white font-serif font-bold text-lg flex items-center justify-center shadow-xs shrink-0">
+          <div id="header-logo-container" class="w-10 h-10 rounded-full bg-gradient-to-tr from-blush-700 to-blush-500 text-white flex items-center justify-center font-serif font-bold text-lg shadow-sm overflow-hidden shrink-0">
             MN
           </div>
           <div class="min-w-0">
-            <h1 class="font-serif font-bold text-base sm:text-lg text-charcoal truncate">Makeup by Nureen</h1>
-            <div class="flex items-center gap-2">
-              <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span id="sync-status-text" class="text-[11px] text-slate-500 truncate">Cloud Sync Active</span>
+            <h1 id="header-brand-name" class="font-serif font-bold text-base sm:text-lg leading-tight text-charcoal truncate">Makeup by Nureen</h1>
+            <div class="flex items-center gap-1.5">
+              <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <p id="header-tagline" class="text-[10px] tracking-[0.18em] uppercase text-blush-700 font-semibold truncate">ART • BEAUTY • BRIDAL</p>
             </div>
           </div>
         </div>
 
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-1 bg-blush-100/90 p-1 rounded-full border border-blush-200/70">
+          <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm">Dashboard</button>
+          <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Calendar &amp; Jobs</button>
+          <button onclick="switchTab('packages')" data-tab="packages" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Packages</button>
+          <button onclick="switchTab('expenses')" data-tab="expenses" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Expenses</button>
+          <button onclick="switchTab('settings')" data-tab="settings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Settings</button>
+        </nav>
+
+        <!-- Primary & Sign-Out Actions -->
         <div class="flex items-center gap-2 shrink-0">
-          <button onclick="openBookingModal()"
-            class="bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 sm:px-4 py-2.5 rounded-full shadow-md shadow-blush-200 flex items-center gap-1.5 transition">
+          <button onclick="openBookingModal()" class="bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-full shadow-md shadow-blush-200 flex items-center gap-1.5 transition-all">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>New Booking</span>
           </button>
-
-          <button onclick="handleSignOut()" title="Sign Out"
-            class="p-2.5 rounded-full bg-white hover:bg-blush-100 border border-blush-200 text-slate-600 hover:text-blush-800 transition">
+          <button onclick="handleSignOut()" title="Sign Out" aria-label="Sign Out" class="p-2.5 rounded-full bg-white hover:bg-blush-100 border border-blush-200 text-slate-600 hover:text-blush-800 transition">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Main Dashboard Container -->
-    <main class="max-w-6xl w-full mx-auto px-4 py-6 space-y-6 flex-1">
+    <!-- Main Content Area -->
+    <main class="max-w-5xl mx-auto px-4 pt-5 space-y-6">
 
-      <!-- 1. Summary Dashboard Cards (4 KPIs) -->
-      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-        <!-- Total Bookings -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-blush-200/80 shadow-xs">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500">Total Bookings</span>
-            <div class="w-9 h-9 rounded-2xl bg-blush-100 text-blush-700 flex items-center justify-center">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
+      <!-- ==================== TAB 1: DASHBOARD ==================== -->
+      <section id="tab-dashboard" class="tab-content space-y-6">
+
+        <!-- Welcome / Quick Summary Banner -->
+        <div class="bg-gradient-to-br from-blush-800 via-blush-700 to-blush-600 rounded-3xl p-5 sm:p-6 text-white shadow-lg shadow-blush-200/80 relative overflow-hidden">
+          <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="inline-block px-3 py-0.5 rounded-full bg-white/15 text-blush-100 text-xs font-medium mb-2">Studio Overview</span>
+              <h2 id="welcome-title" class="font-serif text-2xl sm:text-3xl font-bold">Welcome back!</h2>
+              <p class="text-blush-100 text-xs sm:text-sm mt-1">Manage your bridal &amp; glam schedule, deposits, and receipts effortlessly.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="switchTab('calendar')" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-xs font-semibold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 transition">
+                <i data-lucide="calendar" class="w-4 h-4"></i> View Schedule
+              </button>
+              <button onclick="openBookingModal()" class="bg-white text-blush-900 hover:bg-blush-50 text-xs font-bold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="sparkles" class="w-4 h-4 text-blush-600"></i> Book Client
+              </button>
             </div>
           </div>
-          <p id="kpi-total-bookings" class="text-2xl sm:text-3xl font-bold text-charcoal">0</p>
-          <p class="text-[11px] text-slate-400 mt-1">All recorded sessions</p>
+          <div class="w-44 h-44 rounded-full bg-white/10 absolute -right-12 -bottom-14 pointer-events-none"></div>
+          <div class="w-28 h-28 rounded-full bg-blush-300/20 absolute right-28 -top-10 pointer-events-none"></div>
         </div>
 
-        <!-- Upcoming Appointments -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-blush-200/80 shadow-xs">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500">Upcoming</span>
-            <div class="w-9 h-9 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center">
-              <i data-lucide="calendar-heart" class="w-4 h-4"></i>
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-500">Total Booked</span>
+              <div class="w-8 h-8 rounded-xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
             </div>
+            <p id="kpi-total-revenue" class="text-lg sm:text-xl font-bold text-charcoal">RM 0.00</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Gross job value</p>
           </div>
-          <p id="kpi-upcoming-appointments" class="text-2xl sm:text-3xl font-bold text-blush-800">0</p>
-          <p class="text-[11px] text-slate-400 mt-1">Today &amp; future dates</p>
-        </div>
 
-        <!-- Total Revenue (RM) -->
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-blush-200/80 shadow-xs">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500">Total Revenue</span>
-            <div class="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <i data-lucide="badge-dollar-sign" class="w-4 h-4"></i>
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-500">Collected</span>
+              <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
             </div>
+            <p id="kpi-total-collected" class="text-lg sm:text-xl font-bold text-emerald-600">RM 0.00</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Deposits &amp; full paid</p>
           </div>
-          <p id="kpi-total-revenue" class="text-xl sm:text-2xl font-bold text-emerald-700">RM 0.00</p>
-          <p id="kpi-collected-subtext" class="text-[11px] text-slate-400 mt-1">Collected: RM 0.00</p>
-        </div>
 
-        <!-- Balance Due (RM) -->
-        <div class="bg-gradient-to-br from-blush-700 to-blush-600 rounded-3xl p-4 sm:p-5 text-white shadow-md shadow-blush-200">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-blush-100">Balance Due</span>
-            <div class="w-9 h-9 rounded-2xl bg-white/15 text-white flex items-center justify-center">
-              <i data-lucide="wallet" class="w-4 h-4"></i>
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-500">Balance Due</span>
+              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
             </div>
-          </div>
-          <p id="kpi-balance-due" class="text-xl sm:text-2xl font-bold">RM 0.00</p>
-          <p class="text-[11px] text-blush-100 mt-1">Pending client collection</p>
-        </div>
-      </section>
-
-      <!-- 2. Search, Filter & Sort Controls -->
-      <section class="bg-white rounded-3xl p-4 sm:p-5 border border-blush-200/80 shadow-xs space-y-3.5">
-        <div class="flex flex-col md:flex-row gap-3">
-          <!-- Search Input -->
-          <div class="relative flex-1">
-            <i data-lucide="search" class="w-4 h-4 text-blush-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="filter-search" oninput="renderBookings()"
-              placeholder="Search client name, venue, or service package..."
-              class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-blush-50/60 border border-blush-200 rounded-2xl focus:outline-none focus:border-blush-500 focus:bg-white transition">
+            <p id="kpi-pending-balance" class="text-lg sm:text-xl font-bold text-amber-600">RM 0.00</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">To collect from clients</p>
           </div>
 
-          <!-- Date Scope & Sort Controls -->
-          <div class="flex flex-wrap sm:flex-nowrap gap-2.5">
-            <select id="filter-timeframe" onchange="renderBookings()"
-              class="flex-1 sm:flex-none px-3.5 py-2.5 text-xs font-semibold bg-blush-50/60 border border-blush-200 rounded-2xl text-charcoal focus:outline-none focus:border-blush-500">
-              <option value="all">All Dates</option>
-              <option value="upcoming">Upcoming Appointments</option>
-              <option value="past">Past Appointments</option>
-            </select>
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-500">Net Profit</span>
+              <div class="w-8 h-8 rounded-xl bg-blush-100 text-blush-800 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+            </div>
+            <p id="kpi-net-profit" class="text-lg sm:text-xl font-bold text-blush-800">RM 0.00</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Collected minus expenses</p>
+          </div>
 
-            <select id="sort-order" onchange="renderBookings()"
-              class="flex-1 sm:flex-none px-3.5 py-2.5 text-xs font-semibold bg-blush-50/60 border border-blush-200 rounded-2xl text-charcoal focus:outline-none focus:border-blush-500">
-              <option value="date-asc">Event Date: Soonest First</option>
-              <option value="date-desc">Event Date: Latest First</option>
-              <option value="balance-desc">Highest Balance Due</option>
-            </select>
+          <div class="col-span-2 lg:col-span-1 bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs flex lg:block items-center justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1 lg:mb-2">
+                <span class="text-xs font-semibold text-slate-500">Upcoming Jobs</span>
+                <div class="hidden lg:flex w-8 h-8 rounded-xl bg-blush-100 text-blush-700 items-center justify-center"><i data-lucide="calendar-check" class="w-4 h-4"></i></div>
+              </div>
+              <p id="kpi-upcoming-count" class="text-xl font-bold text-charcoal">0</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Scheduled sessions</p>
+            </div>
+            <div class="lg:hidden w-10 h-10 rounded-2xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="calendar-check" class="w-5 h-5"></i></div>
           </div>
         </div>
 
-        <!-- Payment Status Filter Pills & View Switcher -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            <button onclick="setStatusFilter('all')" data-status="all"
-              class="status-filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blush-700 text-white transition whitespace-nowrap">
-              All Statuses
-            </button>
-            <button onclick="setStatusFilter('Deposit Paid')" data-status="Deposit Paid"
-              class="status-filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 transition whitespace-nowrap">
-              Deposit Paid
-            </button>
-            <button onclick="setStatusFilter('Balance Due')" data-status="Balance Due"
-              class="status-filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 transition whitespace-nowrap">
-              Balance Due
-            </button>
-            <button onclick="setStatusFilter('Full Paid')" data-status="Full Paid"
-              class="status-filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 transition whitespace-nowrap">
-              Full Paid
-            </button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-serif font-bold text-charcoal text-lg">Upcoming Appointments</h3>
+                <p class="text-xs text-slate-500">Your next scheduled glam &amp; bridal sessions</p>
+              </div>
+              <button onclick="switchTab('calendar')" class="text-xs font-semibold text-blush-700 hover:text-blush-900 flex items-center gap-1">
+                See All <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div id="dashboard-upcoming-list" class="space-y-3"></div>
           </div>
 
-          <!-- Desktop Cards / Table Toggle -->
-          <div class="hidden md:flex items-center gap-1 bg-blush-100 p-1 rounded-xl text-xs font-semibold">
-            <button id="view-btn-cards" onclick="setLayoutView('cards')" class="px-3 py-1 rounded-lg bg-white text-blush-800 shadow-2xs flex items-center gap-1">
-              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Cards
-            </button>
-            <button id="view-btn-table" onclick="setLayoutView('table')" class="px-3 py-1 rounded-lg text-slate-600 hover:text-blush-800 flex items-center gap-1">
-              <i data-lucide="table-2" class="w-3.5 h-3.5"></i> Table
+          <div class="bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-serif font-bold text-charcoal text-lg">Service Menu</h3>
+                  <p class="text-xs text-slate-500">Quick rate card reference</p>
+                </div>
+                <button onclick="switchTab('packages')" class="text-xs font-semibold text-blush-700 hover:text-blush-900">Edit</button>
+              </div>
+              <div id="dashboard-packages-list" class="space-y-2.5"></div>
+            </div>
+            <button onclick="openBookingModal()" class="mt-5 w-full py-2.5 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200/80 text-blush-800 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> Create Quote / Booking
             </button>
           </div>
         </div>
       </section>
 
-      <!-- 3. Bookings List (Responsive Cards & Desktop Table) -->
-      <section id="bookings-section" class="space-y-4">
-        <!-- Loading State -->
-        <div id="bookings-loading" class="bg-white rounded-3xl p-10 border border-blush-200/80 text-center space-y-2">
-          <i data-lucide="loader-2" class="w-7 h-7 text-blush-600 animate-spin mx-auto"></i>
-          <p class="text-sm font-semibold text-charcoal">Syncing bookings from cloud...</p>
+      <!-- ==================== TAB 2: CALENDAR & JOBS ==================== -->
+      <section id="tab-calendar" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs self-start">
+            <div class="flex items-center justify-between mb-4">
+              <h3 id="calendar-month-year" class="font-serif font-bold text-lg text-charcoal">November 2026</h3>
+              <div class="flex items-center gap-1.5">
+                <button onclick="changeMonth(-1)" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Previous Month" aria-label="Previous month">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <button onclick="goToToday()" class="px-2.5 py-1.5 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold transition">Today</button>
+                <button onclick="changeMonth(1)" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Next Month" aria-label="Next month">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 uppercase mb-2">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+
+            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-center"></div>
+
+            <div class="mt-4 pt-3 border-t border-blush-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Fully Paid</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Deposit Paid</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Unpaid</div>
+              <button id="clear-date-filter-btn" onclick="clearDateFilter()" class="hidden text-blush-700 font-semibold underline">Show All Dates</button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-4">
+            <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-xs space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 id="bookings-list-title" class="font-serif font-bold text-charcoal text-lg">All Client Bookings</h3>
+                  <p id="bookings-list-subtitle" class="text-xs text-slate-500">Tap any booking for receipt/PDF, WhatsApp or calendar export</p>
+                </div>
+                <div class="flex flex-wrap gap-2 sm:shrink-0">
+                  <button onclick="openImportModal()" class="bg-white hover:bg-blush-50 text-blush-800 border border-blush-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition" title="Import existing bookings from a Google Calendar .ics file">
+                    <i data-lucide="upload" class="w-4 h-4"></i> Import .ics
+                  </button>
+                  <button onclick="exportUpcomingICS()" class="bg-blush-50 hover:bg-blush-100 text-blush-800 border border-blush-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition" title="Download all upcoming jobs as a calendar file">
+                    <i data-lucide="calendar-plus" class="w-4 h-4"></i> Export .ics
+                  </button>
+                  <button onclick="openBookingModal(selectedCalendarDate)" class="bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Add Job
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <div class="relative flex-1">
+                  <i data-lucide="search" class="w-4 h-4 text-blush-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="booking-search-input" oninput="renderBookingsList()" placeholder="Search client, venue, or package..." class="w-full pl-9 pr-3 py-2 text-xs bg-blush-50/60 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white transition">
+                </div>
+                <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+                  <button onclick="setBookingFilter('all')" data-filter="all" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap">All</button>
+                  <button onclick="setBookingFilter('upcoming')" data-filter="upcoming" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Upcoming</button>
+                  <button onclick="setBookingFilter('deposit')" data-filter="deposit" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Balance Due</button>
+                  <button onclick="setBookingFilter('paid')" data-filter="paid" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Fully Paid</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="bookings-cards-container" class="space-y-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: PACKAGES & ADD-ONS ==================== -->
+      <section id="tab-packages" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <h2 class="font-serif font-bold text-xl text-charcoal">Service Packages &amp; Rates</h2>
+              <p class="text-xs text-slate-500">Customize your makeup packages and default pricing in MYR (RM)</p>
+            </div>
+            <button onclick="openPackageModal()" class="bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add New Package
+            </button>
+          </div>
+          <div id="packages-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: EXPENSES & PROFIT ==================== -->
+      <section id="tab-expenses" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-xs">
+            <span class="text-xs font-semibold text-slate-500">Total Collected Revenue</span>
+            <p id="exp-kpi-collected" class="text-2xl font-bold text-emerald-600 mt-1">RM 0.00</p>
+          </div>
+          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-xs">
+            <span class="text-xs font-semibold text-slate-500">Total Business Expenses</span>
+            <p id="exp-kpi-expenses" class="text-2xl font-bold text-rose-600 mt-1">RM 0.00</p>
+          </div>
+          <div class="bg-gradient-to-r from-blush-700 to-blush-600 p-5 rounded-3xl text-white shadow-md shadow-blush-200">
+            <span class="text-xs font-semibold text-blush-100">Net Take-Home Profit</span>
+            <p id="exp-kpi-net" class="text-2xl font-bold mt-1">RM 0.00</p>
+          </div>
         </div>
 
-        <!-- Empty State -->
-        <div id="bookings-empty" class="hidden bg-white rounded-3xl p-10 border border-dashed border-blush-300 text-center space-y-3">
-          <div class="w-14 h-14 rounded-full bg-blush-100 text-blush-700 flex items-center justify-center mx-auto">
-            <i data-lucide="calendar-plus" class="w-6 h-6"></i>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs self-start">
+            <h3 class="font-serif font-bold text-charcoal text-lg mb-1">Log Business Expense</h3>
+            <p class="text-xs text-slate-500 mb-4">Track makeup restocks, lashes, disposables &amp; petrol/mileage</p>
+
+            <form id="expense-form" onsubmit="handleSaveExpense(event)" class="space-y-3.5">
+              <div>
+                <label class="block text-xs font-semibold text-charcoal mb-1">Date</label>
+                <input type="date" id="exp-date" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-charcoal mb-1">Category</label>
+                <select id="exp-category" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                  <option value="Cosmetics & Restock">Cosmetics &amp; Restock (Sephora, MAC, etc.)</option>
+                  <option value="Disposables & Hygiene">Disposables, Lashes &amp; Brush Cleaner</option>
+                  <option value="Travel & Petrol">Travel, Toll &amp; Petrol</option>
+                  <option value="Tools & Lighting">Tools, Ring Light &amp; Equipment</option>
+                  <option value="Marketing & Packaging">Marketing, Ads &amp; Packaging</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-charcoal mb-1">Item / Description</label>
+                <input type="text" id="exp-desc" required placeholder="e.g., Concealer + Lashes" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-charcoal mb-1">Amount (RM)</label>
+                <input type="number" id="exp-amount" step="0.01" min="0.10" required placeholder="0.00" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+              </div>
+              <button type="submit" class="w-full py-3 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-sm font-semibold shadow-sm transition flex items-center justify-center gap-1.5">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Expense Record
+              </button>
+            </form>
           </div>
-          <div>
-            <h3 class="font-serif font-bold text-lg text-charcoal">No bookings found</h3>
-            <p class="text-xs text-slate-500 mt-1">Add your first client session or adjust your search filters.</p>
+
+          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-serif font-bold text-charcoal text-lg">Expense History</h3>
+                <p class="text-xs text-slate-500">All recorded business deductions</p>
+              </div>
+            </div>
+            <div id="expenses-list-container" class="space-y-2.5"></div>
           </div>
-          <button onclick="openBookingModal()"
-            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold shadow-xs transition">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add New Booking
-          </button>
         </div>
+      </section>
 
-        <!-- Card Grid View (Default on Mobile & Desktop) -->
-        <div id="bookings-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      <!-- ==================== TAB 5: SETTINGS & REPORTS ==================== -->
+      <section id="tab-settings" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- Desktop Table View -->
-        <div id="bookings-table-wrapper" class="hidden bg-white rounded-3xl border border-blush-200/80 shadow-xs overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-blush-100/80 text-blush-900 text-[11px] uppercase tracking-wider font-bold border-b border-blush-200">
-                  <th class="py-3.5 px-4">Date &amp; Time</th>
-                  <th class="py-3.5 px-4">Client &amp; Venue</th>
-                  <th class="py-3.5 px-4">Package</th>
-                  <th class="py-3.5 px-4 text-right">Total (RM)</th>
-                  <th class="py-3.5 px-4 text-right">Deposit</th>
-                  <th class="py-3.5 px-4 text-right">Balance Due</th>
-                  <th class="py-3.5 px-4">Status</th>
-                  <th class="py-3.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="bookings-table-body" class="divide-y divide-blush-100 text-xs"></tbody>
-            </table>
+          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-xs">
+            <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Boutique Profile &amp; Receipt Branding</h2>
+            <p class="text-xs text-slate-500 mb-5">Synced to Firestore and applied automatically to your receipts and header.</p>
+
+            <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4">
+              <div class="flex items-center gap-4 p-4 rounded-2xl bg-blush-50/80 border border-blush-200/70">
+                <div id="settings-logo-preview" class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blush-700 to-blush-500 text-white flex items-center justify-center font-serif font-bold text-2xl shadow-sm overflow-hidden shrink-0">MN</div>
+                <div class="flex-1">
+                  <label class="block text-xs font-bold text-charcoal mb-1">Brand Logo (Optional)</label>
+                  <p class="text-[11px] text-slate-500 mb-2">Upload a PNG/JPG logo; it is resized automatically.</p>
+                  <div class="flex flex-wrap gap-2">
+                    <label class="cursor-pointer px-3 py-1.5 rounded-xl bg-white border border-blush-200 hover:bg-blush-100 text-blush-800 text-xs font-semibold transition">
+                      Choose Image
+                      <input type="file" id="set-logo-input" accept="image/*" onchange="handleLogoUpload(event)" class="hidden">
+                    </label>
+                    <button type="button" onclick="removeLogo()" class="px-3 py-1.5 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-medium transition">Reset Monogram</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Business Name</label>
+                  <input type="text" id="set-business-name" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Your Name (Greeting)</label>
+                  <input type="text" id="set-owner-name" placeholder="Nureen" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Tagline</label>
+                  <input type="text" id="set-tagline" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">SSM Registration No.</label>
+                  <input type="text" id="set-ssm" placeholder="202603123456" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Instagram Handle</label>
+                  <input type="text" id="set-ig" placeholder="@makeupbynureen" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Business WhatsApp</label>
+                  <input type="text" id="set-whatsapp" placeholder="012-345 6789" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-charcoal mb-1">Default Receipt Terms &amp; Notes</label>
+                <textarea id="set-terms" rows="3" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
+              </div>
+
+              <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-sm font-semibold shadow-sm transition flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> Save Business Profile
+              </button>
+            </form>
           </div>
+
+          <div class="lg:col-span-5 space-y-6">
+            <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-xs space-y-4">
+              <div>
+                <h3 class="font-serif font-bold text-charcoal text-lg">Cloud Storage &amp; Spreadsheet Export</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Bookings, packages, and expenses are stored in Firebase Firestore so you don't need manual JSON backups.</p>
+              </div>
+
+              <button onclick="exportCSV()" class="w-full p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 flex items-center justify-between transition">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="text-xs font-bold">Export Bookings to CSV / Excel</p>
+                    <p class="text-[11px] text-emerald-700">For SSM tax filing &amp; income tracking</p>
+                  </div>
+                </div>
+                <i data-lucide="download" class="w-4 h-4 text-emerald-700"></i>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-rose-200 p-5 shadow-xs space-y-3">
+              <h3 class="font-bold text-charcoal text-sm">Clear Bookings &amp; Expenses</h3>
+              <p class="text-xs text-slate-500">Removes all bookings and expense records from Firebase. Your business profile and packages stay intact.</p>
+              <button onclick="openConfirmClearModal()" class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition flex items-center gap-1.5">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All Bookings &amp; Expenses
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
 
     </main>
   </div>
 
-  <!-- ==================== MODAL: ADD / EDIT BOOKING ==================== -->
-  <div id="booking-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-xs z-40 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav id="mobile-nav" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-blush-200 z-30 px-2 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(190,24,93,0.06)]">
+    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-blush-700">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[10px] font-semibold mt-0.5">Home</span>
+    </button>
+    <button onclick="switchTab('calendar')" data-tab="calendar" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
+      <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Schedule</span>
+    </button>
+    <button onclick="switchTab('packages')" data-tab="packages" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
+      <i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Packages</span>
+    </button>
+    <button onclick="switchTab('expenses')" data-tab="expenses" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
+      <i data-lucide="receipt" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Expenses</span>
+    </button>
+    <button onclick="switchTab('settings')" data-tab="settings" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
+      <i data-lucide="settings" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Settings</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MODAL 1: ADD / EDIT BOOKING ==================== -->
+  <div id="booking-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-40 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
     <div class="bg-white w-full max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl border border-blush-200 max-h-[92vh] flex flex-col overflow-hidden">
-      <!-- Modal Header -->
-      <div class="px-6 py-4 bg-gradient-to-r from-blush-100 to-blush-50 border-b border-blush-200 flex items-center justify-between">
+      <div class="px-6 py-4 border-b border-blush-200/70 flex items-center justify-between bg-gradient-to-r from-blush-100 to-blush-50">
         <div>
-          <h2 id="modal-title" class="font-serif font-bold text-lg text-charcoal">New Client Booking</h2>
-          <p class="text-xs text-slate-500">Auto-syncs immediately to all your signed-in devices</p>
+          <h3 id="booking-modal-title" class="font-serif font-bold text-lg text-charcoal">New Client Booking</h3>
+          <p class="text-xs text-slate-500">Fill in session details &amp; deposit payment</p>
         </div>
-        <button onclick="closeBookingModal()" class="p-2 rounded-full hover:bg-blush-200/60 text-slate-600 transition">
+        <button onclick="closeBookingModal()" class="p-2 rounded-full hover:bg-blush-200/60 text-slate-600 transition" aria-label="Close">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- Modal Form -->
-      <form id="booking-form" onsubmit="handleSaveBooking(event)" class="p-5 sm:p-6 overflow-y-auto space-y-4">
-        <input type="hidden" id="form-booking-id">
+      <form id="booking-form" onsubmit="handleSaveBooking(event)" class="p-6 overflow-y-auto space-y-4">
+        <input type="hidden" id="book-id">
 
-        <!-- Client Name & Phone -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div id="conflict-alert-box" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Client Name *</label>
-            <input type="text" id="form-client-name" required placeholder="e.g., Cik Nurul Aisyah"
-              class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Phone / WhatsApp Number *</label>
-            <input type="tel" id="form-client-phone" required placeholder="e.g., 012-345 6789"
-              class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+            <p class="font-bold">Schedule &amp; Travel Buffer Alert</p>
+            <div id="conflict-alert-text" class="mt-0.5 leading-relaxed space-y-0.5"></div>
           </div>
         </div>
 
-        <!-- Event Date & Time -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-semibold text-charcoal mb-1">Client Full Name *</label>
+            <input type="text" id="book-client-name" required placeholder="e.g., Cik Aisyah Humaira" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-charcoal mb-1">WhatsApp Phone (MY)</label>
+            <input type="tel" id="book-client-phone" placeholder="e.g., 012-3456789" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div>
             <label class="block text-xs font-semibold text-charcoal mb-1">Event Date *</label>
-            <input type="date" id="form-event-date" required
-              class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+            <input type="date" id="book-date" required onchange="checkBookingConflicts()" class="w-full px-3 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Event Time *</label>
-            <input type="time" id="form-event-time" required value="08:00"
-              class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+            <label class="block text-xs font-semibold text-charcoal mb-1">Start Time *</label>
+            <input type="time" id="book-start-time" required value="08:00" onchange="checkBookingConflicts()" class="w-full px-3 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-charcoal mb-1">End Time *</label>
+            <input type="time" id="book-end-time" required value="10:00" onchange="checkBookingConflicts()" class="w-full px-3 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
         </div>
 
-        <!-- Location / Venue -->
         <div>
-          <label class="block text-xs font-semibold text-charcoal mb-1">Location / Venue *</label>
-          <input type="text" id="form-venue" required placeholder="e.g., Hotel Casuarina @ Meru, Ipoh"
-            class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+          <label class="block text-xs font-semibold text-charcoal mb-1">Venue / Location</label>
+          <input type="text" id="book-venue" placeholder="e.g., Hotel Casuarina @ Meru, Ipoh" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
         </div>
 
-        <!-- Service Package & Financials Card -->
         <div class="p-4 rounded-2xl bg-blush-50 border border-blush-200 space-y-3.5">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label class="block text-xs font-semibold text-charcoal mb-1">Service Package *</label>
-              <select id="form-package" onchange="handlePackagePreset()"
-                class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
-                <option value="Bridal Nikah" data-price="850">Bridal Nikah (RM 850)</option>
-                <option value="Sanding / Reception" data-price="1200">Sanding / Reception (RM 1,200)</option>
-                <option value="Engagement / Tunang" data-price="450">Engagement / Tunang (RM 450)</option>
-                <option value="Dinner / Event" data-price="300">Dinner / Event (RM 300)</option>
-                <option value="Makeup Class" data-price="550">Makeup Class (RM 550)</option>
-              </select>
+              <select id="book-package" onchange="handlePackageSelectChange()" class="w-full px-3 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500"></select>
             </div>
-
             <div>
-              <label class="block text-xs font-semibold text-charcoal mb-1">Total Price (RM) *</label>
-              <input type="number" id="form-total-price" step="0.01" min="0" required value="850" oninput="calculatePaymentFields(true)"
-                class="w-full px-3.5 py-2.5 text-sm font-bold bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
+              <label class="block text-xs font-semibold text-charcoal mb-1">Package Rate (RM)</label>
+              <input type="number" id="book-package-price" step="0.01" min="0" oninput="recalculateBookingTotals()" class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label class="block text-xs font-semibold text-emerald-800 mb-1">Deposit Paid (RM) *</label>
-              <input type="number" id="form-deposit-paid" step="0.01" min="0" required value="0" oninput="calculatePaymentFields(true)"
-                class="w-full px-3.5 py-2.5 text-sm font-bold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:border-emerald-500">
+              <label class="block text-xs font-semibold text-charcoal mb-1">Add-on / Mileage Fee (RM)</label>
+              <input type="number" id="book-addon-fee" step="0.01" min="0" value="0" oninput="recalculateBookingTotals()" class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
             </div>
-
             <div>
-              <label class="block text-xs font-semibold text-blush-800 mb-1">Balance Due (RM)</label>
-              <input type="number" id="form-balance-due" readonly value="850.00"
-                class="w-full px-3.5 py-2.5 text-sm font-bold text-blush-800 bg-blush-100/80 border border-blush-200 rounded-xl">
+              <label class="block text-xs font-semibold text-charcoal mb-1">Add-on Description</label>
+              <input type="text" id="book-addon-desc" placeholder="e.g., Mileage Ipoh-Kuala Kangsar" class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-blush-200/80">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Subtotal (RM)</label>
+              <input type="number" id="book-subtotal" readonly class="w-full px-3 py-2 text-sm font-bold text-charcoal bg-blush-100/80 border border-blush-200 rounded-xl">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-emerald-700 mb-1">Deposit Paid (RM)</label>
+              <input type="number" id="book-deposit" step="0.01" min="0" value="0" oninput="recalculateBookingTotals()" class="w-full px-3 py-2 text-sm font-bold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-amber-700 mb-1">Balance Due (RM)</label>
+              <input type="number" id="book-balance" readonly class="w-full px-3 py-2 text-sm font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Payment Status</label>
-            <select id="form-payment-status"
-              class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
-              <option value="Balance Due">Balance Due</option>
-              <option value="Deposit Paid">Deposit Paid</option>
-              <option value="Full Paid">Full Paid</option>
-            </select>
+            <label class="block text-xs font-semibold text-charcoal mb-1">Payment Status <span class="font-normal text-slate-400">(automatic)</span></label>
+            <input type="text" id="book-status" readonly class="w-full px-3.5 py-2 text-sm font-semibold bg-blush-100/80 border border-blush-200 rounded-xl text-charcoal">
           </div>
         </div>
 
-        <!-- Notes -->
         <div>
           <label class="block text-xs font-semibold text-charcoal mb-1">Makeup &amp; Client Notes</label>
-          <textarea id="form-notes" rows="2" placeholder="Skin type, outfit color, soft glam preference, veil styling..."
-            class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
+          <textarea id="book-notes" rows="2" placeholder="Skin type, outfit color, soft glam look, sensitive eyes..." class="w-full px-3.5 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
         </div>
 
-        <!-- Submit Row -->
         <div class="pt-2 flex items-center justify-end gap-2.5">
-          <button type="button" onclick="closeBookingModal()"
-            class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
-            Cancel
-          </button>
-          <button type="submit" id="save-booking-btn"
-            class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 text-white text-xs font-bold shadow-md shadow-blush-200 transition">
-            Save Booking
-          </button>
+          <button type="button" onclick="closeBookingModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 text-white text-xs font-bold shadow-md shadow-blush-200 transition">Save Booking</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ==================== MODAL: CONFIRM DELETE ==================== -->
-  <div id="delete-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-blush-200 text-center space-y-4">
-      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
-        <i data-lucide="trash-2" class="w-6 h-6"></i>
-      </div>
-      <div>
-        <h3 class="font-serif font-bold text-lg text-charcoal">Delete Booking?</h3>
-        <p id="delete-modal-text" class="text-xs text-slate-500 mt-1">This will remove the booking from all synced devices.</p>
-      </div>
-      <div class="flex gap-2.5">
-        <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
-          Keep It
+  <!-- ==================== MODAL 2: PACKAGE EDITOR ==================== -->
+  <div id="package-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-40 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-blush-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-blush-200/70 flex items-center justify-between bg-blush-50">
+        <h3 id="package-modal-title" class="font-serif font-bold text-lg text-charcoal">Add Service Package</h3>
+        <button onclick="closePackageModal()" class="p-1.5 rounded-full hover:bg-blush-200/60 text-slate-600" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
-        <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">
-          Yes, Delete
+      </div>
+      <form id="package-form" onsubmit="handleSavePackage(event)" class="p-6 space-y-4">
+        <input type="hidden" id="pkg-id">
+        <div>
+          <label class="block text-xs font-semibold text-charcoal mb-1">Package Name *</label>
+          <input type="text" id="pkg-name" required placeholder="e.g., Bridal Nikah & Sanding" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-charcoal mb-1">Default Price (RM) *</label>
+          <input type="number" id="pkg-price" step="0.01" min="0" required placeholder="450.00" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-charcoal mb-1">Inclusions / Description</label>
+          <textarea id="pkg-desc" rows="2" placeholder="Includes premium false lashes, skin prep, hijab styling..." class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
+        </div>
+        <p class="text-[11px] text-slate-400">Editing a package never changes receipts that were already created.</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closePackageModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold">Save Package</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: BOUTIQUE RECEIPT & WHATSAPP HUB ==================== -->
+  <div id="receipt-modal" class="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div class="bg-blush-50 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-blush-200 max-h-[94vh] flex flex-col overflow-hidden">
+
+      <div class="px-5 py-3.5 bg-white border-b border-blush-200/70 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="file-check-2" class="w-4 h-4 text-blush-700"></i>
+          <span id="rec-modal-title" class="font-bold text-sm text-charcoal">Official Boutique Receipt</span>
+        </div>
+        <button onclick="closeReceiptModal()" class="p-1.5 rounded-full hover:bg-blush-100 text-slate-600" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
+      </div>
+
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4">
+
+        <!-- PRINTABLE / PDF CAPTURE AREA -->
+        <div id="receipt-printable-area" class="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-blush-200/80 text-charcoal">
+          <div class="flex items-start justify-between border-b border-blush-100 pb-5">
+            <div class="flex items-center gap-3">
+              <div id="rec-logo-box" class="w-12 h-12 rounded-2xl bg-blush-700 text-white flex items-center justify-center font-serif font-bold text-xl overflow-hidden shrink-0">MN</div>
+              <div>
+                <h2 id="rec-business-name" class="font-serif font-bold text-lg text-charcoal leading-tight">Makeup by Nureen</h2>
+                <p id="rec-tagline" class="text-[9px] tracking-[0.2em] uppercase text-blush-700 font-semibold mt-0.5">ART • BEAUTY • BRIDAL</p>
+                <p id="rec-ssm" class="text-[10px] text-slate-500 mt-1"></p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span id="rec-doc-title" class="inline-block px-2.5 py-1 rounded-lg bg-blush-50 text-blush-800 border border-blush-200 font-bold text-xs tracking-wide uppercase">RECEIPT</span>
+              <p id="rec-number" class="text-xs font-bold text-charcoal mt-1.5">#R-0001</p>
+              <p id="rec-issue-date" class="text-[10px] text-slate-400">Issued: -</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap justify-between gap-2 py-2.5 px-3 bg-blush-50/80 rounded-xl text-[11px] text-slate-600 my-4">
+            <span id="rec-ig"></span>
+            <span id="rec-wa"></span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 text-xs mb-5">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Billed To</p>
+              <p id="rec-client-name" class="font-bold text-charcoal text-sm">Client Name</p>
+              <p id="rec-client-phone" class="text-slate-600 mt-0.5"></p>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Session Details</p>
+              <p id="rec-event-date" class="font-bold text-charcoal"></p>
+              <p id="rec-event-time" class="text-slate-600 mt-0.5"></p>
+              <p id="rec-venue" class="text-slate-500 text-[11px] mt-0.5"></p>
+            </div>
+          </div>
+
+          <div class="border-t border-b border-blush-100 py-3 space-y-2.5 text-xs">
+            <div class="flex justify-between text-[10px] uppercase font-bold text-slate-400 pb-1 border-b border-slate-100">
+              <span>Service Description</span>
+              <span>Amount (RM)</span>
+            </div>
+            <div class="flex justify-between items-start gap-2">
+              <div>
+                <p id="rec-pkg-name" class="font-semibold text-charcoal"></p>
+                <p id="rec-pkg-desc" class="text-[11px] text-slate-500"></p>
+              </div>
+              <span id="rec-pkg-price" class="font-semibold text-charcoal"></span>
+            </div>
+            <div id="rec-addon-row" class="flex justify-between items-start gap-2 pt-1">
+              <div>
+                <p class="font-medium text-slate-800">Add-on / Travel Fee</p>
+                <p id="rec-addon-desc" class="text-[11px] text-slate-500"></p>
+              </div>
+              <span id="rec-addon-price" class="font-medium text-slate-800"></span>
+            </div>
+          </div>
+
+          <div class="pt-3.5 space-y-1.5 text-xs">
+            <div class="flex justify-between text-slate-600">
+              <span>Subtotal</span>
+              <span id="rec-subtotal" class="font-semibold"></span>
+            </div>
+            <div class="flex justify-between text-emerald-700 font-semibold">
+              <span>Deposit / Amount Paid</span>
+              <span id="rec-deposit"></span>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-sm font-bold text-charcoal">
+              <span>Balance Due</span>
+              <span id="rec-balance" class="text-blush-800 text-base"></span>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-dashed border-blush-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p class="text-[10px] font-bold uppercase text-slate-400 mb-0.5">Terms &amp; Notes</p>
+              <p id="rec-terms" class="text-[11px] text-slate-500 leading-relaxed"></p>
+            </div>
+            <span id="rec-status-badge" class="self-start sm:self-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 shrink-0"></span>
+          </div>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="downloadReceiptPDF()" id="btn-download-pdf" class="py-3 px-4 rounded-2xl bg-charcoal hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition">
+              <i data-lucide="file-down" class="w-4 h-4"></i> Download PDF
+            </button>
+            <button onclick="copyReceiptText()" class="py-3 px-4 rounded-2xl bg-white hover:bg-blush-100 border border-blush-200 text-charcoal text-xs font-bold flex items-center justify-center gap-2 transition">
+              <i data-lucide="copy" class="w-4 h-4 text-blush-700"></i> Copy Text
+            </button>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-emerald-200/80 space-y-2">
+            <p class="text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+              <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> One-Click Client WhatsApp
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onclick="sendWhatsAppTemplate('receipt')" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i> Send Receipt Summary
+              </button>
+              <button onclick="sendWhatsAppTemplate('reminder')" class="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> Balance &amp; Prep Reminder
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-blush-200 space-y-2">
+            <p class="text-[11px] font-bold text-blush-800 flex items-center gap-1.5">
+              <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Add This Job To Your Calendar
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onclick="openGoogleCalendar(currentReceiptBookingId)" class="py-2.5 px-3 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Google Calendar
+              </button>
+              <button onclick="downloadBookingICS(currentReceiptBookingId)" class="py-2.5 px-3 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 border border-blush-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Download .ics
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- ==================== FIREBASE MODULAR SDK & APP LOGIC ==================== -->
+  <!-- ==================== MODAL 4: IMPORT FROM GOOGLE CALENDAR (.ICS) ==================== -->
+  <div id="import-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-2xl rounded-t-3xl sm:rounded-3xl shadow-2xl border border-blush-200 max-h-[92vh] flex flex-col overflow-hidden">
+      <div class="px-6 py-4 border-b border-blush-200/70 flex items-center justify-between bg-blush-50">
+        <div>
+          <h3 class="font-serif font-bold text-lg text-charcoal">Import from Google Calendar</h3>
+          <p class="text-xs text-slate-500">Bring existing calendar bookings straight into your studio</p>
+        </div>
+        <button onclick="closeImportModal()" class="p-2 rounded-full hover:bg-blush-200/60 text-slate-600 transition" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 overflow-y-auto space-y-4">
+        <div id="import-step-pick" class="space-y-4">
+          <div class="p-4 rounded-2xl bg-blush-50 border border-blush-200 text-xs text-charcoal space-y-2 leading-relaxed">
+            <p class="font-bold text-blush-900">How to export your Google Calendar file</p>
+            <ol class="list-decimal pl-4 space-y-1 text-slate-700">
+              <li>Open Google Calendar and go to <b>Settings &rarr; Import &amp; export &rarr; Export</b>.</li>
+              <li>Unzip the downloaded archive to get your calendar <b>.ics</b> file.</li>
+              <li>Choose that <b>.ics</b> file below to review and import bookings.</li>
+            </ol>
+          </div>
+          <label class="block w-full cursor-pointer p-6 rounded-2xl border-2 border-dashed border-blush-300 hover:bg-blush-50/70 text-center transition">
+            <i data-lucide="upload" class="w-6 h-6 text-blush-700 mx-auto"></i>
+            <span class="block text-sm font-bold text-blush-800 mt-2">Choose .ics file</span>
+            <span class="block text-[11px] text-slate-500 mt-0.5">Parsed in your browser and saved to your synced bookings.</span>
+            <input type="file" id="import-file-input" accept=".ics,text/calendar" onchange="handleImportFile(event)" class="hidden">
+          </label>
+        </div>
+
+        <div id="import-step-review" class="hidden space-y-4">
+          <p id="import-summary" class="text-xs text-slate-600 leading-relaxed"></p>
+          <div id="import-review-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <div id="import-footer" class="hidden px-5 py-3.5 border-t border-blush-200/70 bg-white flex items-center justify-between gap-2.5">
+        <p class="text-[11px] text-slate-500 hidden sm:block">Imported bookings start with RM 0.00 so you can add prices &amp; deposits.</p>
+        <div class="flex items-center gap-2.5 ml-auto">
+          <button onclick="closeImportModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
+          <button id="import-confirm-btn" onclick="importSelectedEvents()" class="px-5 py-2.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold shadow-md shadow-blush-200 transition disabled:opacity-40 disabled:cursor-not-allowed">Import</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 5: CONFIRMATION DIALOG ==================== -->
+  <div id="confirm-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-blush-200 text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 id="confirm-modal-title" class="font-serif font-bold text-charcoal text-lg">Are you sure?</h3>
+        <p id="confirm-modal-desc" class="text-xs text-slate-500 mt-1">This action cannot be undone.</p>
+      </div>
+      <div class="flex gap-2.5 pt-1">
+        <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
+        <button id="confirm-modal-action-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import {
@@ -494,18 +910,17 @@
     import {
       getFirestore,
       collection,
-      addDoc,
-      updateDoc,
-      deleteDoc,
       doc,
+      setDoc,
+      deleteDoc,
+      getDocs,
       onSnapshot,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =========================================================================
-    // STEP 1: PASTE YOUR FIREBASE PROJECT CONFIG KEYS HERE
-    // (Firebase Console -> Project Settings -> General -> Your Apps -> Web App)
-    // Remember to add "wanmdnizar.github.io" under Authentication -> Settings -> Authorized Domains
+    // FIREBASE CONFIGURATION
+    // Paste your Firebase Web App config values below.
     // =========================================================================
     const firebaseConfig = {
   apiKey: "AIzaSyCTVI7cv5m1EV-PS9DDc5ntv5umxbQE44Y",
@@ -522,32 +937,126 @@
       document.getElementById('firebase-config-banner').classList.remove('hidden');
     }
 
-    // Initialize Firebase App, Auth, and Firestore
     let app, auth, db;
     try {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
     } catch (err) {
-      console.error("Firebase initialization error:", err);
-    }
-
-    // Application State
-    let currentUser = null;
-    let bookingsList = [];
-    let unsubscribeBookings = null;
-    let activeStatusFilter = 'all';
-    let activeLayoutView = 'cards';
-    let authMode = 'login';
-    let pendingDeleteId = null;
-
-    // Collection Reference Helper: uses Firestore 'bookings' collection
-    function getBookingsCollectionRef() {
-      return collection(db, 'bookings');
+      console.error("Firebase init error:", err);
     }
 
     // =========================================================================
-    // 2. AUTHENTICATION HANDLERS (EMAIL & PASSWORD)
+    // STATE & CONSTANTS
+    // =========================================================================
+    const MY_UTC_OFFSET_HOURS = 8;
+    const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+    const TIME_RE = /^\d{2}:\d{2}$/;
+
+    const DEFAULT_SETTINGS = {
+      businessName: 'Makeup by Nureen',
+      ownerName: 'Nureen',
+      tagline: 'ART • BEAUTY • BRIDAL',
+      ssmNo: '',
+      igHandle: '',
+      whatsappNo: '',
+      logoBase64: '',
+      terms: 'Deposit is non-refundable. Balance due 3 days before event.',
+      nextReceiptNo: 1
+    };
+
+    const DEFAULT_PACKAGES = [
+      { id: 'pkg_1', name: 'Soft Glam', price: 250, description: 'Natural radiant finish, suitable for engagement, dinner, or graduation. Includes faux lashes.' },
+      { id: 'pkg_2', name: 'Full Glam', price: 450, description: 'High-definition evening/event glam with skin prep, premium lashes & touch-up kit.' },
+      { id: 'pkg_3', name: 'Bridal Akad / Sanding', price: 1200, description: 'Luxury long-wear bridal makeup, luxury skin prep, 3D mink lashes & hijab/veil styling.' },
+      { id: 'pkg_4', name: 'Touch-up Session', price: 150, description: 'On-location second look / reception touch-up session.' },
+      { id: 'pkg_5', name: 'Transport / Mileage Fee', price: 50, description: 'Outstation or venue travel surcharge.' }
+    ];
+
+    function num(v) {
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function computeStatus(subtotal, deposit) {
+      if (deposit <= 0) return 'Unpaid';
+      if (deposit >= subtotal && subtotal > 0) return 'Fully Paid';
+      return 'Deposit Paid';
+    }
+
+    function normalizeBooking(b) {
+      if (!b || typeof b !== 'object' || !b.id || !DATE_RE.test(String(b.eventDate || ''))) return null;
+      const packagePrice = Math.max(0, num(b.packagePrice));
+      const addonFee = Math.max(0, num(b.addonFee));
+      const subtotal = packagePrice + addonFee;
+      const depositPaid = Math.max(0, num(b.depositPaid));
+      return {
+        id: String(b.id),
+        receiptNo: String(b.receiptNo || ''),
+        issuedDate: DATE_RE.test(String(b.issuedDate || '')) ? b.issuedDate : '',
+        clientName: String(b.clientName || 'Unnamed client'),
+        clientPhone: String(b.clientPhone || ''),
+        eventDate: b.eventDate,
+        startTime: TIME_RE.test(String(b.startTime || '')) ? b.startTime : '08:00',
+        endTime: TIME_RE.test(String(b.endTime || '')) ? b.endTime : '10:00',
+        venue: String(b.venue || ''),
+        packageId: String(b.packageId || 'custom'),
+        packageName: String(b.packageName || 'Custom Service'),
+        packagePrice,
+        packageDesc: String(b.packageDesc || ''),
+        addonFee,
+        addonDesc: String(b.addonDesc || ''),
+        subtotal,
+        depositPaid,
+        balanceDue: Math.max(0, subtotal - depositPaid),
+        status: computeStatus(subtotal, depositPaid),
+        notes: String(b.notes || '')
+      };
+    }
+
+    const appState = {
+      settings: { ...DEFAULT_SETTINGS },
+      packages: DEFAULT_PACKAGES.map(p => ({ ...p })),
+      bookings: [],
+      expenses: []
+    };
+
+    let currentUser = null;
+    let unsubBookings = null;
+    let unsubPackages = null;
+    let unsubExpenses = null;
+    let unsubMeta = null;
+    let seededDefaults = false;
+
+    let authMode = 'login';
+    let currentCalendarDate = (() => { const d = new Date(); d.setDate(1); return d; })();
+    let selectedCalendarDate = null;
+    let activeBookingFilter = 'all';
+    let currentReceiptBookingId = null;
+    let pendingConfirmCallback = null;
+    let pendingImportEvents = [];
+
+    function userCol(colName) {
+      return collection(db, 'studios', currentUser.uid, colName);
+    }
+
+    function userDoc(colName, id) {
+      return doc(db, 'studios', currentUser.uid, colName, id);
+    }
+
+    function syncReceiptCounterWithBookings() {
+      let maxNo = 0;
+      appState.bookings.forEach(b => {
+        const m = /(\d+)/.exec(b.receiptNo || '');
+        if (m) maxNo = Math.max(maxNo, parseInt(m[1], 10));
+      });
+      if (maxNo + 1 > (appState.settings.nextReceiptNo || 1)) {
+        appState.settings.nextReceiptNo = maxNo + 1;
+      }
+    }
+
+    // =========================================================================
+    // AUTH & REAL-TIME FIRESTORE SYNC
     // =========================================================================
     window.setAuthMode = function(mode) {
       authMode = mode;
@@ -557,11 +1066,11 @@
       document.getElementById('auth-error-msg').classList.add('hidden');
 
       if (mode === 'login') {
-        loginTab.className = 'py-2 rounded-xl bg-white text-blush-800 shadow-xs transition';
+        loginTab.className = 'py-2 rounded-xl bg-white text-blush-800 shadow-sm transition';
         regTab.className = 'py-2 rounded-xl text-slate-600 hover:text-blush-800 transition';
         submitBtn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i><span>Sign In to Studio</span>`;
       } else {
-        regTab.className = 'py-2 rounded-xl bg-white text-blush-800 shadow-xs transition';
+        regTab.className = 'py-2 rounded-xl bg-white text-blush-800 shadow-sm transition';
         loginTab.className = 'py-2 rounded-xl text-slate-600 hover:text-blush-800 transition';
         submitBtn.innerHTML = `<i data-lucide="user-plus" class="w-4 h-4"></i><span>Create Studio Account</span>`;
       }
@@ -577,34 +1086,31 @@
 
       errorBox.classList.add('hidden');
       if (isPlaceholderConfig || !auth) {
-        errorBox.textContent = "Please paste your Firebase config keys into index.html first.";
+        errorBox.textContent = "Please paste your Firebase config keys into the script first.";
         errorBox.classList.remove('hidden');
         return;
       }
 
       btn.disabled = true;
       btn.classList.add('opacity-70');
-
       try {
         if (authMode === 'login') {
           await signInWithEmailAndPassword(auth, email, password);
-          showToast('Welcome back! Syncing your bookings...');
+          showToast('Welcome back! Syncing studio data...');
         } else {
           await createUserWithEmailAndPassword(auth, email, password);
-          showToast('Account created & signed in!');
+          showToast('Studio account created!');
         }
-      } catch (error) {
-        let friendlyMsg = error.message;
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-          friendlyMsg = 'Incorrect email or password. Please try again.';
-        } else if (error.code === 'auth/email-already-in-use') {
-          friendlyMsg = 'This email already has an account. Switch to Sign In.';
-        } else if (error.code === 'auth/weak-password') {
-          friendlyMsg = 'Password must be at least 6 characters.';
-        } else if (error.code === 'auth/unauthorized-domain') {
-          friendlyMsg = 'Domain not authorized. Add wanmdnizar.github.io in Firebase Auth -> Authorized Domains.';
+      } catch (err) {
+        let msg = err.message || 'Authentication failed.';
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+          msg = 'Incorrect email or password.';
+        } else if (err.code === 'auth/email-already-in-use') {
+          msg = 'This email is already registered. Switch to Sign In.';
+        } else if (err.code === 'auth/weak-password') {
+          msg = 'Password must be at least 6 characters.';
         }
-        errorBox.textContent = friendlyMsg;
+        errorBox.textContent = msg;
         errorBox.classList.remove('hidden');
       } finally {
         btn.disabled = false;
@@ -614,435 +1120,765 @@
 
     window.handleSignOut = async function() {
       if (!auth) return;
-      try {
-        if (unsubscribeBookings) {
-          unsubscribeBookings();
-          unsubscribeBookings = null;
-        }
-        await signOut(auth);
-        showToast('Signed out safely.');
-      } catch (err) {
-        showToast('Error signing out.', 'error');
-      }
+      stopListeners();
+      await signOut(auth);
+      showToast('Signed out.');
     };
+
+    function stopListeners() {
+      [unsubBookings, unsubPackages, unsubExpenses, unsubMeta].forEach(fn => {
+        if (typeof fn === 'function') fn();
+      });
+      unsubBookings = unsubPackages = unsubExpenses = unsubMeta = null;
+    }
+
+    function startCloudSync() {
+      stopListeners();
+      seededDefaults = false;
+      setSyncIndicator('ok');
+
+      unsubMeta = onSnapshot(userDoc('meta', 'profile'), async (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          const merged = { ...DEFAULT_SETTINGS, ...data };
+          if (typeof merged.logoBase64 !== 'string' || !/^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(merged.logoBase64)) {
+            merged.logoBase64 = '';
+          }
+          appState.settings = merged;
+          syncReceiptCounterWithBookings();
+          refreshAllViews();
+        } else if (!seededDefaults) {
+          seededDefaults = true;
+          try {
+            await setDoc(userDoc('meta', 'profile'), { ...DEFAULT_SETTINGS, updatedAt: serverTimestamp() });
+          } catch (e) { console.error(e); }
+        }
+      }, handleSyncError);
+
+      unsubPackages = onSnapshot(userCol('packages'), async (snap) => {
+        if (snap.empty && !seededDefaults) {
+          seededDefaults = true;
+          try {
+            for (const p of DEFAULT_PACKAGES) {
+              await setDoc(userDoc('packages', p.id), p);
+            }
+          } catch (e) { console.error(e); }
+          return;
+        }
+        appState.packages = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(x => x.name)
+          .map(x => ({
+            id: String(x.id),
+            name: String(x.name),
+            price: Math.max(0, num(x.price)),
+            description: String(x.description || '')
+          }));
+        refreshAllViews();
+      }, handleSyncError);
+
+      unsubBookings = onSnapshot(userCol('bookings'), (snap) => {
+        appState.bookings = snap.docs
+          .map(d => normalizeBooking({ id: d.id, ...d.data() }))
+          .filter(Boolean);
+        syncReceiptCounterWithBookings();
+        refreshAllViews();
+      }, handleSyncError);
+
+      unsubExpenses = onSnapshot(userCol('expenses'), (snap) => {
+        appState.expenses = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(e => e && DATE_RE.test(String(e.date || '')))
+          .map(e => ({
+            id: String(e.id),
+            date: e.date,
+            category: String(e.category || 'Other'),
+            description: String(e.description || ''),
+            amount: Math.max(0, num(e.amount))
+          }));
+        refreshAllViews();
+      }, handleSyncError);
+    }
+
+    function handleSyncError(err) {
+      console.error('Firestore error:', err);
+      setSyncIndicator('error');
+      showToast('Cloud sync error. Check Firestore rules.', 'error');
+    }
+
+    function setSyncIndicator(state) {
+      const dot = document.getElementById('sync-status-dot');
+      if (!dot) return;
+      dot.className = state === 'ok'
+        ? 'w-2 h-2 rounded-full bg-emerald-500 shrink-0'
+        : 'w-2 h-2 rounded-full bg-rose-500 shrink-0';
+    }
 
     if (auth) {
       onAuthStateChanged(auth, (user) => {
         currentUser = user;
         const authScreen = document.getElementById('auth-screen');
         const appShell = document.getElementById('app-shell');
-
+        const mobileNav = document.getElementById('mobile-nav');
         if (user) {
           authScreen.classList.add('hidden');
           appShell.classList.remove('hidden');
-          document.getElementById('sync-status-text').textContent = `Synced • ${user.email || 'Studio User'}`;
-          startRealtimeBookingsListener();
+          mobileNav.classList.remove('hidden');
+          mobileNav.classList.add('flex');
+          startCloudSync();
         } else {
+          stopListeners();
           appShell.classList.add('hidden');
+          mobileNav.classList.add('hidden');
+          mobileNav.classList.remove('flex');
           authScreen.classList.remove('hidden');
-          bookingsList = [];
         }
         lucide.createIcons();
       });
     }
 
     // =========================================================================
-    // 3. REAL-TIME CLOUD FIRESTORE LISTENER & CRUD OPERATIONS
+    // UTILITY & FORMATTING HELPERS
     // =========================================================================
-    function startRealtimeBookingsListener() {
-      if (!currentUser || !db) return;
-      if (unsubscribeBookings) unsubscribeBookings();
-
-      document.getElementById('bookings-loading').classList.remove('hidden');
-      document.getElementById('bookings-empty').classList.add('hidden');
-
-      const colRef = getBookingsCollectionRef();
-      unsubscribeBookings = onSnapshot(
-        colRef,
-        (snapshot) => {
-          document.getElementById('bookings-loading').classList.add('hidden');
-          bookingsList = snapshot.docs.map(docSnap => ({
-            id: docSnap.id,
-            ...docSnap.data()
-          }));
-          updateDashboardKPIs();
-          window.renderBookings();
-        },
-        (error) => {
-          document.getElementById('bookings-loading').classList.add('hidden');
-          console.error("Firestore sync error:", error);
-          document.getElementById('sync-status-dot').className = 'w-2 h-2 rounded-full bg-rose-500';
-          document.getElementById('sync-status-text').textContent = 'Sync permission error';
-          showToast('Firestore error: Check your database rules.', 'error');
-        }
-      );
+    function esc(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
-    window.handleSaveBooking = async function(event) {
-      event.preventDefault();
-      if (!currentUser || !db) return;
-
-      const btn = document.getElementById('save-booking-btn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-
-      const editId = document.getElementById('form-booking-id').value;
-      const totalPrice = parseFloat(document.getElementById('form-total-price').value) || 0;
-      const depositPaid = parseFloat(document.getElementById('form-deposit-paid').value) || 0;
-      const balanceDue = Math.max(0, totalPrice - depositPaid);
-
-      const payload = {
-        clientName: document.getElementById('form-client-name').value.trim(),
-        clientPhone: document.getElementById('form-client-phone').value.trim(),
-        eventDate: document.getElementById('form-event-date').value,
-        eventTime: document.getElementById('form-event-time').value,
-        venue: document.getElementById('form-venue').value.trim(),
-        servicePackage: document.getElementById('form-package').value,
-        totalPrice,
-        depositPaid,
-        balanceDue,
-        paymentStatus: document.getElementById('form-payment-status').value,
-        notes: document.getElementById('form-notes').value.trim(),
-        updatedAt: serverTimestamp(),
-        updatedBy: currentUser.email || currentUser.uid
-      };
-
-      try {
-        if (editId) {
-          await updateDoc(doc(db, 'bookings', editId), payload);
-          showToast('Booking updated across all devices!');
-        } else {
-          payload.createdAt = serverTimestamp();
-          await addDoc(getBookingsCollectionRef(), payload);
-          showToast('New booking saved & synced!');
-        }
-        window.closeBookingModal();
-      } catch (err) {
-        console.error("Save booking error:", err);
-        showToast('Could not save booking. Check Firestore rules.', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save Booking';
-      }
-    };
-
-    window.quickCyclePaymentStatus = async function(bookingId) {
-      if (!currentUser || !db) return;
-      const booking = bookingsList.find(b => b.id === bookingId);
-      if (!booking) return;
-
-      const order = ['Balance Due', 'Deposit Paid', 'Full Paid'];
-      const nextStatus = order[(order.indexOf(booking.paymentStatus) + 1) % order.length];
-
-      const updates = {
-        paymentStatus: nextStatus,
-        updatedAt: serverTimestamp()
-      };
-
-      // If marked Full Paid, settle remaining balance automatically
-      if (nextStatus === 'Full Paid') {
-        updates.depositPaid = parseFloat(booking.totalPrice) || 0;
-        updates.balanceDue = 0;
-      }
-
-      try {
-        await updateDoc(doc(db, 'bookings', bookingId), updates);
-        showToast(`Status updated to "${nextStatus}"`);
-      } catch (err) {
-        showToast('Failed to update status.', 'error');
-      }
-    };
-
-    window.promptDeleteBooking = function(bookingId) {
-      const booking = bookingsList.find(b => b.id === bookingId);
-      if (!booking) return;
-      pendingDeleteId = bookingId;
-      document.getElementById('delete-modal-text').textContent =
-        `Delete booking for ${booking.clientName} (${formatDateMY(booking.eventDate)})? This removes it from all synced devices.`;
-      const modal = document.getElementById('delete-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    };
-
-    window.closeDeleteModal = function() {
-      pendingDeleteId = null;
-      const modal = document.getElementById('delete-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    };
-
-    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-      if (!pendingDeleteId || !currentUser || !db) return;
-      const idToDelete = pendingDeleteId;
-      window.closeDeleteModal();
-      try {
-        await deleteDoc(doc(db, 'bookings', idToDelete));
-        showToast('Booking deleted.');
-      } catch (err) {
-        showToast('Could not delete booking.', 'error');
-      }
-    });
-
-    // =========================================================================
-    // 4. DASHBOARD KPIs, FILTERING, SORTING & RENDERING
-    // =========================================================================
-    function updateDashboardKPIs() {
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      const totalBookings = bookingsList.length;
-      const upcomingCount = bookingsList.filter(b => (b.eventDate || '') >= todayStr).length;
-      const totalRevenue = bookingsList.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || 0), 0);
-      const totalCollected = bookingsList.reduce((sum, b) => sum + (parseFloat(b.depositPaid) || 0), 0);
-      const totalBalanceDue = bookingsList.reduce((sum, b) => sum + (parseFloat(b.balanceDue) || 0), 0);
-
-      document.getElementById('kpi-total-bookings').textContent = totalBookings;
-      document.getElementById('kpi-upcoming-appointments').textContent = upcomingCount;
-      document.getElementById('kpi-total-revenue').textContent = formatRM(totalRevenue);
-      document.getElementById('kpi-collected-subtext').textContent = `Collected: ${formatRM(totalCollected)}`;
-      document.getElementById('kpi-balance-due').textContent = formatRM(totalBalanceDue);
+    function localDateStr(d = new Date()) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
-    window.setStatusFilter = function(status) {
-      activeStatusFilter = status;
-      document.querySelectorAll('.status-filter-pill').forEach(btn => {
-        if (btn.dataset.status === status) {
-          btn.className = 'status-filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blush-700 text-white transition whitespace-nowrap';
+    function formatRM(n) {
+      return 'RM ' + num(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return '-';
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function formatDisplayTime(timeStr) {
+      if (!timeStr) return '';
+      const [h, m] = timeStr.split(':').map(Number);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour12 = h % 12 || 12;
+      return `${String(hour12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+    }
+
+    function formatMYWhatsAppNumber(phone) {
+      let digits = (phone || '').replace(/\D/g, '');
+      if (digits.startsWith('0')) {
+        digits = '6' + digits;
+      } else if (!digits.startsWith('60') && digits.length > 0) {
+        digits = '60' + digits;
+      }
+      return digits;
+    }
+
+    function getInitials(name) {
+      return (name || 'MN').split(' ').filter(w => w.length > 0).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+    }
+
+    function timeToMinutes(t) {
+      if (!t) return 0;
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = type === 'error' ? 'bg-rose-600 text-white' : 'bg-charcoal text-white border border-blush-400/40';
+      toast.className = `${colors} px-4 py-3 rounded-2xl shadow-lg text-xs font-medium flex items-center gap-2.5 transition-all duration-300`;
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'sparkles');
+      icon.className = 'w-4 h-4 shrink-0 text-blush-300';
+      const span = document.createElement('span');
+      span.textContent = message;
+      toast.appendChild(icon);
+      toast.appendChild(span);
+      container.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function downloadBlob(content, mimeType, filename) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // =========================================================================
+    // NAVIGATION & RENDERING
+    // =========================================================================
+    window.switchTab = function(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = btn.dataset.tab === tabName
+          ? 'nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm'
+          : 'nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all';
+      });
+
+      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.remove('text-slate-400');
+          btn.classList.add('text-blush-700');
         } else {
-          btn.className = 'status-filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 transition whitespace-nowrap';
+          btn.classList.add('text-slate-400');
+          btn.classList.remove('text-blush-700');
         }
       });
-      window.renderBookings();
+
+      refreshAllViews();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    window.setLayoutView = function(view) {
-      activeLayoutView = view;
-      const cardsBtn = document.getElementById('view-btn-cards');
-      const tableBtn = document.getElementById('view-btn-table');
-      if (view === 'cards') {
-        cardsBtn.className = 'px-3 py-1 rounded-lg bg-white text-blush-800 shadow-2xs flex items-center gap-1';
-        tableBtn.className = 'px-3 py-1 rounded-lg text-slate-600 hover:text-blush-800 flex items-center gap-1';
+    function refreshAllViews() {
+      renderHeaderAndSettings();
+      renderDashboard();
+      renderCalendar();
+      renderBookingsList();
+      renderPackagesGrid();
+      renderExpensesView();
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // SETTINGS & PROFILE
+    // =========================================================================
+    function renderHeaderAndSettings() {
+      const s = appState.settings;
+      document.getElementById('header-brand-name').textContent = s.businessName;
+      document.getElementById('header-tagline').textContent = s.tagline;
+      document.title = `${s.businessName} — Booking & Receipt Studio`;
+      document.getElementById('welcome-title').textContent = s.ownerName ? `Welcome back, ${s.ownerName}!` : 'Welcome back!';
+
+      const headerLogo = document.getElementById('header-logo-container');
+      const settingsPreview = document.getElementById('settings-logo-preview');
+
+      if (s.logoBase64) {
+        [headerLogo, settingsPreview].forEach(box => {
+          box.textContent = '';
+          const img = document.createElement('img');
+          img.src = s.logoBase64;
+          img.alt = 'Logo';
+          img.className = 'w-full h-full object-cover';
+          box.appendChild(img);
+        });
       } else {
-        tableBtn.className = 'px-3 py-1 rounded-lg bg-white text-blush-800 shadow-2xs flex items-center gap-1';
-        cardsBtn.className = 'px-3 py-1 rounded-lg text-slate-600 hover:text-blush-800 flex items-center gap-1';
+        const initials = getInitials(s.businessName);
+        headerLogo.textContent = initials;
+        settingsPreview.textContent = initials;
       }
-      window.renderBookings();
+
+      const settingsForm = document.getElementById('settings-form');
+      if (!settingsForm.contains(document.activeElement)) {
+        document.getElementById('set-business-name').value = s.businessName;
+        document.getElementById('set-owner-name').value = s.ownerName || '';
+        document.getElementById('set-tagline').value = s.tagline;
+        document.getElementById('set-ssm').value = s.ssmNo;
+        document.getElementById('set-ig').value = s.igHandle;
+        document.getElementById('set-whatsapp').value = s.whatsappNo;
+        document.getElementById('set-terms').value = s.terms;
+      }
+    }
+
+    window.handleLogoUpload = function(event) {
+      const input = event.target;
+      const file = input.files[0];
+      if (!file || !currentUser || !db) return;
+      if (!file.type.startsWith('image/')) {
+        showToast('Please choose an image file.', 'error');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = async function() {
+          const MAX = 220;
+          const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          const logoBase64 = canvas.toDataURL('image/png');
+          try {
+            await setDoc(userDoc('meta', 'profile'), { ...appState.settings, logoBase64, updatedAt: serverTimestamp() });
+            showToast('Brand logo updated!');
+          } catch (err) {
+            showToast('Could not save logo to cloud.', 'error');
+          }
+          input.value = '';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     };
 
-    window.renderBookings = function() {
-      const searchVal = (document.getElementById('filter-search').value || '').toLowerCase();
-      const timeframe = document.getElementById('filter-timeframe').value;
-      const sortOrder = document.getElementById('sort-order').value;
-      const todayStr = new Date().toISOString().split('T')[0];
+    window.removeLogo = async function() {
+      if (!currentUser || !db) return;
+      try {
+        await setDoc(userDoc('meta', 'profile'), { ...appState.settings, logoBase64: '', updatedAt: serverTimestamp() });
+        showToast('Reverted to monogram logo.');
+      } catch (err) {
+        showToast('Could not update logo.', 'error');
+      }
+    };
 
-      let filtered = [...bookingsList];
+    window.handleSaveSettings = async function(event) {
+      event.preventDefault();
+      if (!currentUser || !db) return;
+      const updated = {
+        ...appState.settings,
+        businessName: document.getElementById('set-business-name').value.trim() || 'Makeup by Nureen',
+        ownerName: document.getElementById('set-owner-name').value.trim(),
+        tagline: document.getElementById('set-tagline').value.trim(),
+        ssmNo: document.getElementById('set-ssm').value.trim(),
+        igHandle: document.getElementById('set-ig').value.trim(),
+        whatsappNo: document.getElementById('set-whatsapp').value.trim(),
+        terms: document.getElementById('set-terms').value.trim(),
+        updatedAt: serverTimestamp()
+      };
+      try {
+        await setDoc(userDoc('meta', 'profile'), updated);
+        document.activeElement && document.activeElement.blur();
+        showToast('Boutique settings saved to cloud!');
+      } catch (err) {
+        showToast('Could not save settings.', 'error');
+      }
+    };
 
-      if (activeStatusFilter !== 'all') {
-        filtered = filtered.filter(b => b.paymentStatus === activeStatusFilter);
+    // =========================================================================
+    // DASHBOARD & KPIs
+    // =========================================================================
+    function renderDashboard() {
+      const totalBooked = appState.bookings.reduce((sum, b) => sum + num(b.subtotal), 0);
+      const totalCollected = appState.bookings.reduce((sum, b) => sum + num(b.depositPaid), 0);
+      const pendingBalance = appState.bookings.reduce((sum, b) => sum + num(b.balanceDue), 0);
+      const totalExpenses = appState.expenses.reduce((sum, e) => sum + num(e.amount), 0);
+      const netProfit = totalCollected - totalExpenses;
+
+      const todayStr = localDateStr();
+      const upcomingJobs = appState.bookings
+        .filter(b => b.eventDate >= todayStr)
+        .sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
+
+      document.getElementById('kpi-total-revenue').textContent = formatRM(totalBooked);
+      document.getElementById('kpi-total-collected').textContent = formatRM(totalCollected);
+      document.getElementById('kpi-pending-balance').textContent = formatRM(pendingBalance);
+      document.getElementById('kpi-net-profit').textContent = formatRM(netProfit);
+      document.getElementById('kpi-upcoming-count').textContent = upcomingJobs.length;
+
+      const upContainer = document.getElementById('dashboard-upcoming-list');
+      if (upcomingJobs.length === 0) {
+        upContainer.innerHTML = `
+          <div class="text-center py-8 bg-blush-50/70 rounded-2xl border border-dashed border-blush-200">
+            <p class="text-xs text-slate-500">No upcoming sessions scheduled yet.</p>
+            <button onclick="openBookingModal()" class="mt-2 text-xs font-bold text-blush-700 hover:underline">+ Add First Booking</button>
+          </div>`;
+      } else {
+        upContainer.innerHTML = upcomingJobs.slice(0, 4).map(b => `
+          <div class="p-3.5 rounded-2xl bg-blush-50/50 hover:bg-blush-50 border border-blush-100 flex items-center justify-between gap-3 transition">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-blush-800 bg-blush-100 px-2 py-0.5 rounded-md">${esc(formatDisplayDate(b.eventDate))}</span>
+                <span class="text-[11px] text-slate-500 font-medium">${esc(formatDisplayTime(b.startTime))}</span>
+              </div>
+              <p class="font-bold text-sm text-charcoal truncate mt-1">${esc(b.clientName)} <span class="font-normal text-slate-500">• ${esc(b.packageName)}</span></p>
+              <p class="text-[11px] text-slate-500 truncate">${esc(b.venue)}</p>
+            </div>
+            <div class="text-right shrink-0 space-y-1.5">
+              ${getStatusBadgeHTML(b.status)}
+              <div>
+                <button onclick="openReceiptModal('${esc(b.id)}')" class="text-[11px] font-semibold text-blush-700 hover:text-blush-900 underline">Receipt</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
       }
 
-      if (timeframe === 'upcoming') {
-        filtered = filtered.filter(b => (b.eventDate || '') >= todayStr);
-      } else if (timeframe === 'past') {
-        filtered = filtered.filter(b => (b.eventDate || '') < todayStr);
+      document.getElementById('dashboard-packages-list').innerHTML = appState.packages.slice(0, 5).map(p => `
+        <div class="flex items-center justify-between py-2 border-b border-blush-100 last:border-0 text-xs">
+          <span class="font-medium text-slate-700 truncate pr-2">${esc(p.name)}</span>
+          <span class="font-bold text-blush-800 shrink-0">${esc(formatRM(p.price))}</span>
+        </div>
+      `).join('');
+    }
+
+    function getStatusBadgeHTML(status) {
+      if (status === 'Fully Paid') {
+        return `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Fully Paid</span>`;
+      } else if (status === 'Deposit Paid') {
+        return `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Deposit Paid</span>`;
+      }
+      return `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Unpaid</span>`;
+    }
+
+    // =========================================================================
+    // CALENDAR & BOOKINGS LIST
+    // =========================================================================
+    function renderCalendar() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+
+      document.getElementById('calendar-month-year').textContent =
+        new Date(year, month, 1).toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const todayStr = localDateStr();
+
+      let html = '';
+      for (let i = 0; i < firstDayIndex; i++) html += `<div class="h-11"></div>`;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayBookings = appState.bookings.filter(b => b.eventDate === dateStr);
+        const isSelected = selectedCalendarDate === dateStr;
+        const isToday = todayStr === dateStr;
+
+        let dotsHtml = '';
+        if (dayBookings.length > 0) {
+          dotsHtml = `<div class="flex justify-center gap-0.5 mt-0.5">` +
+            dayBookings.slice(0, 3).map(b => {
+              const color = b.status === 'Fully Paid' ? 'bg-emerald-500' : (b.status === 'Deposit Paid' ? 'bg-amber-500' : 'bg-rose-500');
+              return `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'ring-1 ring-white ' : ''}${color}"></span>`;
+            }).join('') + `</div>`;
+        }
+
+        const baseBtnClass = isSelected
+          ? 'bg-blush-700 text-white font-bold shadow-sm'
+          : isToday
+            ? 'bg-blush-100 text-blush-900 font-bold border border-blush-300'
+            : dayBookings.length > 0
+              ? 'bg-blush-50/70 hover:bg-blush-100 text-charcoal font-semibold'
+              : 'hover:bg-blush-50 text-slate-600';
+
+        html += `
+          <button onclick="selectCalendarDate('${dateStr}')" class="h-11 rounded-xl flex flex-col items-center justify-center text-xs transition ${baseBtnClass}">
+            <span>${day}</span>
+            ${dotsHtml}
+          </button>`;
       }
 
-      if (searchVal) {
-        filtered = filtered.filter(b =>
-          (b.clientName || '').toLowerCase().includes(searchVal) ||
-          (b.venue || '').toLowerCase().includes(searchVal) ||
-          (b.servicePackage || '').toLowerCase().includes(searchVal)
+      document.getElementById('calendar-days-grid').innerHTML = html;
+    }
+
+    window.changeMonth = function(delta) {
+      currentCalendarDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + delta, 1);
+      renderCalendar();
+    };
+
+    window.goToToday = function() {
+      const now = new Date();
+      currentCalendarDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      selectedCalendarDate = null;
+      document.getElementById('clear-date-filter-btn').classList.add('hidden');
+      renderCalendar();
+      renderBookingsList();
+    };
+
+    window.selectCalendarDate = function(dateStr) {
+      if (selectedCalendarDate === dateStr) {
+        clearDateFilter();
+        return;
+      }
+      selectedCalendarDate = dateStr;
+      document.getElementById('clear-date-filter-btn').classList.remove('hidden');
+      renderCalendar();
+      renderBookingsList();
+    };
+
+    window.clearDateFilter = function() {
+      selectedCalendarDate = null;
+      document.getElementById('clear-date-filter-btn').classList.add('hidden');
+      renderCalendar();
+      renderBookingsList();
+    };
+
+    window.setBookingFilter = function(filter) {
+      activeBookingFilter = filter;
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.className = btn.dataset.filter === filter
+          ? 'filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap'
+          : 'filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap';
+      });
+      renderBookingsList();
+    };
+
+    function renderBookingsList() {
+      const search = (document.getElementById('booking-search-input').value || '').toLowerCase();
+      const todayStr = localDateStr();
+
+      let list = [...appState.bookings].sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
+
+      if (selectedCalendarDate) {
+        list = list.filter(b => b.eventDate === selectedCalendarDate);
+        document.getElementById('bookings-list-title').textContent = `Schedule for ${formatDisplayDate(selectedCalendarDate)}`;
+      } else {
+        document.getElementById('bookings-list-title').textContent = 'All Client Bookings';
+      }
+
+      if (activeBookingFilter === 'upcoming') {
+        list = list.filter(b => b.eventDate >= todayStr);
+      } else if (activeBookingFilter === 'deposit') {
+        list = list.filter(b => b.balanceDue > 0);
+      } else if (activeBookingFilter === 'paid') {
+        list = list.filter(b => b.status === 'Fully Paid');
+      }
+
+      if (search) {
+        list = list.filter(b =>
+          b.clientName.toLowerCase().includes(search) ||
+          b.venue.toLowerCase().includes(search) ||
+          b.packageName.toLowerCase().includes(search) ||
+          (b.receiptNo || '').toLowerCase().includes(search)
         );
       }
 
-      filtered.sort((a, b) => {
-        if (sortOrder === 'date-desc') {
-          return ((b.eventDate || '') + (b.eventTime || '')).localeCompare((a.eventDate || '') + (a.eventTime || ''));
-        }
-        if (sortOrder === 'balance-desc') {
-          return (parseFloat(b.balanceDue) || 0) - (parseFloat(a.balanceDue) || 0);
-        }
-        return ((a.eventDate || '') + (a.eventTime || '')).localeCompare((b.eventDate || '') + (b.eventTime || ''));
-      });
-
-      const emptyState = document.getElementById('bookings-empty');
-      const cardsGrid = document.getElementById('bookings-cards-grid');
-      const tableWrapper = document.getElementById('bookings-table-wrapper');
-      const tableBody = document.getElementById('bookings-table-body');
-
-      if (filtered.length === 0) {
-        emptyState.classList.remove('hidden');
-        cardsGrid.classList.add('hidden');
-        tableWrapper.classList.add('hidden');
-        lucide.createIcons();
+      const container = document.getElementById('bookings-cards-container');
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl border border-blush-200/80 p-8 text-center">
+            <p class="text-sm font-semibold text-charcoal">No bookings match this view</p>
+            <p class="text-xs text-slate-400 mt-1">Click "+ Add Job" or "Import .ics" to add client sessions.</p>
+          </div>`;
         return;
       }
 
-      emptyState.classList.add('hidden');
-
-      if (activeLayoutView === 'table') {
-        cardsGrid.className = 'grid grid-cols-1 md:hidden gap-4';
-        tableWrapper.classList.remove('hidden');
-      } else {
-        cardsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
-        tableWrapper.classList.add('hidden');
-      }
-
-      // Render Cards
-      cardsGrid.innerHTML = filtered.map(b => `
-        <article class="bg-white rounded-3xl p-5 border border-blush-200/80 shadow-xs hover:border-blush-400 transition flex flex-col justify-between gap-4">
-          <div class="space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="px-2.5 py-1 rounded-xl bg-blush-100 text-blush-900 font-bold text-xs">
-                  ${formatDateMY(b.eventDate)}
-                </span>
-                <span class="text-xs font-medium text-slate-500">
-                  ${formatTime12h(b.eventTime)}
-                </span>
+      container.innerHTML = list.map(b => {
+        const id = esc(b.id);
+        return `
+        <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-xs hover:border-blush-400 transition space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] font-bold text-slate-400">${esc(b.receiptNo)}</span>
+                <span class="text-xs font-bold text-blush-800 bg-blush-100 px-2.5 py-0.5 rounded-lg">${esc(formatDisplayDate(b.eventDate))}</span>
+                <span class="text-xs text-slate-600 font-medium">${esc(formatDisplayTime(b.startTime))} – ${esc(formatDisplayTime(b.endTime))}</span>
               </div>
-              <button onclick="quickCyclePaymentStatus('${b.id}')" title="Tap to switch payment status"
-                class="cursor-pointer transition active:scale-95">
-                ${getStatusPillHTML(b.paymentStatus)}
-              </button>
-            </div>
-
-            <div>
-              <div class="flex items-center justify-between gap-2">
-                <h3 class="font-serif font-bold text-lg text-charcoal leading-snug">${escapeHTML(b.clientName)}</h3>
-                <span class="text-xs font-semibold text-blush-700 bg-blush-50 border border-blush-200 px-2.5 py-0.5 rounded-full shrink-0">
-                  ${escapeHTML(b.servicePackage)}
-                </span>
-              </div>
-              <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-1">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blush-500 shrink-0"></i>
-                <span class="truncate">${escapeHTML(b.venue)}</span>
-              </p>
-              <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-1">
-                <i data-lucide="phone" class="w-3.5 h-3.5 text-blush-500 shrink-0"></i>
-                <span>${escapeHTML(b.clientPhone)}</span>
+              <h4 class="font-serif font-bold text-base text-charcoal mt-1.5">${esc(b.clientName)}</h4>
+              <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blush-500 shrink-0"></i> ${esc(b.venue || 'Venue not set')}
               </p>
             </div>
-
-            <!-- Financial Strip -->
-            <div class="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-blush-50/80 border border-blush-100 text-center">
-              <div>
-                <p class="text-[10px] uppercase font-semibold text-slate-400">Total</p>
-                <p class="text-xs sm:text-sm font-bold text-charcoal mt-0.5">${formatRM(b.totalPrice)}</p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase font-semibold text-emerald-600">Deposit</p>
-                <p class="text-xs sm:text-sm font-bold text-emerald-700 mt-0.5">${formatRM(b.depositPaid)}</p>
-              </div>
-              <div>
-                <p class="text-[10px] uppercase font-semibold text-blush-700">Balance</p>
-                <p class="text-xs sm:text-sm font-bold ${parseFloat(b.balanceDue) > 0 ? 'text-blush-800' : 'text-slate-400'} mt-0.5">
-                  ${formatRM(b.balanceDue)}
-                </p>
-              </div>
+            <div class="text-right shrink-0">
+              ${getStatusBadgeHTML(b.status)}
+              <p class="font-bold text-sm text-charcoal mt-1.5">${esc(formatRM(b.subtotal))}</p>
+              ${b.subtotal <= 0 ? '<p class="text-[10px] font-semibold text-amber-600 mt-0.5">Add price</p>' : ''}
+              <p class="text-[11px] ${b.balanceDue > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}">
+                ${b.balanceDue > 0 ? 'Bal: ' + esc(formatRM(b.balanceDue)) : 'Settled'}
+              </p>
             </div>
-
-            ${b.notes ? `<p class="text-xs text-slate-500 italic bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">"${escapeHTML(b.notes)}"</p>` : ''}
           </div>
 
-          <!-- Card Action Row -->
-          <div class="pt-3 border-t border-blush-100 flex items-center justify-between gap-2">
-            <button onclick="copyWhatsAppReminder('${b.id}')"
-              class="flex-1 py-2.5 px-3 rounded-xl bg-blush-100 hover:bg-blush-200 text-blush-900 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-              <i data-lucide="copy" class="w-3.5 h-3.5 text-blush-700"></i>
-              <span>Copy WhatsApp Reminder</span>
-            </button>
+          <div class="px-3 py-2 rounded-xl bg-blush-50/70 text-xs flex flex-wrap items-center justify-between gap-2">
+            <span class="font-semibold text-blush-900">${esc(b.packageName)}</span>
+            ${b.notes ? `<span class="text-[11px] text-slate-500 italic truncate max-w-xs">"${esc(b.notes)}"</span>` : ''}
+          </div>
 
-            <div class="flex items-center gap-1 shrink-0">
-              <button onclick="openBookingModal('${b.id}')" title="Edit Booking"
-                class="p-2.5 rounded-xl bg-slate-50 hover:bg-blush-100 text-slate-600 hover:text-blush-800 transition">
+          <div class="pt-1 flex flex-wrap items-center justify-between gap-2 border-t border-blush-100">
+            <div class="flex items-center gap-1.5">
+              <button onclick="openReceiptModal('${id}')" class="px-3 py-1.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Receipt / PDF
+              </button>
+              <button onclick="quickWhatsAppClient('${id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1 transition">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+              </button>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="openGoogleCalendar('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Add to Google Calendar" aria-label="Add to Google Calendar">
+                <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+              </button>
+              <button onclick="downloadBookingICS('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Download .ics calendar file" aria-label="Download calendar file">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+              <button onclick="openBookingModal(null, '${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Edit Booking" aria-label="Edit booking">
                 <i data-lucide="pencil" class="w-4 h-4"></i>
               </button>
-              <button onclick="promptDeleteBooking('${b.id}')" title="Delete Booking"
-                class="p-2.5 rounded-xl bg-slate-50 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition">
+              <button onclick="confirmDeleteBooking('${id}')" class="p-2 rounded-xl hover:bg-rose-50 text-rose-500 transition" title="Delete Booking" aria-label="Delete booking">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
             </div>
           </div>
-        </article>
-      `).join('');
-
-      // Render Desktop Table Rows
-      tableBody.innerHTML = filtered.map(b => `
-        <tr class="hover:bg-blush-50/60 transition">
-          <td class="py-3.5 px-4 whitespace-nowrap">
-            <div class="font-bold text-charcoal">${formatDateMY(b.eventDate)}</div>
-            <div class="text-[11px] text-slate-500">${formatTime12h(b.eventTime)}</div>
-          </td>
-          <td class="py-3.5 px-4">
-            <div class="font-bold text-charcoal">${escapeHTML(b.clientName)}</div>
-            <div class="text-[11px] text-slate-500 truncate max-w-xs">${escapeHTML(b.venue)} • ${escapeHTML(b.clientPhone)}</div>
-          </td>
-          <td class="py-3.5 px-4 whitespace-nowrap font-semibold text-blush-800">${escapeHTML(b.servicePackage)}</td>
-          <td class="py-3.5 px-4 whitespace-nowrap text-right font-semibold">${formatRM(b.totalPrice)}</td>
-          <td class="py-3.5 px-4 whitespace-nowrap text-right font-semibold text-emerald-700">${formatRM(b.depositPaid)}</td>
-          <td class="py-3.5 px-4 whitespace-nowrap text-right font-bold text-blush-800">${formatRM(b.balanceDue)}</td>
-          <td class="py-3.5 px-4 whitespace-nowrap">
-            <button onclick="quickCyclePaymentStatus('${b.id}')" class="cursor-pointer">
-              ${getStatusPillHTML(b.paymentStatus)}
-            </button>
-          </td>
-          <td class="py-3.5 px-4 whitespace-nowrap text-right">
-            <div class="inline-flex items-center gap-1">
-              <button onclick="copyWhatsAppReminder('${b.id}')" title="Copy WhatsApp Reminder"
-                class="px-2.5 py-1.5 rounded-lg bg-blush-100 hover:bg-blush-200 text-blush-900 font-semibold text-[11px] flex items-center gap-1">
-                <i data-lucide="copy" class="w-3 h-3"></i> Reminder
-              </button>
-              <button onclick="openBookingModal('${b.id}')" title="Edit"
-                class="p-1.5 rounded-lg hover:bg-blush-100 text-slate-600">
-                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="promptDeleteBooking('${b.id}')" title="Delete"
-                class="p-1.5 rounded-lg hover:bg-rose-100 text-rose-500">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-
+        </div>`;
+      }).join('');
       lucide.createIcons();
+    }
+
+    // =========================================================================
+    // GOOGLE CALENDAR LINK & .ICS EXPORT
+    // =========================================================================
+    function bookingEventTitle(b) {
+      return `${b.packageName} – ${b.clientName}`;
+    }
+
+    function bookingEventDetails(b) {
+      return [
+        `Client: ${b.clientName}`,
+        b.clientPhone ? `Phone: ${b.clientPhone}` : '',
+        `Package: ${b.packageName}`,
+        `Total: ${formatRM(b.subtotal)}  |  Paid: ${formatRM(b.depositPaid)}  |  Balance: ${formatRM(b.balanceDue)}`,
+        `Status: ${b.status}`,
+        b.notes ? `Notes: ${b.notes}` : '',
+        b.receiptNo ? `Ref: ${b.receiptNo}` : ''
+      ].filter(Boolean).join('\n');
+    }
+
+    window.openGoogleCalendar = function(bookingId) {
+      const b = appState.bookings.find(item => item.id === bookingId);
+      if (!b) return;
+      const fmt = (d, t) => d.replace(/-/g, '') + 'T' + t.replace(':', '') + '00';
+      let endDate = b.eventDate;
+      if (timeToMinutes(b.endTime) <= timeToMinutes(b.startTime)) {
+        const [y, m, d] = b.eventDate.split('-').map(Number);
+        endDate = localDateStr(new Date(y, m - 1, d + 1));
+      }
+      const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: bookingEventTitle(b),
+        dates: `${fmt(b.eventDate, b.startTime)}/${fmt(endDate, b.endTime)}`,
+        ctz: 'Asia/Kuala_Lumpur',
+        location: b.venue,
+        details: bookingEventDetails(b)
+      });
+      window.open('https://calendar.google.com/calendar/render?' + params.toString(), '_blank', 'noopener');
+    };
+
+    function toUtcStamp(dateStr, timeStr, addDays = 0) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const [h, mi] = timeStr.split(':').map(Number);
+      const ms = Date.UTC(y, m - 1, d + addDays, h, mi) - MY_UTC_OFFSET_HOURS * 3600000;
+      return new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    function icsEscape(text) {
+      return String(text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+    }
+
+    function icsFold(line) {
+      const out = [];
+      let rest = line;
+      while (rest.length > 73) {
+        out.push(rest.slice(0, 73));
+        rest = ' ' + rest.slice(73);
+      }
+      out.push(rest);
+      return out.join('\r\n');
+    }
+
+    function buildICS(bookings) {
+      const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Makeup by Nureen//Booking Studio//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'X-WR-TIMEZONE:Asia/Kuala_Lumpur'
+      ];
+      bookings.forEach(b => {
+        const overnight = timeToMinutes(b.endTime) <= timeToMinutes(b.startTime);
+        lines.push(
+          'BEGIN:VEVENT',
+          `UID:${b.id}@makeupbynureen.app`,
+          `DTSTAMP:${stamp}`,
+          `DTSTART:${toUtcStamp(b.eventDate, b.startTime)}`,
+          `DTEND:${toUtcStamp(b.eventDate, b.endTime, overnight ? 1 : 0)}`,
+          `SUMMARY:${icsEscape(bookingEventTitle(b))}`,
+          `LOCATION:${icsEscape(b.venue)}`,
+          `DESCRIPTION:${icsEscape(bookingEventDetails(b))}`,
+          'END:VEVENT'
+        );
+      });
+      lines.push('END:VCALENDAR');
+      return lines.map(icsFold).join('\r\n') + '\r\n';
+    }
+
+    window.downloadBookingICS = function(bookingId) {
+      const b = appState.bookings.find(item => item.id === bookingId);
+      if (!b) return;
+      const safeName = b.clientName.replace(/[^\w]+/g, '_').replace(/^_+|_+$/g, '') || 'client';
+      downloadBlob(buildICS([b]), 'text/calendar;charset=utf-8', `${b.eventDate}_${safeName}.ics`);
+      showToast('Calendar (.ics) file downloaded.');
+    };
+
+    window.exportUpcomingICS = function() {
+      const todayStr = localDateStr();
+      const upcoming = appState.bookings.filter(b => b.eventDate >= todayStr);
+      if (upcoming.length === 0) {
+        showToast('No upcoming bookings to export.', 'error');
+        return;
+      }
+      downloadBlob(buildICS(upcoming), 'text/calendar;charset=utf-8', `MakeupByNureen_Upcoming_${todayStr}.ics`);
+      showToast(`${upcoming.length} upcoming job(s) exported.`);
     };
 
     // =========================================================================
-    // 5. MODAL CONTROLS & WHATSAPP REMINDER COPY
+    // BOOKING MODAL & FIRESTORE SAVE/DELETE
     // =========================================================================
-    window.openBookingModal = function(editId = null) {
+    window.openBookingModal = function(preselectedDate = null, editBookingId = null) {
       const modal = document.getElementById('booking-modal');
-      const form = document.getElementById('booking-form');
+      const pkgSelect = document.getElementById('book-package');
 
-      if (editId) {
-        const b = bookingsList.find(item => item.id === editId);
+      pkgSelect.innerHTML = appState.packages.map(p =>
+        `<option value="${esc(p.id)}" data-price="${esc(p.price)}">${esc(p.name)} (${esc(formatRM(p.price))})</option>`
+      ).join('') + `<option value="custom" data-price="0">Custom Service</option>`;
+
+      document.getElementById('conflict-alert-box').classList.add('hidden');
+
+      if (editBookingId) {
+        const b = appState.bookings.find(item => item.id === editBookingId);
         if (!b) return;
-        document.getElementById('modal-title').textContent = 'Edit Client Booking';
-        document.getElementById('form-booking-id').value = b.id;
-        document.getElementById('form-client-name').value = b.clientName || '';
-        document.getElementById('form-client-phone').value = b.clientPhone || '';
-        document.getElementById('form-event-date').value = b.eventDate || '';
-        document.getElementById('form-event-time').value = b.eventTime || '08:00';
-        document.getElementById('form-venue').value = b.venue || '';
-        document.getElementById('form-package').value = b.servicePackage || 'Bridal Nikah';
-        document.getElementById('form-total-price').value = b.totalPrice ?? 0;
-        document.getElementById('form-deposit-paid').value = b.depositPaid ?? 0;
-        document.getElementById('form-payment-status').value = b.paymentStatus || 'Balance Due';
-        document.getElementById('form-notes').value = b.notes || '';
-        window.calculatePaymentFields(false);
+        document.getElementById('booking-modal-title').textContent = `Edit Booking (${b.receiptNo})`;
+        document.getElementById('book-id').value = b.id;
+        document.getElementById('book-client-name').value = b.clientName;
+        document.getElementById('book-client-phone').value = b.clientPhone;
+        document.getElementById('book-date').value = b.eventDate;
+        document.getElementById('book-start-time').value = b.startTime;
+        document.getElementById('book-end-time').value = b.endTime;
+        document.getElementById('book-venue').value = b.venue;
+        pkgSelect.value = appState.packages.some(p => p.id === b.packageId) ? b.packageId : 'custom';
+        document.getElementById('book-package-price').value = b.packagePrice;
+        document.getElementById('book-addon-fee').value = b.addonFee;
+        document.getElementById('book-addon-desc').value = b.addonDesc || '';
+        document.getElementById('book-deposit').value = b.depositPaid;
+        document.getElementById('book-notes').value = b.notes || '';
       } else {
-        document.getElementById('modal-title').textContent = 'New Client Booking';
-        form.reset();
-        document.getElementById('form-booking-id').value = '';
-        document.getElementById('form-event-date').value = new Date().toISOString().split('T')[0];
-        document.getElementById('form-event-time').value = '08:00';
-        document.getElementById('form-package').value = 'Bridal Nikah';
-        document.getElementById('form-total-price').value = '850';
-        document.getElementById('form-deposit-paid').value = '0';
-        window.calculatePaymentFields(true);
+        document.getElementById('booking-modal-title').textContent = 'New Client Booking';
+        document.getElementById('booking-form').reset();
+        document.getElementById('book-id').value = '';
+        document.getElementById('book-date').value = preselectedDate || localDateStr();
+        document.getElementById('book-start-time').value = '08:00';
+        document.getElementById('book-end-time').value = '10:00';
+        if (appState.packages.length > 0) {
+          pkgSelect.value = appState.packages[0].id;
+          document.getElementById('book-package-price').value = appState.packages[0].price;
+        } else {
+          pkgSelect.value = 'custom';
+        }
       }
 
+      recalculateBookingTotals();
+      checkBookingConflicts();
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       lucide.createIcons();
@@ -1054,126 +1890,913 @@
       modal.classList.remove('flex');
     };
 
-    window.handlePackagePreset = function() {
-      const sel = document.getElementById('form-package');
-      const opt = sel.options[sel.selectedIndex];
-      const price = parseFloat(opt.dataset.price) || 0;
-      document.getElementById('form-total-price').value = price;
-      window.calculatePaymentFields(true);
+    window.handlePackageSelectChange = function() {
+      const select = document.getElementById('book-package');
+      const selectedOption = select.options[select.selectedIndex];
+      document.getElementById('book-package-price').value = parseFloat(selectedOption.dataset.price) || 0;
+      recalculateBookingTotals();
     };
 
-    window.calculatePaymentFields = function(autoStatus = false) {
-      const total = parseFloat(document.getElementById('form-total-price').value) || 0;
-      const deposit = parseFloat(document.getElementById('form-deposit-paid').value) || 0;
-      const balance = Math.max(0, total - deposit);
+    window.recalculateBookingTotals = function() {
+      const pkgPrice = num(document.getElementById('book-package-price').value);
+      const addonFee = num(document.getElementById('book-addon-fee').value);
+      const subtotal = pkgPrice + addonFee;
+      const deposit = num(document.getElementById('book-deposit').value);
+      const balance = Math.max(0, subtotal - deposit);
 
-      document.getElementById('form-balance-due').value = balance.toFixed(2);
+      document.getElementById('book-subtotal').value = subtotal.toFixed(2);
+      document.getElementById('book-balance').value = balance.toFixed(2);
+      document.getElementById('book-status').value = computeStatus(subtotal, deposit);
+    };
 
-      if (autoStatus) {
-        const statusEl = document.getElementById('form-payment-status');
-        if (total > 0 && balance <= 0) {
-          statusEl.value = 'Full Paid';
-        } else if (deposit > 0) {
-          statusEl.value = 'Deposit Paid';
+    window.checkBookingConflicts = function() {
+      const dateVal = document.getElementById('book-date').value;
+      const startVal = document.getElementById('book-start-time').value;
+      const endVal = document.getElementById('book-end-time').value;
+      const currentId = document.getElementById('book-id').value;
+      const alertBox = document.getElementById('conflict-alert-box');
+      const alertText = document.getElementById('conflict-alert-text');
+
+      if (!dateVal || !startVal || !endVal) {
+        alertBox.classList.add('hidden');
+        return;
+      }
+
+      const newStart = timeToMinutes(startVal);
+      const newEnd = timeToMinutes(endVal);
+      const bufferMins = 120;
+      const items = [];
+
+      if (newEnd <= newStart) {
+        items.push({ sev: 0, text: 'End time must be later than the start time.' });
+      }
+
+      appState.bookings.filter(b => b.eventDate === dateVal && b.id !== currentId).forEach(job => {
+        const jobStart = timeToMinutes(job.startTime);
+        const jobEnd = timeToMinutes(job.endTime);
+        const when = `${formatDisplayTime(job.startTime)} - ${formatDisplayTime(job.endTime)} at ${job.venue}`;
+
+        if (newStart < jobEnd && newEnd > jobStart) {
+          items.push({ sev: 1, text: `Direct time overlap with ${job.clientName} (${when}).` });
         } else {
-          statusEl.value = 'Balance Due';
+          const gap = newStart >= jobEnd ? newStart - jobEnd : jobStart - newEnd;
+          if (gap < bufferMins) {
+            items.push({ sev: 2, text: `Only ${gap} min travel buffer between this job and ${job.clientName} (${when}). Recommended: 2 hours.` });
+          } else {
+            items.push({ sev: 3, text: `Note: you already have ${job.clientName} booked on this date (${when}).` });
+          }
+        }
+      });
+
+      if (items.length === 0) {
+        alertBox.classList.add('hidden');
+        return;
+      }
+
+      items.sort((a, b) => a.sev - b.sev);
+      alertText.innerHTML = items.map(i => `<p>• ${esc(i.text)}</p>`).join('');
+      alertBox.classList.remove('hidden');
+      lucide.createIcons();
+    };
+
+    window.handleSaveBooking = async function(event) {
+      event.preventDefault();
+      if (!currentUser || !db) return;
+
+      const startTime = document.getElementById('book-start-time').value;
+      const endTime = document.getElementById('book-end-time').value;
+      if (timeToMinutes(endTime) <= timeToMinutes(startTime)) {
+        showToast('End time must be later than the start time.', 'error');
+        return;
+      }
+
+      const editId = document.getElementById('book-id').value;
+      const pkgId = document.getElementById('book-package').value;
+      const foundPkg = appState.packages.find(p => p.id === pkgId);
+
+      const packagePrice = Math.max(0, num(document.getElementById('book-package-price').value));
+      const addonFee = Math.max(0, num(document.getElementById('book-addon-fee').value));
+      const subtotal = packagePrice + addonFee;
+      const depositPaid = Math.max(0, num(document.getElementById('book-deposit').value));
+
+      const fields = {
+        clientName: document.getElementById('book-client-name').value.trim(),
+        clientPhone: document.getElementById('book-client-phone').value.trim(),
+        eventDate: document.getElementById('book-date').value,
+        startTime,
+        endTime,
+        venue: document.getElementById('book-venue').value.trim(),
+        packageId: foundPkg ? pkgId : 'custom',
+        packageName: foundPkg ? foundPkg.name : 'Custom Service',
+        packagePrice,
+        addonFee,
+        addonDesc: document.getElementById('book-addon-desc').value.trim(),
+        subtotal,
+        depositPaid,
+        balanceDue: Math.max(0, subtotal - depositPaid),
+        status: computeStatus(subtotal, depositPaid),
+        notes: document.getElementById('book-notes').value.trim(),
+        updatedAt: serverTimestamp()
+      };
+
+      try {
+        if (editId) {
+          const old = appState.bookings.find(b => b.id === editId);
+          const samePackage = old && old.packageId === fields.packageId;
+          await setDoc(userDoc('bookings', editId), {
+            ...(old || {}),
+            ...fields,
+            packageDesc: samePackage && old.packageDesc ? old.packageDesc : (foundPkg ? foundPkg.description : '')
+          });
+          showToast('Booking updated in cloud!');
+        } else {
+          const nextNo = appState.settings.nextReceiptNo || 1;
+          const receiptNo = 'R-' + String(nextNo).padStart(4, '0');
+          const id = 'bk_' + Date.now();
+          await setDoc(userDoc('bookings', id), {
+            id,
+            receiptNo,
+            issuedDate: localDateStr(),
+            ...fields,
+            packageDesc: foundPkg ? foundPkg.description : '',
+            createdAt: serverTimestamp()
+          });
+          await setDoc(userDoc('meta', 'profile'), {
+            ...appState.settings,
+            nextReceiptNo: nextNo + 1,
+            updatedAt: serverTimestamp()
+          });
+          showToast(`Booking ${receiptNo} saved!`);
+        }
+        window.closeBookingModal();
+      } catch (err) {
+        console.error(err);
+        showToast('Could not save booking.', 'error');
+      }
+    };
+
+    window.confirmDeleteBooking = function(id) {
+      openConfirmModal(
+        'Delete Client Booking?',
+        'This will permanently remove this booking and its receipt record.',
+        async () => {
+          try {
+            await deleteDoc(userDoc('bookings', id));
+            showToast('Booking deleted.');
+          } catch (err) {
+            showToast('Could not delete booking.', 'error');
+          }
+        }
+      );
+    };
+
+    // =========================================================================
+    // PACKAGES MANAGER
+    // =========================================================================
+    function renderPackagesGrid() {
+      const grid = document.getElementById('packages-grid');
+      if (appState.packages.length === 0) {
+        grid.innerHTML = `<p class="text-xs text-slate-400 col-span-full text-center py-8">No packages yet. Add your first one.</p>`;
+        return;
+      }
+      grid.innerHTML = appState.packages.map(pkg => `
+        <div class="p-5 rounded-2xl bg-blush-50/60 border border-blush-200/70 flex flex-col justify-between gap-4">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="font-bold text-base text-charcoal">${esc(pkg.name)}</h4>
+              <span class="px-2.5 py-1 rounded-xl bg-white border border-blush-200 text-blush-800 font-bold text-xs shrink-0">${esc(formatRM(pkg.price))}</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed">${esc(pkg.description || 'Custom beauty service package.')}</p>
+          </div>
+          <div class="flex items-center justify-end gap-2 pt-2 border-t border-blush-200/50">
+            <button onclick="openPackageModal('${esc(pkg.id)}')" class="px-3 py-1.5 rounded-xl bg-white hover:bg-blush-100 text-slate-700 text-xs font-semibold transition">Edit</button>
+            <button onclick="confirmDeletePackage('${esc(pkg.id)}')" class="px-3 py-1.5 rounded-xl hover:bg-rose-50 text-rose-600 text-xs font-semibold transition">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.openPackageModal = function(pkgId = null) {
+      const modal = document.getElementById('package-modal');
+      if (pkgId) {
+        const p = appState.packages.find(item => item.id === pkgId);
+        if (!p) return;
+        document.getElementById('package-modal-title').textContent = 'Edit Service Package';
+        document.getElementById('pkg-id').value = p.id;
+        document.getElementById('pkg-name').value = p.name;
+        document.getElementById('pkg-price').value = p.price;
+        document.getElementById('pkg-desc').value = p.description || '';
+      } else {
+        document.getElementById('package-modal-title').textContent = 'Add Service Package';
+        document.getElementById('package-form').reset();
+        document.getElementById('pkg-id').value = '';
+      }
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    window.closePackageModal = function() {
+      const modal = document.getElementById('package-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    window.handleSavePackage = async function(event) {
+      event.preventDefault();
+      if (!currentUser || !db) return;
+      const existingId = document.getElementById('pkg-id').value;
+      const id = existingId || ('pkg_' + Date.now());
+      const payload = {
+        id,
+        name: document.getElementById('pkg-name').value.trim(),
+        price: Math.max(0, num(document.getElementById('pkg-price').value)),
+        description: document.getElementById('pkg-desc').value.trim()
+      };
+      try {
+        await setDoc(userDoc('packages', id), payload);
+        showToast(existingId ? 'Package updated!' : 'New package added!');
+        window.closePackageModal();
+      } catch (err) {
+        showToast('Could not save package.', 'error');
+      }
+    };
+
+    window.confirmDeletePackage = function(id) {
+      const pkg = appState.packages.find(p => p.id === id);
+      if (!pkg) return;
+      openConfirmModal(
+        'Delete this package?',
+        `"${pkg.name}" will be removed from your menu. Existing bookings keep their details.`,
+        async () => {
+          try {
+            await deleteDoc(userDoc('packages', id));
+            showToast('Package removed.');
+          } catch (err) {
+            showToast('Could not remove package.', 'error');
+          }
+        }
+      );
+    };
+
+    // =========================================================================
+    // RECEIPT, PDF & WHATSAPP
+    // =========================================================================
+    function getDocLabels(status) {
+      if (status === 'Fully Paid') return { badge: 'RECEIPT', title: 'Official Boutique Receipt', plain: 'OFFICIAL RECEIPT' };
+      if (status === 'Deposit Paid') return { badge: 'DEPOSIT RECEIPT', title: 'Deposit Receipt', plain: 'DEPOSIT RECEIPT' };
+      return { badge: 'QUOTATION', title: 'Booking Quotation', plain: 'BOOKING QUOTATION' };
+    }
+
+    window.openReceiptModal = async function(bookingId) {
+      const b = appState.bookings.find(item => item.id === bookingId);
+      if (!b) return;
+      currentReceiptBookingId = bookingId;
+
+      if (!b.issuedDate && currentUser && db) {
+        b.issuedDate = localDateStr();
+        try { await setDoc(userDoc('bookings', b.id), { ...b, issuedDate: b.issuedDate }); } catch (e) {}
+      }
+
+      const s = appState.settings;
+      const labels = getDocLabels(b.status);
+
+      const logoBox = document.getElementById('rec-logo-box');
+      logoBox.textContent = '';
+      if (s.logoBase64) {
+        const img = document.createElement('img');
+        img.src = s.logoBase64;
+        img.alt = 'Logo';
+        img.className = 'w-full h-full object-cover';
+        logoBox.appendChild(img);
+      } else {
+        logoBox.textContent = getInitials(s.businessName);
+      }
+
+      document.getElementById('rec-modal-title').textContent = labels.title;
+      document.getElementById('rec-doc-title').textContent = labels.badge;
+      document.getElementById('rec-business-name').textContent = s.businessName;
+      document.getElementById('rec-tagline').textContent = s.tagline;
+      document.getElementById('rec-ssm').textContent = s.ssmNo ? `SSM: ${s.ssmNo}` : '';
+      document.getElementById('rec-ig').textContent = s.igHandle ? `IG: ${s.igHandle}` : '';
+      document.getElementById('rec-wa').textContent = s.whatsappNo ? `WhatsApp: ${s.whatsappNo}` : '';
+
+      document.getElementById('rec-number').textContent = `#${b.receiptNo}`;
+      document.getElementById('rec-issue-date').textContent = `Issued: ${formatDisplayDate(b.issuedDate)}`;
+
+      document.getElementById('rec-client-name').textContent = b.clientName;
+      document.getElementById('rec-client-phone').textContent = b.clientPhone;
+      document.getElementById('rec-event-date').textContent = formatDisplayDate(b.eventDate);
+      document.getElementById('rec-event-time').textContent = `${formatDisplayTime(b.startTime)} – ${formatDisplayTime(b.endTime)}`;
+      document.getElementById('rec-venue').textContent = b.venue;
+
+      document.getElementById('rec-pkg-name').textContent = b.packageName;
+      document.getElementById('rec-pkg-desc').textContent = b.packageDesc || 'Professional Makeup & Beauty Session';
+      document.getElementById('rec-pkg-price').textContent = num(b.packagePrice).toFixed(2);
+
+      const addonRow = document.getElementById('rec-addon-row');
+      if (num(b.addonFee) > 0) {
+        addonRow.classList.remove('hidden');
+        document.getElementById('rec-addon-desc').textContent = b.addonDesc || 'Additional Fee / Mileage';
+        document.getElementById('rec-addon-price').textContent = num(b.addonFee).toFixed(2);
+      } else {
+        addonRow.classList.add('hidden');
+      }
+
+      document.getElementById('rec-subtotal').textContent = formatRM(b.subtotal);
+      document.getElementById('rec-deposit').textContent = `- ${formatRM(b.depositPaid)}`;
+      document.getElementById('rec-balance').textContent = formatRM(b.balanceDue);
+      document.getElementById('rec-terms').textContent = s.terms;
+
+      const badge = document.getElementById('rec-status-badge');
+      badge.textContent = b.status.toUpperCase();
+      const badgeBase = 'self-start sm:self-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider shrink-0 ';
+      badge.className = badgeBase + (b.status === 'Fully Paid'
+        ? 'bg-emerald-100 text-emerald-800'
+        : b.status === 'Deposit Paid' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
+
+      const modal = document.getElementById('receipt-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    };
+
+    window.closeReceiptModal = function() {
+      const modal = document.getElementById('receipt-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    window.downloadReceiptPDF = function() {
+      const b = appState.bookings.find(item => item.id === currentReceiptBookingId);
+      if (!b) return;
+      if (typeof html2pdf === 'undefined') {
+        showToast('PDF tool did not load. Check your connection.', 'error');
+        return;
+      }
+      const btn = document.getElementById('btn-download-pdf');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating PDF...`;
+      lucide.createIcons();
+
+      const prefix = getDocLabels(b.status).badge.replace(/\s+/g, '_');
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `${prefix}_${b.receiptNo}_${b.clientName.replace(/[^\w]+/g, '_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(document.getElementById('receipt-printable-area')).save().then(() => {
+        btn.innerHTML = originalHTML;
+        lucide.createIcons();
+        showToast('PDF downloaded!');
+      }).catch(() => {
+        btn.innerHTML = originalHTML;
+        lucide.createIcons();
+        showToast('Could not generate PDF. Try Copy Text.', 'error');
+      });
+    };
+
+    function buildFormattedReceiptText(b) {
+      const s = appState.settings;
+      const labels = getDocLabels(b.status);
+      return `*${labels.plain} — ${s.businessName.toUpperCase()}*\n` +
+        `${s.ssmNo ? 'SSM: ' + s.ssmNo + '\n' : ''}` +
+        `Ref No: *${b.receiptNo}*\n` +
+        `--------------------------------\n` +
+        `*Client:* ${b.clientName}\n` +
+        `*Date:* ${formatDisplayDate(b.eventDate)}\n` +
+        `*Time:* ${formatDisplayTime(b.startTime)} - ${formatDisplayTime(b.endTime)}\n` +
+        `*Venue:* ${b.venue}\n` +
+        `--------------------------------\n` +
+        `*Package:* ${b.packageName} (${formatRM(b.packagePrice)})\n` +
+        `${b.addonFee > 0 ? `*Add-on/Travel:* ${b.addonDesc || 'Extra'} (${formatRM(b.addonFee)})\n` : ''}` +
+        `*Subtotal:* ${formatRM(b.subtotal)}\n` +
+        `*Paid/Deposit:* ${formatRM(b.depositPaid)}\n` +
+        `*Balance Due:* *${formatRM(b.balanceDue)}*\n` +
+        `*Status:* ${b.status.toUpperCase()}\n` +
+        `--------------------------------\n` +
+        `_${s.terms}_\n` +
+        `Thank you for trusting ${s.businessName}! ✨`;
+    }
+
+    window.copyReceiptText = function() {
+      const b = appState.bookings.find(item => item.id === currentReceiptBookingId);
+      if (!b) return;
+      const text = buildFormattedReceiptText(b);
+      const fallbackCopy = () => {
+        const tmp = document.createElement('textarea');
+        tmp.value = text;
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(tmp);
+        showToast(ok ? 'Receipt summary copied!' : 'Could not copy.', ok ? 'success' : 'error');
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast('Receipt summary copied!')).catch(fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+    };
+
+    window.quickWhatsAppClient = function(bookingId) {
+      currentReceiptBookingId = bookingId;
+      sendWhatsAppTemplate('receipt');
+    };
+
+    window.sendWhatsAppTemplate = function(type) {
+      const b = appState.bookings.find(item => item.id === currentReceiptBookingId);
+      if (!b) return;
+      const s = appState.settings;
+      const waPhone = formatMYWhatsAppNumber(b.clientPhone);
+      if (!waPhone) {
+        showToast('This booking has no phone number.', 'error');
+        return;
+      }
+
+      let msg = '';
+      if (type === 'receipt') {
+        msg = `Hi ${b.clientName}! Thank you for booking with *${s.businessName}* ✨\n\nHere is your booking & payment summary:\n\n` + buildFormattedReceiptText(b);
+      } else {
+        msg = `Hi ${b.clientName}! Gentle reminder for your upcoming makeup session with *${s.businessName}* 💄✨\n\n` +
+          `📅 *Date:* ${formatDisplayDate(b.eventDate)}\n` +
+          `⏰ *Time:* ${formatDisplayTime(b.startTime)}\n` +
+          `📍 *Venue:* ${b.venue}\n` +
+          `💳 *Remaining Balance:* *${formatRM(b.balanceDue)}*\n\n` +
+          `*Skin & Session Prep Tips:*\n` +
+          `1. Please arrive/be ready with a clean, bare face (no makeup/sunscreen).\n` +
+          `2. Moisturize your skin & lips well the night before.\n` +
+          `3. Wear a button-down or loose-neck top.\n\n` +
+          `See you soon! 💕`;
+      }
+      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    };
+
+    // =========================================================================
+    // EXPENSES & CSV EXPORT
+    // =========================================================================
+    function renderExpensesView() {
+      const totalCollected = appState.bookings.reduce((sum, b) => sum + num(b.depositPaid), 0);
+      const totalExpenses = appState.expenses.reduce((sum, e) => sum + num(e.amount), 0);
+
+      document.getElementById('exp-kpi-collected').textContent = formatRM(totalCollected);
+      document.getElementById('exp-kpi-expenses').textContent = formatRM(totalExpenses);
+      document.getElementById('exp-kpi-net').textContent = formatRM(totalCollected - totalExpenses);
+
+      const dateInput = document.getElementById('exp-date');
+      if (!dateInput.value) dateInput.value = localDateStr();
+
+      const container = document.getElementById('expenses-list-container');
+      const sorted = [...appState.expenses].sort((a, b) => b.date.localeCompare(a.date));
+
+      if (sorted.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">No expenses logged yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = sorted.map(exp => `
+        <div class="p-3.5 rounded-2xl bg-blush-50/50 border border-blush-100 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-semibold text-slate-400">${esc(formatDisplayDate(exp.date))}</span>
+              <span class="px-2 py-0.5 rounded-md bg-blush-100 text-blush-800 text-[10px] font-semibold">${esc(exp.category)}</span>
+            </div>
+            <p class="text-xs sm:text-sm font-semibold text-charcoal mt-1 truncate">${esc(exp.description)}</p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <span class="font-bold text-sm text-rose-600">- ${esc(formatRM(exp.amount))}</span>
+            <button onclick="deleteExpense('${esc(exp.id)}')" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition" aria-label="Delete expense">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    window.handleSaveExpense = async function(event) {
+      event.preventDefault();
+      if (!currentUser || !db) return;
+      const id = 'exp_' + Date.now();
+      const payload = {
+        id,
+        date: document.getElementById('exp-date').value,
+        category: document.getElementById('exp-category').value,
+        description: document.getElementById('exp-desc').value.trim(),
+        amount: Math.max(0, num(document.getElementById('exp-amount').value))
+      };
+      try {
+        await setDoc(userDoc('expenses', id), payload);
+        document.getElementById('exp-desc').value = '';
+        document.getElementById('exp-amount').value = '';
+        showToast('Expense recorded in cloud!');
+      } catch (err) {
+        showToast('Could not save expense.', 'error');
+      }
+    };
+
+    window.deleteExpense = async function(id) {
+      if (!currentUser || !db) return;
+      try {
+        await deleteDoc(userDoc('expenses', id));
+        showToast('Expense removed.');
+      } catch (err) {
+        showToast('Could not remove expense.', 'error');
+      }
+    };
+
+    function csvCell(value) {
+      let s = String(value == null ? '' : value);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+
+    window.exportCSV = function() {
+      const headers = ['Receipt No', 'Issued Date', 'Event Date', 'Start Time', 'Client Name', 'Phone', 'Venue', 'Package', 'Package Price (RM)', 'Add-on Fee (RM)', 'Subtotal (RM)', 'Deposit Paid (RM)', 'Balance Due (RM)', 'Status'];
+      const rows = [...appState.bookings]
+        .sort((a, b) => a.eventDate.localeCompare(b.eventDate))
+        .map(b => [
+          csvCell(b.receiptNo), csvCell(b.issuedDate), csvCell(b.eventDate), csvCell(b.startTime),
+          csvCell(b.clientName), csvCell(b.clientPhone), csvCell(b.venue), csvCell(b.packageName),
+          num(b.packagePrice).toFixed(2), num(b.addonFee).toFixed(2), num(b.subtotal).toFixed(2),
+          num(b.depositPaid).toFixed(2), num(b.balanceDue).toFixed(2), csvCell(b.status)
+        ]);
+      const csvContent = '\uFEFF' + [headers.map(csvCell).join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      downloadBlob(csvContent, 'text/csv;charset=utf-8;', `SSM_Bookings_Report_${localDateStr()}.csv`);
+      showToast('CSV spreadsheet downloaded!');
+    };
+
+    // =========================================================================
+    // GOOGLE CALENDAR (.ICS) IMPORT
+    // =========================================================================
+    const IMPORT_JUNK_RE = /shopee|voucher|flash sale|deep discount|sales reminder|check-in|check-out|^stay at|birthday|reward \d|midnight madness|super brands|awesome sale|money wheel|livestream/i;
+    const IMPORT_BOOKING_HINT_RE = /nikah|sanding|tunang|akad|make ?up|bridal|bride|bridesmaid|convo|dinner|wedding|groom|aqiqah|touch ?up|solemn/i;
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function unescapeIcsText(t) {
+      return String(t || '').replace(/\\n/gi, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\');
+    }
+
+    function parseIcsDate(prop) {
+      if (!prop) return null;
+      const v = String(prop.value || '').trim();
+      let m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})?(Z?)$/.exec(v);
+      if (m) {
+        let y = +m[1], mo = +m[2], d = +m[3], h = +m[4], mi = +m[5];
+        if (m[7] === 'Z') {
+          const dt = new Date(Date.UTC(y, mo - 1, d, h, mi) + MY_UTC_OFFSET_HOURS * 3600000);
+          y = dt.getUTCFullYear(); mo = dt.getUTCMonth() + 1; d = dt.getUTCDate();
+          h = dt.getUTCHours(); mi = dt.getUTCMinutes();
+        }
+        return { date: `${y}-${pad2(mo)}-${pad2(d)}`, time: `${pad2(h)}:${pad2(mi)}`, allDay: false };
+      }
+      m = /^(\d{4})(\d{2})(\d{2})$/.exec(v);
+      if (m) return { date: `${m[1]}-${m[2]}-${m[3]}`, time: '', allDay: true };
+      return null;
+    }
+
+    function addMinutesToTime(t, mins) {
+      const total = Math.min(23 * 60 + 59, timeToMinutes(t) + mins);
+      return `${pad2(Math.floor(total / 60))}:${pad2(total % 60)}`;
+    }
+
+    function splitEventTitle(title) {
+      const m = /^(.*?)\s*\(([^)]*)\)\s*$/.exec(String(title || '').trim());
+      if (m && m[1]) return { name: m[1].trim(), service: m[2].trim() };
+      return { name: String(title || '').trim(), service: '' };
+    }
+
+    function parseIcsEvents(text) {
+      const unfolded = String(text || '').replace(/\r\n|\r/g, '\n').replace(/\n[ \t]/g, '');
+      const blocks = unfolded.split('BEGIN:VEVENT').slice(1).map(b =>
+        b.split('END:VEVENT')[0].replace(/BEGIN:VALARM[\s\S]*?END:VALARM/g, '')
+      );
+      const events = [];
+      blocks.forEach(block => {
+        const props = {};
+        block.split('\n').forEach(line => {
+          const idx = line.indexOf(':');
+          if (idx < 1) return;
+          const left = line.slice(0, idx);
+          const name = left.split(';')[0].toUpperCase();
+          if (!(name in props)) props[name] = { params: left.slice(name.length).toUpperCase(), value: line.slice(idx + 1) };
+        });
+
+        const s = parseIcsDate(props.DTSTART);
+        if (!s) return;
+        const e = parseIcsDate(props.DTEND);
+        const status = (props.STATUS ? props.STATUS.value : '').trim().toUpperCase();
+        if (status === 'CANCELLED') return;
+        const title = unescapeIcsText(props.SUMMARY ? props.SUMMARY.value : '').trim();
+        if (!title) return;
+
+        let startTime, endTime;
+        if (s.allDay) {
+          startTime = '09:00';
+          endTime = '10:00';
+        } else {
+          startTime = s.time;
+          if (e && !e.allDay && e.date === s.date && timeToMinutes(e.time) > timeToMinutes(s.time)) {
+            endTime = e.time;
+          } else if (e && !e.allDay && e.date !== s.date) {
+            endTime = '23:59';
+          } else {
+            endTime = addMinutesToTime(s.time, 60);
+          }
+        }
+
+        events.push({
+          title,
+          date: s.date,
+          startTime,
+          endTime,
+          allDay: s.allDay,
+          location: unescapeIcsText(props.LOCATION ? props.LOCATION.value : '').replace(/\n+/g, ' ').trim(),
+          description: unescapeIcsText(props.DESCRIPTION ? props.DESCRIPTION.value : '').trim().slice(0, 300)
+        });
+      });
+      return events;
+    }
+
+    function classifyImportEvents(events, existingBookings) {
+      const existing = new Set(existingBookings.map(b => `${b.eventDate}|${b.startTime}|${String(b.clientName).toLowerCase()}`));
+      const seen = new Set();
+      const cutoff = localDateStr(new Date(Date.now() - 365 * 86400000));
+      const out = [];
+
+      events.forEach(ev => {
+        if (IMPORT_JUNK_RE.test(ev.title)) return;
+        const parts = splitEventTitle(ev.title);
+        const key = `${ev.date}|${ev.startTime}|${parts.name.toLowerCase()}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+
+        const bookingLike = /\([^)]+\)\s*$/.test(ev.title) || IMPORT_BOOKING_HINT_RE.test(ev.title);
+        if (!bookingLike && ev.date < cutoff) return;
+        const duplicate = existing.has(key);
+        out.push({
+          ...ev,
+          clientName: parts.name,
+          service: parts.service,
+          bookingLike,
+          duplicate,
+          selected: bookingLike && !duplicate
+        });
+      });
+
+      out.sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+      return out;
+    }
+
+    window.openImportModal = function() {
+      pendingImportEvents = [];
+      document.getElementById('import-step-pick').classList.remove('hidden');
+      document.getElementById('import-step-review').classList.add('hidden');
+      document.getElementById('import-footer').classList.add('hidden');
+      document.getElementById('import-file-input').value = '';
+      const modal = document.getElementById('import-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    };
+
+    window.closeImportModal = function() {
+      const modal = document.getElementById('import-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      pendingImportEvents = [];
+    };
+
+    window.handleImportFile = function(event) {
+      const input = event.target;
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('That file is too large. Choose a calendar .ics file.', 'error');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let events = [];
+        try { events = parseIcsEvents(e.target.result); } catch (err) { events = []; }
+        if (events.length === 0) {
+          showToast('No events found in this file.', 'error');
+          input.value = '';
+          return;
+        }
+        pendingImportEvents = classifyImportEvents(events, appState.bookings);
+        if (pendingImportEvents.length === 0) {
+          showToast('No client bookings found to import.', 'error');
+          input.value = '';
+          return;
+        }
+        renderImportReview();
+      };
+      reader.readAsText(file);
+    };
+
+    function importRowHTML(ev, idx) {
+      const time = ev.allDay ? 'All day' : `${formatDisplayTime(ev.startTime)} – ${formatDisplayTime(ev.endTime)}`;
+      return `
+        <label class="flex items-start gap-3 p-3 rounded-2xl border ${ev.duplicate ? 'bg-slate-50 border-slate-100 opacity-60' : 'bg-white border-blush-200/70 hover:border-blush-400'} cursor-pointer">
+          <input type="checkbox" class="mt-1 w-4 h-4 accent-blush-700 shrink-0" ${ev.selected ? 'checked' : ''} ${ev.duplicate ? 'disabled' : ''} onchange="toggleImportItem(${idx}, this.checked)">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-bold text-blush-800 bg-blush-100 px-2 py-0.5 rounded-md">${esc(formatDisplayDate(ev.date))}</span>
+              <span class="text-[11px] text-slate-500 font-medium">${esc(time)}</span>
+              ${ev.duplicate ? '<span class="text-[10px] font-semibold text-slate-500">Already synced</span>' : ''}
+            </div>
+            <p class="font-semibold text-sm text-charcoal truncate mt-1">${esc(ev.clientName)}${ev.service ? ` <span class="font-normal text-slate-500">• ${esc(ev.service)}</span>` : ''}</p>
+            ${ev.location ? `<p class="text-[11px] text-slate-500 truncate">${esc(ev.location)}</p>` : ''}
+          </div>
+        </label>`;
+    }
+
+    function renderImportReview() {
+      const othersWasOpen = !!(document.getElementById('import-others') && document.getElementById('import-others').open);
+      const likely = [];
+      const others = [];
+      pendingImportEvents.forEach((ev, idx) => (ev.bookingLike ? likely : others).push(importRowHTML(ev, idx)));
+
+      document.getElementById('import-summary').textContent =
+        `Found ${pendingImportEvents.length} events. ${likely.length} look like makeup bookings and are ticked by default.`;
+
+      let html = '';
+      if (likely.length) {
+        html += `
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-charcoal">Likely Bookings (${likely.length})</h4>
+              <div class="flex gap-3 text-[11px] font-semibold">
+                <button type="button" onclick="setImportGroup(true, true)" class="text-blush-700 hover:underline">Tick all</button>
+                <button type="button" onclick="setImportGroup(true, false)" class="text-slate-500 hover:underline">Untick all</button>
+              </div>
+            </div>
+            ${likely.join('')}
+          </div>`;
+      }
+      if (others.length) {
+        html += `
+          <details id="import-others" ${othersWasOpen ? 'open' : ''} class="space-y-2">
+            <summary class="text-xs font-bold text-charcoal cursor-pointer">Other events, unticked (${others.length}). Tap to review.</summary>
+            <div class="space-y-2 mt-2">${others.join('')}</div>
+          </details>`;
+      }
+      document.getElementById('import-review-list').innerHTML = html;
+      document.getElementById('import-step-pick').classList.add('hidden');
+      document.getElementById('import-step-review').classList.remove('hidden');
+      document.getElementById('import-footer').classList.remove('hidden');
+      updateImportCount();
+    }
+
+    window.toggleImportItem = function(idx, checked) {
+      if (pendingImportEvents[idx] && !pendingImportEvents[idx].duplicate) {
+        pendingImportEvents[idx].selected = checked;
+      }
+      updateImportCount();
+    };
+
+    window.setImportGroup = function(bookingLike, value) {
+      pendingImportEvents.forEach(ev => {
+        if (ev.bookingLike === bookingLike && !ev.duplicate) ev.selected = value;
+      });
+      renderImportReview();
+    };
+
+    function updateImportCount() {
+      const count = pendingImportEvents.filter(ev => ev.selected && !ev.duplicate).length;
+      const btn = document.getElementById('import-confirm-btn');
+      btn.textContent = count > 0 ? `Import ${count} selected` : 'Import';
+      btn.disabled = count === 0;
+    }
+
+    window.importSelectedEvents = async function() {
+      if (!currentUser || !db) return;
+      const chosen = pendingImportEvents
+        .filter(ev => ev.selected && !ev.duplicate)
+        .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+      if (chosen.length === 0) return;
+
+      const btn = document.getElementById('import-confirm-btn');
+      btn.disabled = true;
+      btn.textContent = 'Importing...';
+
+      let nextNo = appState.settings.nextReceiptNo || 1;
+      let added = 0;
+
+      try {
+        for (let i = 0; i < chosen.length; i++) {
+          const ev = chosen[i];
+          const receiptNo = 'R-' + String(nextNo).padStart(4, '0');
+          const id = 'bk_' + Date.now() + '_' + i;
+          const booking = normalizeBooking({
+            id,
+            receiptNo,
+            issuedDate: localDateStr(),
+            clientName: ev.clientName,
+            clientPhone: '',
+            eventDate: ev.date,
+            startTime: ev.startTime,
+            endTime: ev.endTime,
+            venue: ev.location,
+            packageId: 'custom',
+            packageName: ev.service || 'Makeup Service',
+            packagePrice: 0,
+            packageDesc: '',
+            addonFee: 0,
+            addonDesc: '',
+            depositPaid: 0,
+            notes: ev.description
+          });
+          if (booking) {
+            await setDoc(userDoc('bookings', id), { ...booking, createdAt: serverTimestamp() });
+            nextNo += 1;
+            added += 1;
+          }
+        }
+        await setDoc(userDoc('meta', 'profile'), {
+          ...appState.settings,
+          nextReceiptNo: nextNo,
+          updatedAt: serverTimestamp()
+        });
+        window.closeImportModal();
+        showToast(`${added} booking${added === 1 ? '' : 's'} imported & synced!`);
+      } catch (err) {
+        console.error(err);
+        showToast('Error importing bookings.', 'error');
+        updateImportCount();
+      }
+    };
+
+    // =========================================================================
+    // CONFIRMATION DIALOG & KEYBOARD SHORTCUTS
+    // =========================================================================
+    function openConfirmModal(title, desc, callback, confirmLabel = 'Confirm') {
+      document.getElementById('confirm-modal-title').textContent = title;
+      document.getElementById('confirm-modal-desc').textContent = desc;
+      document.getElementById('confirm-modal-action-btn').textContent = confirmLabel;
+      pendingConfirmCallback = callback;
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    window.closeConfirmModal = function() {
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      pendingConfirmCallback = null;
+    };
+
+    document.getElementById('confirm-modal-action-btn').addEventListener('click', async () => {
+      const cb = pendingConfirmCallback;
+      window.closeConfirmModal();
+      if (cb) await cb();
+    });
+
+    window.openConfirmClearModal = function() {
+      openConfirmModal(
+        'Clear All Bookings & Expenses?',
+        'Your business profile and packages stay, while all bookings and expenses in Firestore will be removed.',
+        async () => {
+          if (!currentUser || !db) return;
+          try {
+            const bSnap = await getDocs(userCol('bookings'));
+            for (const d of bSnap.docs) await deleteDoc(d.ref);
+            const eSnap = await getDocs(userCol('expenses'));
+            for (const d of eSnap.docs) await deleteDoc(d.ref);
+            showToast('Bookings & expenses cleared.');
+          } catch (err) {
+            showToast('Could not clear records.', 'error');
+          }
+        },
+        'Clear data'
+      );
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const order = [
+        ['confirm-modal', window.closeConfirmModal],
+        ['receipt-modal', window.closeReceiptModal],
+        ['import-modal', window.closeImportModal],
+        ['booking-modal', window.closeBookingModal],
+        ['package-modal', window.closePackageModal]
+      ];
+      for (const [id, closeFn] of order) {
+        if (!document.getElementById(id).classList.contains('hidden')) {
+          closeFn();
+          break;
         }
       }
-    };
-
-    window.copyWhatsAppReminder = function(bookingId) {
-      const b = bookingsList.find(item => item.id === bookingId);
-      if (!b) return;
-
-      const balance = parseFloat(b.balanceDue) || 0;
-      const paymentLine = balance > 0
-        ? `💳 *Balance Due:* ${formatRM(balance)} (Kindly settle 3 days prior to event)`
-        : `✅ *Payment Status:* FULL PAID (Thank you!)`;
-
-      const message =
-        `Hi ${b.clientName}! ✨ Thank you for booking with *Makeup by Nureen* 💕\n\n` +
-        `Here are your confirmed makeup session details:\n` +
-        `💄 *Package:* ${b.servicePackage}\n` +
-        `📅 *Date:* ${formatDateMY(b.eventDate)}\n` +
-        `⏰ *Time:* ${formatTime12h(b.eventTime)}\n` +
-        `📍 *Venue:* ${b.venue}\n` +
-        `💰 *Total:* ${formatRM(b.totalPrice)} | *Deposit Paid:* ${formatRM(b.depositPaid)}\n` +
-        `${paymentLine}\n\n` +
-        `*Quick Prep Tips:*\n` +
-        `• Please prepare a clean, bare face (no makeup/sunscreen) before we start.\n` +
-        `• Moisturize your skin & lips well the night before.\n` +
-        `• Wear a button-down or loose-neck top.\n\n` +
-        `Can't wait to glam you up! 🌸`;
-
-      const tempArea = document.createElement('textarea');
-      tempArea.value = message;
-      tempArea.setAttribute('readonly', '');
-      tempArea.style.position = 'fixed';
-      tempArea.style.opacity = '0';
-      document.body.appendChild(tempArea);
-      tempArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(tempArea);
-
-      showToast(`WhatsApp reminder copied for ${b.clientName}!`);
-    };
-
-    // =========================================================================
-    // 6. FORMATTING & UI HELPERS
-    // =========================================================================
-    function formatRM(value) {
-      const num = parseFloat(value) || 0;
-      return 'RM ' + num.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function formatDateMY(dateStr) {
-      if (!dateStr) return '-';
-      const [y, m, d] = dateStr.split('-').map(Number);
-      const dt = new Date(y, m - 1, d);
-      return dt.toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' });
-    }
-
-    function formatTime12h(timeStr) {
-      if (!timeStr) return '';
-      const [h, m] = timeStr.split(':').map(Number);
-      const suffix = h >= 12 ? 'PM' : 'AM';
-      const hour12 = h % 12 || 12;
-      return `${String(hour12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${suffix}`;
-    }
-
-    function getStatusPillHTML(status) {
-      if (status === 'Full Paid') {
-        return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Full Paid</span>`;
-      }
-      if (status === 'Deposit Paid') {
-        return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blush-100 text-blush-800 border border-blush-200">Deposit Paid</span>`;
-      }
-      return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Balance Due</span>`;
-    }
-
-    function escapeHTML(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const style = type === 'error'
-        ? 'bg-rose-700 text-white border border-rose-400'
-        : 'bg-charcoal text-white border border-blush-400/40';
-      toast.className = `${style} px-4 py-3 rounded-2xl shadow-lg text-xs font-medium flex items-center gap-2.5 transition-all duration-300`;
-      toast.innerHTML = `<i data-lucide="${type === 'error' ? 'alert-circle' : 'sparkles'}" class="w-4 h-4 shrink-0 text-blush-300"></i><span>${escapeHTML(message)}</span>`;
-      container.appendChild(toast);
-      lucide.createIcons();
-      setTimeout(() => {
-        toast.classList.add('opacity-0', '-translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3200);
-    }
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
