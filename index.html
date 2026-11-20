@@ -475,13 +475,12 @@
           </div>
 
           <div class="bg-white rounded-3xl border border-rose-100 p-5 shadow-sm space-y-3">
-            <h3 class="font-bold text-slate-900 text-sm">Sample & Demo Data</h3>
-            <p class="text-xs text-slate-500">Testing the app? Clear the pre-loaded sample bookings and expenses when you are ready for real clients.</p>
+            <h3 class="font-bold text-slate-900 text-sm">Clear Data</h3>
+            <p class="text-xs text-slate-500">Remove all bookings and expenses saved on this device. Your business profile and packages stay. Download a backup first if you may need the records.</p>
             <div class="flex flex-wrap gap-2 pt-1">
               <button onclick="openConfirmClearModal()" class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition flex items-center gap-1.5">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Sample / All Data
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All Bookings &amp; Expenses
               </button>
-              <button onclick="confirmResetDemoData()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Reload Sample Data</button>
             </div>
           </div>
         </div>
@@ -823,9 +822,9 @@
       businessName: 'Makeup by Nureen',
       ownerName: 'Nureen',
       tagline: 'ART • BEAUTY • BRIDAL',
-      ssmNo: '202603123456 (0012345-X)',
-      igHandle: '@makeupbynureen',
-      whatsappNo: '012-345 6789',
+      ssmNo: '',
+      igHandle: '',
+      whatsappNo: '',
       logoBase64: '',
       terms: 'Deposit is non-refundable. Balance due 3 days before event.',
       nextReceiptNo: 0,
@@ -844,43 +843,8 @@
       return normalizeState({
         settings: { ...DEFAULT_SETTINGS },
         packages: DEFAULT_PACKAGES.map(p => ({ ...p })),
-        bookings: [
-          {
-            id: 'bk_101', receiptNo: 'R-0001', issuedDate: '2026-11-20',
-            clientName: 'Cik Nurul Aisyah', clientPhone: '012-554 8890',
-            eventDate: '2026-11-28', startTime: '07:30', endTime: '10:00',
-            venue: 'Hotel Casuarina @ Meru, Ipoh',
-            packageId: 'pkg_3', packageName: 'Bridal Akad / Sanding', packagePrice: 1200,
-            packageDesc: DEFAULT_PACKAGES[2].description,
-            addonFee: 50, addonDesc: 'Early Morning Call-Time & Meru Mileage',
-            depositPaid: 500,
-            notes: 'Combination skin, off-white songket theme, soft Thai bridal look.'
-          },
-          {
-            id: 'bk_102', receiptNo: 'R-0002', issuedDate: '2026-11-20',
-            clientName: 'Puan Farah Nadia', clientPhone: '019-412 3321',
-            eventDate: '2026-12-05', startTime: '17:00', endTime: '18:30',
-            venue: 'WEIL Hotel, Ipoh',
-            packageId: 'pkg_2', packageName: 'Full Glam', packagePrice: 450,
-            packageDesc: DEFAULT_PACKAGES[1].description,
-            addonFee: 0, addonDesc: '', depositPaid: 450,
-            notes: 'Annual corporate dinner, emerald green dress, warm bronze smokey eye.'
-          },
-          {
-            id: 'bk_103', receiptNo: 'R-0003', issuedDate: '2026-11-20',
-            clientName: 'Cik Sofea Hannani', clientPhone: '017-890 1124',
-            eventDate: '2026-12-12', startTime: '09:00', endTime: '10:30',
-            venue: 'Taman Botani, Ipoh',
-            packageId: 'pkg_1', packageName: 'Soft Glam', packagePrice: 250,
-            packageDesc: DEFAULT_PACKAGES[0].description,
-            addonFee: 30, addonDesc: 'Transport Fee', depositPaid: 0,
-            notes: 'Engagement (Majlis Pertunangan), pastel lavender baju kurung.'
-          }
-        ],
-        expenses: [
-          { id: 'exp_1', date: '2026-11-10', category: 'Cosmetics & Restock', description: 'NARS Foundation, Charlotte Tilbury Setting Spray & Mink Lashes', amount: 385.00 },
-          { id: 'exp_2', date: '2026-11-15', category: 'Disposables & Hygiene', description: 'Disposable lip wands, spoolies, beauty blenders & brush cleanser', amount: 78.50 }
-        ]
+        bookings: [],
+        expenses: []
       });
     }
 
@@ -2310,20 +2274,6 @@
           showToast('Bookings & expenses cleared!');
         },
         'Clear data'
-      );
-    }
-
-    function confirmResetDemoData() {
-      openConfirmModal(
-        'Reload sample data?',
-        'This replaces ALL current bookings, expenses, packages and settings with the demo data.',
-        () => {
-          appState = getSampleData();
-          saveAppState();
-          refreshAllViews();
-          showToast('Malaysian sample bookings reloaded!');
-        },
-        'Replace with samples'
       );
     }
 
