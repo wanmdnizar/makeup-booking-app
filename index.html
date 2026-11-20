@@ -256,7 +256,10 @@
                 <h3 id="bookings-list-title" class="font-bold text-slate-900 text-base">All Client Bookings</h3>
                 <p id="bookings-list-subtitle" class="text-xs text-slate-500">Tap any booking to generate receipt, send WhatsApp or add to your calendar</p>
               </div>
-              <div class="flex gap-2 shrink-0">
+              <div class="flex flex-wrap gap-2 sm:shrink-0">
+                <button onclick="openImportModal()" class="bg-white hover:bg-lavender-50 text-lavender-800 border border-lavender-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition" title="Create bookings from a calendar export file">
+                  <i data-lucide="upload" class="w-4 h-4"></i> Import
+                </button>
                 <button onclick="exportUpcomingICS()" class="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition" title="Download all upcoming jobs as a calendar file">
                   <i data-lucide="calendar-plus" class="w-4 h-4"></i> Export .ics
                 </button>
@@ -539,8 +542,8 @@
             <input type="text" id="book-client-name" required placeholder="e.g., Cik Aisyah Humaira" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-lavender-500 focus:bg-white">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp Phone (MY) *</label>
-            <input type="tel" id="book-client-phone" required placeholder="e.g., 012-3456789" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-lavender-500 focus:bg-white">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp Phone (MY)</label>
+            <input type="tel" id="book-client-phone" placeholder="e.g., 012-3456789" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-lavender-500 focus:bg-white">
           </div>
         </div>
 
@@ -560,8 +563,8 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Venue / Location *</label>
-          <input type="text" id="book-venue" required placeholder="e.g., Hotel Casuarina @ Meru, Ipoh" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-lavender-500 focus:bg-white">
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Venue / Location</label>
+          <input type="text" id="book-venue" placeholder="e.g., Hotel Casuarina @ Meru, Ipoh" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-lavender-500 focus:bg-white">
         </div>
 
         <div class="p-4 rounded-2xl bg-lavender-50/70 border border-lavender-100 space-y-3.5">
@@ -790,6 +793,53 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 5: IMPORT FROM CALENDAR FILE ==================== -->
+  <div id="import-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-2xl rounded-t-3xl sm:rounded-3xl shadow-2xl border border-lavender-100 max-h-[92vh] flex flex-col overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-lavender-50/50">
+        <div>
+          <h3 class="font-serif font-bold text-lg text-slate-900">Import from Calendar</h3>
+          <p class="text-xs text-slate-500">Turn your Google Calendar jobs into bookings</p>
+        </div>
+        <button onclick="closeImportModal()" class="p-2 rounded-full hover:bg-slate-200/70 text-slate-500 transition" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 overflow-y-auto space-y-4">
+        <div id="import-step-pick" class="space-y-4">
+          <div class="p-4 rounded-2xl bg-sky-50 border border-sky-200 text-xs text-sky-900 space-y-2 leading-relaxed">
+            <p class="font-bold">How to get your calendar file</p>
+            <ol class="list-decimal pl-4 space-y-1">
+              <li>On a computer, open Google Calendar and go to <b>Settings → Import &amp; export → Export</b>.</li>
+              <li>You get a zip file. Unzip it (double-click it) and you will see a file ending in <b>.ics</b>.</li>
+              <li>Choose that .ics file below.</li>
+            </ol>
+          </div>
+          <label class="block w-full cursor-pointer p-6 rounded-2xl border-2 border-dashed border-lavender-300 hover:bg-lavender-50 text-center transition">
+            <i data-lucide="upload" class="w-6 h-6 text-lavender-700 mx-auto"></i>
+            <span class="block text-sm font-bold text-lavender-800 mt-2">Choose .ics file</span>
+            <span class="block text-[11px] text-slate-500 mt-0.5">The file is read on this device only. Nothing is uploaded anywhere.</span>
+            <input type="file" id="import-file-input" accept=".ics,text/calendar" onchange="handleImportFile(event)" class="hidden">
+          </label>
+        </div>
+
+        <div id="import-step-review" class="hidden space-y-4">
+          <p id="import-summary" class="text-xs text-slate-600 leading-relaxed"></p>
+          <div id="import-review-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <div id="import-footer" class="hidden px-5 py-3.5 border-t border-slate-100 bg-white flex items-center justify-between gap-2.5">
+        <p class="text-[11px] text-slate-500 hidden sm:block">Imported jobs have no price yet. Add the price and deposit afterwards.</p>
+        <div class="flex items-center gap-2.5 ml-auto">
+          <button onclick="closeImportModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
+          <button id="import-confirm-btn" onclick="importSelectedEvents()" class="px-5 py-2.5 rounded-xl bg-lavender-700 hover:bg-lavender-800 text-white text-xs font-bold shadow-md shadow-lavender-200 transition disabled:opacity-40 disabled:cursor-not-allowed">Import</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1417,12 +1467,13 @@
               </div>
               <h4 class="font-bold text-base text-slate-900 mt-1.5">${esc(b.clientName)}</h4>
               <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-lavender-500 shrink-0"></i> ${esc(b.venue)}
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-lavender-500 shrink-0"></i> ${esc(b.venue || 'Venue not set')}
               </p>
             </div>
             <div class="text-right shrink-0">
               ${getStatusBadgeHTML(b.status)}
               <p class="font-bold text-sm text-slate-900 mt-1.5">${esc(formatRM(b.subtotal))}</p>
+              ${b.subtotal <= 0 ? '<p class="text-[10px] font-semibold text-amber-600 mt-0.5">Add price</p>' : ''}
               <p class="text-[11px] ${b.balanceDue > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}">
                 ${b.balanceDue > 0 ? 'Bal: ' + esc(formatRM(b.balanceDue)) : 'Settled'}
               </p>
@@ -2235,7 +2286,313 @@
     }
 
     // =========================================================================
-    // 13. CONFIRMATION DIALOG, SAMPLE DATA & KEYBOARD HANDLING
+    // 13. IMPORT BOOKINGS FROM A CALENDAR (.ics) FILE
+    // =========================================================================
+    // ---- ICS PARSING (pure functions) ----
+    const IMPORT_JUNK_RE = /shopee|voucher|flash sale|deep discount|sales reminder|check-in|check-out|^stay at|birthday|reward \d|midnight madness|super brands|awesome sale|money wheel|livestream/i;
+    const IMPORT_BOOKING_HINT_RE = /nikah|sanding|tunang|akad|make ?up|bridal|bride|bridesmaid|convo|dinner|wedding|groom|aqiqah|touch ?up|solemn/i;
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function unescapeIcsText(t) {
+      return String(t || '')
+        .replace(/\\n/gi, '\n')
+        .replace(/\\,/g, ',')
+        .replace(/\\;/g, ';')
+        .replace(/\\\\/g, '\\');
+    }
+
+    // Returns Malaysia local date/time for an iCalendar date property
+    function parseIcsDate(prop) {
+      if (!prop) return null;
+      const v = String(prop.value || '').trim();
+      let m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})?(Z?)$/.exec(v);
+      if (m) {
+        let y = +m[1], mo = +m[2], d = +m[3], h = +m[4], mi = +m[5];
+        if (m[7] === 'Z') {
+          const dt = new Date(Date.UTC(y, mo - 1, d, h, mi) + MY_UTC_OFFSET_HOURS * 3600000);
+          y = dt.getUTCFullYear(); mo = dt.getUTCMonth() + 1; d = dt.getUTCDate();
+          h = dt.getUTCHours(); mi = dt.getUTCMinutes();
+        }
+        return { date: `${y}-${pad2(mo)}-${pad2(d)}`, time: `${pad2(h)}:${pad2(mi)}`, allDay: false };
+      }
+      m = /^(\d{4})(\d{2})(\d{2})$/.exec(v);
+      if (m) return { date: `${m[1]}-${m[2]}-${m[3]}`, time: '', allDay: true };
+      return null;
+    }
+
+    function addMinutesToTime(t, mins) {
+      const total = Math.min(23 * 60 + 59, timeToMinutes(t) + mins);
+      return `${pad2(Math.floor(total / 60))}:${pad2(total % 60)}`;
+    }
+
+    // "Aisyah(Sanding)" -> { name: "Aisyah", service: "Sanding" }
+    function splitEventTitle(title) {
+      const m = /^(.*?)\s*\(([^)]*)\)\s*$/.exec(String(title || '').trim());
+      if (m && m[1]) return { name: m[1].trim(), service: m[2].trim() };
+      return { name: String(title || '').trim(), service: '' };
+    }
+
+    function parseIcsEvents(text) {
+      const unfolded = String(text || '').replace(/\r\n|\r/g, '\n').replace(/\n[ \t]/g, '');
+      const blocks = unfolded.split('BEGIN:VEVENT').slice(1).map(b =>
+        b.split('END:VEVENT')[0].replace(/BEGIN:VALARM[\s\S]*?END:VALARM/g, '')
+      );
+      const events = [];
+      blocks.forEach(block => {
+        const props = {};
+        block.split('\n').forEach(line => {
+          const idx = line.indexOf(':');
+          if (idx < 1) return;
+          const left = line.slice(0, idx);
+          const name = left.split(';')[0].toUpperCase();
+          if (!(name in props)) props[name] = { params: left.slice(name.length).toUpperCase(), value: line.slice(idx + 1) };
+        });
+
+        const s = parseIcsDate(props.DTSTART);
+        if (!s) return;
+        const e = parseIcsDate(props.DTEND);
+        const status = (props.STATUS ? props.STATUS.value : '').trim().toUpperCase();
+        if (status === 'CANCELLED') return;
+        const title = unescapeIcsText(props.SUMMARY ? props.SUMMARY.value : '').trim();
+        if (!title) return;
+
+        let startTime, endTime;
+        if (s.allDay) {
+          startTime = '09:00';
+          endTime = '10:00';
+        } else {
+          startTime = s.time;
+          if (e && !e.allDay && e.date === s.date && timeToMinutes(e.time) > timeToMinutes(s.time)) {
+            endTime = e.time;
+          } else if (e && !e.allDay && e.date !== s.date) {
+            endTime = '23:59'; // runs past midnight: cap at end of the day
+          } else {
+            endTime = addMinutesToTime(s.time, 60);
+          }
+        }
+
+        events.push({
+          title,
+          date: s.date,
+          startTime,
+          endTime,
+          allDay: s.allDay,
+          location: unescapeIcsText(props.LOCATION ? props.LOCATION.value : '').replace(/\n+/g, ' ').trim(),
+          description: unescapeIcsText(props.DESCRIPTION ? props.DESCRIPTION.value : '').trim().slice(0, 300)
+        });
+      });
+      return events;
+    }
+
+    function classifyImportEvents(events, existingBookings) {
+      const existing = new Set(existingBookings.map(b => `${b.eventDate}|${b.startTime}|${String(b.clientName).toLowerCase()}`));
+      const seen = new Set();
+      const cutoff = localDateStr(new Date(Date.now() - 365 * 86400000));
+      const out = [];
+
+      events.forEach(ev => {
+        if (IMPORT_JUNK_RE.test(ev.title)) return;
+        const parts = splitEventTitle(ev.title);
+        const key = `${ev.date}|${ev.startTime}|${parts.name.toLowerCase()}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+
+        const bookingLike = /\([^)]+\)\s*$/.test(ev.title) || IMPORT_BOOKING_HINT_RE.test(ev.title);
+        if (!bookingLike && ev.date < cutoff) return; // hide old personal events
+        const duplicate = existing.has(key);
+        out.push({
+          ...ev,
+          clientName: parts.name,
+          service: parts.service,
+          bookingLike,
+          duplicate,
+          selected: bookingLike && !duplicate
+        });
+      });
+
+      out.sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+      return out;
+    }
+    // ---- END ICS PARSING ----
+
+    let pendingImportEvents = [];
+
+    function openImportModal() {
+      pendingImportEvents = [];
+      document.getElementById('import-step-pick').classList.remove('hidden');
+      document.getElementById('import-step-review').classList.add('hidden');
+      document.getElementById('import-footer').classList.add('hidden');
+      document.getElementById('import-file-input').value = '';
+      const modal = document.getElementById('import-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeImportModal() {
+      const modal = document.getElementById('import-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      pendingImportEvents = [];
+    }
+
+    function handleImportFile(event) {
+      const input = event.target;
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('That file is too large. Please choose a calendar .ics file.', 'error');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        let events = [];
+        try { events = parseIcsEvents(e.target.result); } catch (err) { events = []; }
+        if (events.length === 0) {
+          showToast('No events found. Please choose the .ics file from your calendar export.', 'error');
+          input.value = '';
+          return;
+        }
+        pendingImportEvents = classifyImportEvents(events, appState.bookings);
+        if (pendingImportEvents.length === 0) {
+          showToast('Only shopping or travel reminders were found, nothing to import.', 'error');
+          input.value = '';
+          return;
+        }
+        renderImportReview();
+      };
+      reader.onerror = function () {
+        showToast('Could not read that file.', 'error');
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function importRowHTML(ev, idx) {
+      const time = ev.allDay ? 'All day' : `${formatDisplayTime(ev.startTime)} – ${formatDisplayTime(ev.endTime)}`;
+      return `
+        <label class="flex items-start gap-3 p-3 rounded-2xl border ${ev.duplicate ? 'bg-slate-50 border-slate-100 opacity-60' : 'bg-white border-lavender-100 hover:border-lavender-300'} cursor-pointer">
+          <input type="checkbox" class="mt-1 w-4 h-4 accent-lavender-700 shrink-0" ${ev.selected ? 'checked' : ''} ${ev.duplicate ? 'disabled' : ''} onchange="toggleImportItem(${idx}, this.checked)">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-bold text-lavender-800 bg-lavender-100 px-2 py-0.5 rounded-md">${esc(formatDisplayDate(ev.date))}</span>
+              <span class="text-[11px] text-slate-500 font-medium">${esc(time)}</span>
+              ${ev.duplicate ? '<span class="text-[10px] font-semibold text-slate-500">Already in app</span>' : ''}
+            </div>
+            <p class="font-semibold text-sm text-slate-900 truncate mt-1">${esc(ev.clientName)}${ev.service ? ` <span class="font-normal text-slate-500">• ${esc(ev.service)}</span>` : ''}</p>
+            ${ev.location ? `<p class="text-[11px] text-slate-500 truncate">${esc(ev.location)}</p>` : ''}
+          </div>
+        </label>`;
+    }
+
+    function renderImportReview() {
+      const othersWasOpen = !!(document.getElementById('import-others') && document.getElementById('import-others').open);
+      const likely = [];
+      const others = [];
+      pendingImportEvents.forEach((ev, idx) => (ev.bookingLike ? likely : others).push(importRowHTML(ev, idx)));
+
+      document.getElementById('import-summary').textContent =
+        `Found ${pendingImportEvents.length} calendar events (shopping and travel reminders were left out). ` +
+        `${likely.length} look like makeup bookings and are already ticked. Untick anything that is not a client job.`;
+
+      let html = '';
+      if (likely.length) {
+        html += `
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-slate-800">Looks like bookings (${likely.length})</h4>
+              <div class="flex gap-3 text-[11px] font-semibold">
+                <button type="button" onclick="setImportGroup(true, true)" class="text-lavender-700 hover:underline">Tick all</button>
+                <button type="button" onclick="setImportGroup(true, false)" class="text-slate-500 hover:underline">Untick all</button>
+              </div>
+            </div>
+            ${likely.join('')}
+          </div>`;
+      }
+      if (others.length) {
+        html += `
+          <details id="import-others" ${othersWasOpen ? 'open' : ''} class="space-y-2">
+            <summary class="text-xs font-bold text-slate-800 cursor-pointer">Other events, not ticked (${others.length}). Tap to review.</summary>
+            <div class="space-y-2 mt-2">${others.join('')}</div>
+          </details>`;
+      }
+      document.getElementById('import-review-list').innerHTML = html;
+
+      document.getElementById('import-step-pick').classList.add('hidden');
+      document.getElementById('import-step-review').classList.remove('hidden');
+      document.getElementById('import-footer').classList.remove('hidden');
+      updateImportCount();
+    }
+
+    function toggleImportItem(idx, checked) {
+      if (pendingImportEvents[idx] && !pendingImportEvents[idx].duplicate) {
+        pendingImportEvents[idx].selected = checked;
+      }
+      updateImportCount();
+    }
+
+    function setImportGroup(bookingLike, value) {
+      pendingImportEvents.forEach(ev => {
+        if (ev.bookingLike === bookingLike && !ev.duplicate) ev.selected = value;
+      });
+      renderImportReview();
+    }
+
+    function updateImportCount() {
+      const count = pendingImportEvents.filter(ev => ev.selected && !ev.duplicate).length;
+      const btn = document.getElementById('import-confirm-btn');
+      btn.textContent = count > 0 ? `Import ${count} selected` : 'Import';
+      btn.disabled = count === 0;
+    }
+
+    function importSelectedEvents() {
+      const chosen = pendingImportEvents
+        .filter(ev => ev.selected && !ev.duplicate)
+        .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+      if (chosen.length === 0) {
+        showToast('Tick at least one event to import.', 'error');
+        return;
+      }
+
+      let added = 0;
+      chosen.forEach((ev, i) => {
+        const receiptNo = 'R-' + String(appState.settings.nextReceiptNo).padStart(4, '0');
+        const booking = normalizeBooking({
+          id: 'bk_' + Date.now() + '_' + i,
+          receiptNo,
+          issuedDate: localDateStr(),
+          clientName: ev.clientName,
+          clientPhone: '',
+          eventDate: ev.date,
+          startTime: ev.startTime,
+          endTime: ev.endTime,
+          venue: ev.location,
+          packageId: 'custom',
+          packageName: ev.service || 'Makeup Service',
+          packagePrice: 0,
+          packageDesc: '',
+          addonFee: 0,
+          addonDesc: '',
+          depositPaid: 0,
+          notes: ev.description
+        });
+        if (booking) {
+          appState.settings.nextReceiptNo += 1;
+          appState.bookings.push(booking);
+          added += 1;
+        }
+      });
+
+      saveAppState();
+      closeImportModal();
+      refreshAllViews();
+      showToast(`${added} booking${added === 1 ? '' : 's'} imported. Add prices and deposits next.`);
+    }
+
+    // =========================================================================
+    // 14. CONFIRMATION DIALOG, SAMPLE DATA & KEYBOARD HANDLING
     // =========================================================================
     let pendingConfirmCallback = null;
 
@@ -2283,6 +2640,7 @@
       const order = [
         ['confirm-modal', closeConfirmModal],
         ['receipt-modal', closeReceiptModal],
+        ['import-modal', closeImportModal],
         ['booking-modal', closeBookingModal],
         ['package-modal', closePackageModal]
       ];
