@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Makeup by Nureen — Boutique Booking & Receipt Studio</title>
   <meta name="theme-color" content="#BE185D" />
 
@@ -70,7 +70,7 @@
   <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- ==================== AUTHENTICATION SCREEN ==================== -->
-  <section id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blush-100 via-blush-50 to-rose-100">
+  <section id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blush-100 via-blush-50 to-blush-200">
     <div class="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-blush-200/70 border border-blush-200 p-6 sm:p-8 space-y-6">
       <div class="text-center space-y-2">
         <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blush-700 to-blush-500 text-white font-serif font-bold text-2xl flex items-center justify-center mx-auto shadow-md shadow-blush-200">
@@ -91,7 +91,7 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-2 p-1 rounded-2xl bg-blush-100 text-xs font-semibold">
+      <div id="auth-mode-tabs" class="grid grid-cols-2 p-1 rounded-2xl bg-blush-100 text-xs font-semibold">
         <button type="button" id="auth-tab-login" onclick="setAuthMode('login')" class="py-2 rounded-xl bg-white text-blush-800 shadow-sm transition">
           Sign In
         </button>
@@ -119,7 +119,11 @@
           </div>
         </div>
 
-        <p id="auth-error-msg" class="hidden text-xs font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-2.5"></p>
+        <div class="text-right -mt-2">
+          <button type="button" onclick="handleForgotPassword()" class="text-[11px] font-semibold text-blush-700 hover:text-blush-900 hover:underline">Forgot password?</button>
+        </div>
+
+        <p id="auth-error-msg" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-2.5"></p>
 
         <button type="submit" id="auth-submit-btn"
           class="w-full py-3 rounded-xl bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 text-white text-sm font-bold shadow-md shadow-blush-200 transition flex items-center justify-center gap-2">
@@ -177,6 +181,21 @@
       <!-- ==================== TAB 1: DASHBOARD ==================== -->
       <section id="tab-dashboard" class="tab-content space-y-6">
 
+        <!-- Backup reminder -->
+        <div id="backup-reminder" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <i data-lucide="database-backup" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <p id="backup-reminder-text" class="leading-relaxed">Download a backup.</p>
+          </div>
+          <button onclick="exportJSON()" class="shrink-0 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold transition">Back up now</button>
+        </div>
+
+        <!-- Jobs that still need a price -->
+        <div id="needs-price-banner" class="hidden p-3.5 rounded-2xl bg-blush-50 border border-blush-300 text-blush-900 text-xs flex items-center justify-between gap-3">
+          <p id="needs-price-text" class="leading-relaxed font-medium"></p>
+          <button onclick="reviewNeedsPrice()" class="shrink-0 px-3 py-1.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white font-semibold transition">Review</button>
+        </div>
+
         <!-- Welcome / Quick Summary Banner -->
         <div class="bg-gradient-to-br from-blush-800 via-blush-700 to-blush-600 rounded-3xl p-5 sm:p-6 text-white shadow-lg shadow-blush-200/80 relative overflow-hidden">
           <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -198,9 +217,22 @@
           <div class="w-28 h-28 rounded-full bg-blush-300/20 absolute right-28 -top-10 pointer-events-none"></div>
         </div>
 
+        <!-- Period selector -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-1">
+            <button id="dash-prev" onclick="shiftDashMonth(-1)" class="p-2 rounded-xl hover:bg-blush-100 text-slate-600 transition" aria-label="Previous month"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+            <span id="dash-period-label" class="font-serif font-bold text-charcoal text-base min-w-[9rem] text-center">This month</span>
+            <button id="dash-next" onclick="shiftDashMonth(1)" class="p-2 rounded-xl hover:bg-blush-100 text-slate-600 transition" aria-label="Next month"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+          </div>
+          <div class="flex gap-1.5">
+            <button id="dash-seg-month" onclick="setDashAll(false)" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white">Month</button>
+            <button id="dash-seg-all" onclick="setDashAll(true)" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200">All time</button>
+          </div>
+        </div>
+
         <!-- KPI Cards Grid -->
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-semibold text-slate-500">Total Booked</span>
               <div class="w-8 h-8 rounded-xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
@@ -209,7 +241,7 @@
             <p class="text-[11px] text-slate-400 mt-0.5">Gross job value</p>
           </div>
 
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-semibold text-slate-500">Collected</span>
               <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
@@ -218,7 +250,7 @@
             <p class="text-[11px] text-slate-400 mt-0.5">Deposits &amp; full paid</p>
           </div>
 
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-semibold text-slate-500">Balance Due</span>
               <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
@@ -227,7 +259,7 @@
             <p class="text-[11px] text-slate-400 mt-0.5">To collect from clients</p>
           </div>
 
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs">
+          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-semibold text-slate-500">Net Profit</span>
               <div class="w-8 h-8 rounded-xl bg-blush-100 text-blush-800 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
@@ -236,11 +268,11 @@
             <p class="text-[11px] text-slate-400 mt-0.5">Collected minus expenses</p>
           </div>
 
-          <div class="col-span-2 lg:col-span-1 bg-white p-4 rounded-3xl border border-blush-200/80 shadow-xs flex lg:block items-center justify-between">
+          <div class="col-span-2 lg:col-span-1 bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm flex lg:block items-center justify-between">
             <div>
               <div class="flex items-center justify-between mb-1 lg:mb-2">
                 <span class="text-xs font-semibold text-slate-500">Upcoming Jobs</span>
-                <div class="hidden lg:flex w-8 h-8 rounded-xl bg-blush-100 text-blush-700 items-center justify-center"><i data-lucide="calendar-check" class="w-4 h-4"></i></div>
+                <div class="hidden lg:flex w-8 h-8 rounded-xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="calendar-check" class="w-4 h-4"></i></div>
               </div>
               <p id="kpi-upcoming-count" class="text-xl font-bold text-charcoal">0</p>
               <p class="text-[11px] text-slate-400 mt-0.5">Scheduled sessions</p>
@@ -250,7 +282,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-2 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs">
+          <div class="lg:col-span-2 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h3 class="font-serif font-bold text-charcoal text-lg">Upcoming Appointments</h3>
@@ -263,16 +295,16 @@
             <div id="dashboard-upcoming-list" class="space-y-3"></div>
           </div>
 
-          <div class="bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs flex flex-col justify-between">
+          <div class="bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
                 <div>
-                  <h3 class="font-serif font-bold text-charcoal text-lg">Service Menu</h3>
-                  <p class="text-xs text-slate-500">Quick rate card reference</p>
+                  <h3 class="font-serif font-bold text-charcoal text-lg">Balances to Collect</h3>
+                  <p id="dashboard-balances-total" class="text-xs text-slate-500">Nothing outstanding</p>
                 </div>
-                <button onclick="switchTab('packages')" class="text-xs font-semibold text-blush-700 hover:text-blush-900">Edit</button>
+                <button onclick="switchTab('calendar'); setBookingFilter('deposit')" class="text-xs font-semibold text-blush-700 hover:text-blush-900">See all</button>
               </div>
-              <div id="dashboard-packages-list" class="space-y-2.5"></div>
+              <div id="dashboard-balances-list" class="space-y-2.5"></div>
             </div>
             <button onclick="openBookingModal()" class="mt-5 w-full py-2.5 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200/80 text-blush-800 text-xs font-semibold transition flex items-center justify-center gap-1.5">
               <i data-lucide="plus-circle" class="w-4 h-4"></i> Create Quote / Booking
@@ -285,7 +317,7 @@
       <section id="tab-calendar" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs self-start">
+          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm self-start">
             <div class="flex items-center justify-between mb-4">
               <h3 id="calendar-month-year" class="font-serif font-bold text-lg text-charcoal">November 2026</h3>
               <div class="flex items-center gap-1.5">
@@ -308,13 +340,13 @@
             <div class="mt-4 pt-3 border-t border-blush-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
               <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Fully Paid</div>
               <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Deposit Paid</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Unpaid</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Unpaid</div>
               <button id="clear-date-filter-btn" onclick="clearDateFilter()" class="hidden text-blush-700 font-semibold underline">Show All Dates</button>
             </div>
           </div>
 
           <div class="lg:col-span-7 space-y-4">
-            <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-xs space-y-3">
+            <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-sm space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 id="bookings-list-title" class="font-serif font-bold text-charcoal text-lg">All Client Bookings</h3>
@@ -339,10 +371,13 @@
                   <input type="text" id="booking-search-input" oninput="renderBookingsList()" placeholder="Search client, venue, or package..." class="w-full pl-9 pr-3 py-2 text-xs bg-blush-50/60 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white transition">
                 </div>
                 <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-                  <button onclick="setBookingFilter('all')" data-filter="all" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap">All</button>
-                  <button onclick="setBookingFilter('upcoming')" data-filter="upcoming" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Upcoming</button>
+                  <button onclick="setBookingFilter('upcoming')" data-filter="upcoming" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap">Upcoming</button>
+                  <button onclick="setBookingFilter('week')" data-filter="week" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Next 7 days</button>
                   <button onclick="setBookingFilter('deposit')" data-filter="deposit" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Balance Due</button>
+                  <button onclick="setBookingFilter('noprice')" data-filter="noprice" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Needs price</button>
                   <button onclick="setBookingFilter('paid')" data-filter="paid" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Fully Paid</button>
+                  <button onclick="setBookingFilter('past')" data-filter="past" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Past</button>
+                  <button onclick="setBookingFilter('all')" data-filter="all" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">All</button>
                 </div>
               </div>
             </div>
@@ -354,7 +389,7 @@
 
       <!-- ==================== TAB 3: PACKAGES & ADD-ONS ==================== -->
       <section id="tab-packages" class="tab-content hidden space-y-6">
-        <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-xs">
+        <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
               <h2 class="font-serif font-bold text-xl text-charcoal">Service Packages &amp; Rates</h2>
@@ -371,13 +406,13 @@
       <!-- ==================== TAB 4: EXPENSES & PROFIT ==================== -->
       <section id="tab-expenses" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-xs">
+          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-sm">
             <span class="text-xs font-semibold text-slate-500">Total Collected Revenue</span>
             <p id="exp-kpi-collected" class="text-2xl font-bold text-emerald-600 mt-1">RM 0.00</p>
           </div>
-          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-xs">
+          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-sm">
             <span class="text-xs font-semibold text-slate-500">Total Business Expenses</span>
-            <p id="exp-kpi-expenses" class="text-2xl font-bold text-rose-600 mt-1">RM 0.00</p>
+            <p id="exp-kpi-expenses" class="text-2xl font-bold text-red-600 mt-1">RM 0.00</p>
           </div>
           <div class="bg-gradient-to-r from-blush-700 to-blush-600 p-5 rounded-3xl text-white shadow-md shadow-blush-200">
             <span class="text-xs font-semibold text-blush-100">Net Take-Home Profit</span>
@@ -386,7 +421,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs self-start">
+          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm self-start">
             <h3 class="font-serif font-bold text-charcoal text-lg mb-1">Log Business Expense</h3>
             <p class="text-xs text-slate-500 mb-4">Track makeup restocks, lashes, disposables &amp; petrol/mileage</p>
 
@@ -419,7 +454,7 @@
             </form>
           </div>
 
-          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-xs">
+          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h3 class="font-serif font-bold text-charcoal text-lg">Expense History</h3>
@@ -435,7 +470,7 @@
       <section id="tab-settings" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-xs">
+          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
             <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Boutique Profile &amp; Receipt Branding</h2>
             <p class="text-xs text-slate-500 mb-5">Synced to Firestore and applied automatically to your receipts and header.</p>
 
@@ -450,7 +485,7 @@
                       Choose Image
                       <input type="file" id="set-logo-input" accept="image/*" onchange="handleLogoUpload(event)" class="hidden">
                     </label>
-                    <button type="button" onclick="removeLogo()" class="px-3 py-1.5 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-medium transition">Reset Monogram</button>
+                    <button type="button" onclick="removeLogo()" class="px-3 py-1.5 rounded-xl text-red-600 hover:bg-red-50 text-xs font-medium transition">Reset Monogram</button>
                   </div>
                 </div>
               </div>
@@ -497,11 +532,35 @@
           </div>
 
           <div class="lg:col-span-5 space-y-6">
-            <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-xs space-y-4">
+            <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
               <div>
-                <h3 class="font-serif font-bold text-charcoal text-lg">Cloud Storage &amp; Spreadsheet Export</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Bookings, packages, and expenses are stored in Firebase Firestore so you don't need manual JSON backups.</p>
+                <h3 class="font-serif font-bold text-charcoal text-lg">Backup &amp; Export</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Your data lives in your private cloud account. Keep an extra copy by downloading a backup every so often and saving it in Google Drive or emailing it to yourself.</p>
+                <p id="last-backup-text" class="text-[11px] font-semibold text-blush-700 mt-1.5"></p>
               </div>
+
+              <button onclick="exportJSON()" class="w-full p-3.5 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-900 flex items-center justify-between transition">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-9 h-9 rounded-xl bg-blush-700 text-white flex items-center justify-center shrink-0"><i data-lucide="database-backup" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="text-xs font-bold">Download Full Backup (JSON)</p>
+                    <p class="text-[11px] text-blush-700">Bookings, packages, expenses &amp; profile</p>
+                  </div>
+                </div>
+                <i data-lucide="download" class="w-4 h-4 text-blush-700"></i>
+              </button>
+
+              <label class="w-full p-3.5 rounded-2xl bg-white hover:bg-blush-50 border border-blush-200 text-charcoal flex items-center justify-between cursor-pointer transition">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-9 h-9 rounded-xl bg-charcoal text-white flex items-center justify-center shrink-0"><i data-lucide="upload" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="text-xs font-bold">Restore from Backup</p>
+                    <p class="text-[11px] text-slate-500">Adds missing items, never deletes anything</p>
+                  </div>
+                </div>
+                <i data-lucide="folder-open" class="w-4 h-4 text-slate-600"></i>
+                <input type="file" accept=".json,application/json" onchange="importJSON(event)" class="hidden">
+              </label>
 
               <button onclick="exportCSV()" class="w-full p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 flex items-center justify-between transition">
                 <div class="flex items-center gap-3 text-left">
@@ -515,10 +574,10 @@
               </button>
             </div>
 
-            <div class="bg-white rounded-3xl border border-rose-200 p-5 shadow-xs space-y-3">
+            <div class="bg-white rounded-3xl border border-red-200 p-5 shadow-sm space-y-3">
               <h3 class="font-bold text-charcoal text-sm">Clear Bookings &amp; Expenses</h3>
               <p class="text-xs text-slate-500">Removes all bookings and expense records from Firebase. Your business profile and packages stay intact.</p>
-              <button onclick="openConfirmClearModal()" class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition flex items-center gap-1.5">
+              <button onclick="openConfirmClearModal()" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold transition flex items-center gap-1.5">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All Bookings &amp; Expenses
               </button>
             </div>
@@ -531,7 +590,7 @@
   </div>
 
   <!-- Mobile Bottom Navigation Bar -->
-  <nav id="mobile-nav" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-blush-200 z-30 px-2 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(190,24,93,0.06)]">
+  <nav id="mobile-nav" style="padding-bottom:max(0.375rem, env(safe-area-inset-bottom))" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-blush-200 z-30 px-2 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(190,24,93,0.06)]">
     <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-blush-700">
       <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[10px] font-semibold mt-0.5">Home</span>
     </button>
@@ -710,7 +769,7 @@
       <div class="p-4 sm:p-5 overflow-y-auto space-y-4">
 
         <!-- PRINTABLE / PDF CAPTURE AREA -->
-        <div id="receipt-printable-area" class="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-blush-200/80 text-charcoal">
+        <div id="receipt-printable-area" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-blush-200/80 text-charcoal">
           <div class="flex items-start justify-between border-b border-blush-100 pb-5">
             <div class="flex items-center gap-3">
               <div id="rec-logo-box" class="w-12 h-12 rounded-2xl bg-blush-700 text-white flex items-center justify-center font-serif font-bold text-xl overflow-hidden shrink-0">MN</div>
@@ -884,16 +943,17 @@
   <!-- ==================== MODAL 5: CONFIRMATION DIALOG ==================== -->
   <div id="confirm-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-blush-200 text-center space-y-4">
-      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+      <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
         <i data-lucide="alert-circle" class="w-6 h-6"></i>
       </div>
       <div>
         <h3 id="confirm-modal-title" class="font-serif font-bold text-charcoal text-lg">Are you sure?</h3>
         <p id="confirm-modal-desc" class="text-xs text-slate-500 mt-1">This action cannot be undone.</p>
+        <input type="text" id="confirm-modal-input" autocomplete="off" oninput="onConfirmInput()" class="hidden mt-3 w-full px-3.5 py-2.5 text-sm text-center bg-blush-50/60 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
       </div>
       <div class="flex gap-2.5 pt-1">
         <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
-        <button id="confirm-modal-action-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">Confirm</button>
+        <button id="confirm-modal-action-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">Confirm</button>
       </div>
     </div>
   </div>
@@ -905,10 +965,16 @@
       onAuthStateChanged,
       signInWithEmailAndPassword,
       createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
       signOut
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
       getFirestore,
+      initializeFirestore,
+      persistentLocalCache,
+      persistentMultipleTabManager,
+      writeBatch,
+      runTransaction,
       collection,
       doc,
       setDoc,
@@ -919,18 +985,25 @@
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =========================================================================
+    // SIGN-UP SWITCH
+    // Keep this false so strangers cannot create accounts. Set it to true only
+    // while you are creating YOUR OWN account, then set it back to false.
+    // =========================================================================
+    const ALLOW_SIGNUP = false;
+    if (!ALLOW_SIGNUP) document.getElementById('auth-mode-tabs').classList.add('hidden');
+
+    // =========================================================================
     // FIREBASE CONFIGURATION
-    // Paste your Firebase Web App config values below.
     // =========================================================================
     const firebaseConfig = {
-  apiKey: "AIzaSyCTVI7cv5m1EV-PS9DDc5ntv5umxbQE44Y",
-  authDomain: "makeup-booking-app-60dd6.firebaseapp.com",
-  projectId: "makeup-booking-app-60dd6",
-  storageBucket: "makeup-booking-app-60dd6.firebasestorage.app",
-  messagingSenderId: "452759012871",
-  appId: "1:452759012871:web:2a1d4be7d7aba0d8eb4ca2",
-  measurementId: "G-3LHBP581XN"
-};
+      apiKey: "AIzaSyCTVI7cv5m1EV-PS9DDc5ntv5umxbQE44Y",
+      authDomain: "makeup-booking-app-60dd6.firebaseapp.com",
+      projectId: "makeup-booking-app-60dd6",
+      storageBucket: "makeup-booking-app-60dd6.firebasestorage.app",
+      messagingSenderId: "452759012871",
+      appId: "1:452759012871:web:2a1d4be7d7aba0d8eb4ca2",
+      measurementId: "G-3LHBP581XN"
+    };
 
     const isPlaceholderConfig = !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("PASTE_YOUR");
     if (isPlaceholderConfig) {
@@ -941,7 +1014,14 @@
     try {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
-      db = getFirestore(app);
+      try {
+        db = initializeFirestore(app, {
+          localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
+      } catch (cacheErr) {
+        console.warn('Offline cache unavailable, using normal mode:', cacheErr);
+        db = getFirestore(app);
+      }
     } catch (err) {
       console.error("Firebase init error:", err);
     }
@@ -962,7 +1042,8 @@
       whatsappNo: '',
       logoBase64: '',
       terms: 'Deposit is non-refundable. Balance due 3 days before event.',
-      nextReceiptNo: 1
+      nextReceiptNo: 1,
+      lastBackup: ''
     };
 
     const DEFAULT_PACKAGES = [
@@ -1026,14 +1107,18 @@
     let unsubPackages = null;
     let unsubExpenses = null;
     let unsubMeta = null;
-    let seededDefaults = false;
+    let seededProfile = false;
+    let bookingsLoaded = false;
+    let savingBooking = false;
+    let lastSyncErrorAt = 0;
 
     let authMode = 'login';
     let currentCalendarDate = (() => { const d = new Date(); d.setDate(1); return d; })();
     let selectedCalendarDate = null;
-    let activeBookingFilter = 'all';
+    let activeBookingFilter = 'upcoming';
     let currentReceiptBookingId = null;
     let pendingConfirmCallback = null;
+    let pendingRequireText = null;
     let pendingImportEvents = [];
 
     function userCol(colName) {
@@ -1042,6 +1127,80 @@
 
     function userDoc(colName, id) {
       return doc(db, 'studios', currentUser.uid, colName, id);
+    }
+
+    // Runs a Firestore write without freezing the screen when you are offline.
+    // The write is kept safely on this device and uploaded when the signal returns.
+    function fireWrite(promise, errorMessage) {
+      Promise.resolve(promise).catch((err) => {
+        console.error(err);
+        showToast(errorMessage || 'Could not save to the cloud.', 'error');
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function resetLocalState() {
+      appState.settings = { ...DEFAULT_SETTINGS };
+      appState.packages = DEFAULT_PACKAGES.map(p => ({ ...p }));
+      appState.bookings = [];
+      appState.expenses = [];
+      selectedCalendarDate = null;
+      currentReceiptBookingId = null;
+      refreshAllViews();
+    }
+
+    // Sends many writes in batches of 400 (Firestore limit is 500 per batch)
+    async function commitInChunks(ops) {
+      const commits = [];
+      for (let i = 0; i < ops.length; i += 400) {
+        const batch = writeBatch(db);
+        ops.slice(i, i + 400).forEach(op => {
+          if (op.delete) batch.delete(op.ref);
+          else if (op.merge) batch.set(op.ref, op.data, { merge: true });
+          else batch.set(op.ref, op.data);
+        });
+        commits.push(batch.commit());
+      }
+      await Promise.all(commits);
+    }
+
+    // Hands out receipt numbers safely, even when two devices are used at once
+    async function allocateReceiptNos(count = 1) {
+      let localMax = 0;
+      appState.bookings.forEach(b => {
+        const m = /(\d+)/.exec(b.receiptNo || '');
+        if (m) localMax = Math.max(localMax, parseInt(m[1], 10));
+      });
+      const floor = Math.max(parseInt(appState.settings.nextReceiptNo, 10) || 1, localMax + 1);
+      const ref = userDoc('meta', 'profile');
+      try {
+        const first = await Promise.race([
+          runTransaction(db, async (tx) => {
+            const snap = await tx.get(ref);
+            const stored = snap.exists() ? (parseInt(snap.data().nextReceiptNo, 10) || 1) : 1;
+            const next = Math.max(stored, floor);
+            tx.set(ref, { nextReceiptNo: next + count, updatedAt: serverTimestamp() }, { merge: true });
+            return next;
+          }),
+          sleep(4000).then(() => { throw new Error('receipt-counter-timeout'); })
+        ]);
+        appState.settings.nextReceiptNo = first + count;
+        return first;
+      } catch (err) {
+        // Offline: use this device's counter and record it
+        console.warn('Using local receipt counter:', err);
+        appState.settings.nextReceiptNo = floor + count;
+        fireWrite(setDoc(ref, { nextReceiptNo: floor + count, updatedAt: serverTimestamp() }, { merge: true }));
+        return floor;
+      }
+    }
+
+    async function allocateReceiptNo() {
+      const n = await allocateReceiptNos(1);
+      return 'R-' + String(n).padStart(4, '0');
     }
 
     function syncReceiptCounterWithBookings() {
@@ -1085,6 +1244,11 @@
       const btn = document.getElementById('auth-submit-btn');
 
       errorBox.classList.add('hidden');
+      if (authMode === 'register' && !ALLOW_SIGNUP) {
+        errorBox.textContent = 'New accounts are turned off for this studio.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
       if (isPlaceholderConfig || !auth) {
         errorBox.textContent = "Please paste your Firebase config keys into the script first.";
         errorBox.classList.remove('hidden');
@@ -1109,12 +1273,37 @@
           msg = 'This email is already registered. Switch to Sign In.';
         } else if (err.code === 'auth/weak-password') {
           msg = 'Password must be at least 6 characters.';
+        } else if (err.code === 'auth/too-many-requests') {
+          msg = 'Too many attempts. Wait a few minutes, or use Forgot password.';
+        } else if (err.code === 'auth/network-request-failed') {
+          msg = 'No internet connection. Please try again.';
         }
         errorBox.textContent = msg;
         errorBox.classList.remove('hidden');
       } finally {
         btn.disabled = false;
         btn.classList.remove('opacity-70');
+      }
+    };
+
+    window.handleForgotPassword = async function() {
+      const errorBox = document.getElementById('auth-error-msg');
+      const email = document.getElementById('auth-email').value.trim();
+      errorBox.classList.add('hidden');
+      if (isPlaceholderConfig || !auth) return;
+      if (!email) {
+        errorBox.textContent = 'Type your email above first, then tap "Forgot password?" again.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('If that email has an account, a reset link is on its way. Check your spam folder too.');
+      } catch (err) {
+        errorBox.textContent = err.code === 'auth/network-request-failed'
+          ? 'No internet connection. Please try again.'
+          : 'Could not send the reset email. Check the address and try again.';
+        errorBox.classList.remove('hidden');
       }
     };
 
@@ -1134,37 +1323,30 @@
 
     function startCloudSync() {
       stopListeners();
-      seededDefaults = false;
-      setSyncIndicator('ok');
+      seededProfile = false;
+      bookingsLoaded = false;
+      setSyncIndicator('pending');
 
-      unsubMeta = onSnapshot(userDoc('meta', 'profile'), async (snap) => {
+      unsubMeta = onSnapshot(userDoc('meta', 'profile'), { includeMetadataChanges: true }, (snap) => {
         if (snap.exists()) {
-          const data = snap.data();
-          const merged = { ...DEFAULT_SETTINGS, ...data };
+          const merged = { ...DEFAULT_SETTINGS, ...snap.data() };
           if (typeof merged.logoBase64 !== 'string' || !/^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(merged.logoBase64)) {
             merged.logoBase64 = '';
           }
           appState.settings = merged;
           syncReceiptCounterWithBookings();
           refreshAllViews();
-        } else if (!seededDefaults) {
-          seededDefaults = true;
-          try {
-            await setDoc(userDoc('meta', 'profile'), { ...DEFAULT_SETTINGS, updatedAt: serverTimestamp() });
-          } catch (e) { console.error(e); }
+        } else if (!seededProfile && !snap.metadata.fromCache) {
+          // Brand-new account (confirmed by the server): create the profile and starter packages once
+          seededProfile = true;
+          const batch = writeBatch(db);
+          batch.set(userDoc('meta', 'profile'), { ...DEFAULT_SETTINGS, updatedAt: serverTimestamp() });
+          DEFAULT_PACKAGES.forEach(p => batch.set(userDoc('packages', p.id), p));
+          fireWrite(batch.commit(), 'Could not set up your new studio.');
         }
       }, handleSyncError);
 
-      unsubPackages = onSnapshot(userCol('packages'), async (snap) => {
-        if (snap.empty && !seededDefaults) {
-          seededDefaults = true;
-          try {
-            for (const p of DEFAULT_PACKAGES) {
-              await setDoc(userDoc('packages', p.id), p);
-            }
-          } catch (e) { console.error(e); }
-          return;
-        }
+      unsubPackages = onSnapshot(userCol('packages'), (snap) => {
         appState.packages = snap.docs
           .map(d => ({ id: d.id, ...d.data() }))
           .filter(x => x.name)
@@ -1177,7 +1359,11 @@
         refreshAllViews();
       }, handleSyncError);
 
-      unsubBookings = onSnapshot(userCol('bookings'), (snap) => {
+      unsubBookings = onSnapshot(userCol('bookings'), { includeMetadataChanges: true }, (snap) => {
+        const md = snap.metadata;
+        setSyncIndicator(md.hasPendingWrites ? 'pending' : (md.fromCache && !navigator.onLine ? 'offline' : 'ok'));
+        if (bookingsLoaded && snap.docChanges().length === 0) return;
+        bookingsLoaded = true;
         appState.bookings = snap.docs
           .map(d => normalizeBooking({ id: d.id, ...d.data() }))
           .filter(Boolean);
@@ -1203,15 +1389,28 @@
     function handleSyncError(err) {
       console.error('Firestore error:', err);
       setSyncIndicator('error');
-      showToast('Cloud sync error. Check Firestore rules.', 'error');
+      if (Date.now() - lastSyncErrorAt < 8000) return;
+      lastSyncErrorAt = Date.now();
+      showToast(
+        err && err.code === 'permission-denied'
+          ? 'Access denied by your Firestore rules. They must allow the path studios/{your id}.'
+          : 'Cloud sync problem. Check your internet connection.',
+        'error'
+      );
     }
 
     function setSyncIndicator(state) {
       const dot = document.getElementById('sync-status-dot');
       if (!dot) return;
-      dot.className = state === 'ok'
-        ? 'w-2 h-2 rounded-full bg-emerald-500 shrink-0'
-        : 'w-2 h-2 rounded-full bg-rose-500 shrink-0';
+      const map = {
+        ok: ['bg-emerald-500', 'Saved and synced'],
+        pending: ['bg-amber-400 animate-pulse', 'Saving to the cloud...'],
+        offline: ['bg-slate-400', 'Offline. Changes are kept on this device and sync when you reconnect.'],
+        error: ['bg-red-500', 'Sync problem. Check your connection or Firestore rules.']
+      };
+      const [cls, title] = map[state] || map.ok;
+      dot.className = 'w-2 h-2 rounded-full shrink-0 ' + cls;
+      dot.title = title;
     }
 
     if (auth) {
@@ -1228,6 +1427,8 @@
           startCloudSync();
         } else {
           stopListeners();
+          resetLocalState();
+          document.getElementById('auth-password').value = '';
           appShell.classList.add('hidden');
           mobileNav.classList.add('hidden');
           mobileNav.classList.remove('flex');
@@ -1294,7 +1495,7 @@
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      const colors = type === 'error' ? 'bg-rose-600 text-white' : 'bg-charcoal text-white border border-blush-400/40';
+      const colors = type === 'error' ? 'bg-red-600 text-white' : 'bg-charcoal text-white border border-blush-400/40';
       toast.className = `${colors} px-4 py-3 rounded-2xl shadow-lg text-xs font-medium flex items-center gap-2.5 transition-all duration-300`;
       const icon = document.createElement('i');
       icon.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'sparkles');
@@ -1398,6 +1599,10 @@
         document.getElementById('set-whatsapp').value = s.whatsappNo;
         document.getElementById('set-terms').value = s.terms;
       }
+      const lastBackupEl = document.getElementById('last-backup-text');
+      if (lastBackupEl) {
+        lastBackupEl.textContent = s.lastBackup ? `Last backup: ${formatDisplayDate(s.lastBackup)}` : 'No backup downloaded yet.';
+      }
     }
 
     window.handleLogoUpload = function(event) {
@@ -1421,7 +1626,7 @@
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
           const logoBase64 = canvas.toDataURL('image/png');
           try {
-            await setDoc(userDoc('meta', 'profile'), { ...appState.settings, logoBase64, updatedAt: serverTimestamp() });
+            await setDoc(userDoc('meta', 'profile'), { logoBase64, updatedAt: serverTimestamp() }, { merge: true });
             showToast('Brand logo updated!');
           } catch (err) {
             showToast('Could not save logo to cloud.', 'error');
@@ -1436,7 +1641,7 @@
     window.removeLogo = async function() {
       if (!currentUser || !db) return;
       try {
-        await setDoc(userDoc('meta', 'profile'), { ...appState.settings, logoBase64: '', updatedAt: serverTimestamp() });
+        await setDoc(userDoc('meta', 'profile'), { logoBase64: '', updatedAt: serverTimestamp() }, { merge: true });
         showToast('Reverted to monogram logo.');
       } catch (err) {
         showToast('Could not update logo.', 'error');
@@ -1447,7 +1652,6 @@
       event.preventDefault();
       if (!currentUser || !db) return;
       const updated = {
-        ...appState.settings,
         businessName: document.getElementById('set-business-name').value.trim() || 'Makeup by Nureen',
         ownerName: document.getElementById('set-owner-name').value.trim(),
         tagline: document.getElementById('set-tagline').value.trim(),
@@ -1457,26 +1661,155 @@
         terms: document.getElementById('set-terms').value.trim(),
         updatedAt: serverTimestamp()
       };
-      try {
-        await setDoc(userDoc('meta', 'profile'), updated);
-        document.activeElement && document.activeElement.blur();
-        showToast('Boutique settings saved to cloud!');
-      } catch (err) {
-        showToast('Could not save settings.', 'error');
+      fireWrite(setDoc(userDoc('meta', 'profile'), updated, { merge: true }), 'Could not save settings.');
+      document.activeElement && document.activeElement.blur();
+      showToast('Boutique settings saved!');
+    };
+
+    let dashPeriod = localDateStr().slice(0, 7); // 'YYYY-MM' or 'all'
+
+    window.shiftDashMonth = function(delta) {
+      if (dashPeriod === 'all') dashPeriod = localDateStr().slice(0, 7);
+      const [y, m] = dashPeriod.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      dashPeriod = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      renderDashboard();
+    };
+
+    window.setDashAll = function(flag) {
+      dashPeriod = flag ? 'all' : localDateStr().slice(0, 7);
+      renderDashboard();
+    };
+
+    window.reviewNeedsPrice = function() {
+      switchTab('calendar');
+      setBookingFilter('noprice');
+    };
+
+    function daysUntil(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((new Date(y, m - 1, d) - today) / 86400000);
+    }
+
+    function daysSinceDate(dateStr) {
+      return -daysUntil(dateStr);
+    }
+
+    function relativeDayChip(dateStr) {
+      const d = daysUntil(dateStr);
+      if (d === 0) return { text: 'Today', cls: 'bg-blush-700 text-white' };
+      if (d === 1) return { text: 'Tomorrow', cls: 'bg-blush-100 text-blush-900' };
+      if (d > 1 && d <= 7) return { text: `In ${d} days`, cls: 'bg-blush-50 text-blush-900 border border-blush-200' };
+      if (d > 7) return { text: `In ${d} days`, cls: 'bg-slate-100 text-slate-600' };
+      return { text: d === -1 ? 'Yesterday' : `${-d} days ago`, cls: 'bg-slate-100 text-slate-500' };
+    }
+
+    function mapsUrl(venue) {
+      return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(venue);
+    }
+
+    function dateBlockHTML(dateStr, muted) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const wd = dt.toLocaleDateString('en-MY', { weekday: 'short' });
+      const mon = dt.toLocaleDateString('en-MY', { month: 'short' });
+      return `<div class="w-14 shrink-0 rounded-2xl ${muted ? 'bg-slate-100 text-slate-600' : 'bg-blush-50 text-blush-900 border border-blush-200'} text-center py-1.5">
+        <div class="text-[10px] font-semibold uppercase tracking-wide opacity-80">${esc(wd)}</div>
+        <div class="text-xl font-bold leading-none my-0.5">${d}</div>
+        <div class="text-[10px] font-semibold uppercase opacity-80">${esc(mon)}</div>
+      </div>`;
+    }
+
+    function monthLabel(ym) {
+      const [y, m] = ym.split('-').map(Number);
+      return new Date(y, m - 1, 1).toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
+    }
+
+    function buildReminderText(b) {
+      const s = appState.settings;
+      return `Hi ${b.clientName}! Gentle reminder for your upcoming makeup session with *${s.businessName}* 💄✨\n\n` +
+        `📅 *Date:* ${formatDisplayDate(b.eventDate)}\n` +
+        `⏰ *Time:* ${formatDisplayTime(b.startTime)}\n` +
+        (b.venue ? `📍 *Venue:* ${b.venue}\n` : '') +
+        (b.balanceDue > 0 ? `💳 *Remaining Balance:* *${formatRM(b.balanceDue)}*\n` : '') +
+        `\n*Skin & Session Prep Tips:*\n` +
+        `1. Please arrive/be ready with a clean, bare face (no makeup/sunscreen).\n` +
+        `2. Moisturize your skin & lips well the night before.\n` +
+        `3. Wear a button-down or loose-neck top.\n\n` +
+        `See you soon! 💕`;
+    }
+
+    function copyTextToClipboard(text, okMessage) {
+      const fallback = () => {
+        const tmp = document.createElement('textarea');
+        tmp.value = text;
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(tmp);
+        showToast(ok ? okMessage : 'Could not copy.', ok ? 'success' : 'error');
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast(okMessage)).catch(fallback);
+      } else {
+        fallback();
       }
+    }
+
+    window.copyReminder = function(id) {
+      const b = appState.bookings.find(item => item.id === id);
+      if (!b) return;
+      copyTextToClipboard(buildReminderText(b), 'Reminder copied. Paste it into WhatsApp.');
+    };
+
+    window.quickReminderWhatsApp = function(id) {
+      currentReceiptBookingId = id;
+      window.sendWhatsAppTemplate('reminder');
+    };
+
+    window.markFullyPaid = function(id) {
+      const b = appState.bookings.find(item => item.id === id);
+      if (!b || b.subtotal <= 0 || b.balanceDue <= 0) return;
+      openConfirmModal(
+        'Mark as fully paid?',
+        `${b.clientName}: record the remaining ${formatRM(b.balanceDue)} as received, so this booking shows Fully Paid.`,
+        () => {
+          fireWrite(setDoc(userDoc('bookings', b.id), {
+            depositPaid: b.subtotal, balanceDue: 0, status: 'Fully Paid', updatedAt: serverTimestamp()
+          }, { merge: true }), 'Could not update payment.');
+          showToast('Marked as fully paid.');
+        },
+        'Mark paid'
+      );
+    };
+
+    window.restoreDefaultPackages = function() {
+      if (!currentUser || !db) return;
+      const ops = DEFAULT_PACKAGES.map(p => ({ ref: userDoc('packages', p.id), data: p }));
+      fireWrite(commitInChunks(ops), 'Could not load starter packages.');
+      showToast('Starter packages loaded.');
     };
 
     // =========================================================================
     // DASHBOARD & KPIs
     // =========================================================================
     function renderDashboard() {
-      const totalBooked = appState.bookings.reduce((sum, b) => sum + num(b.subtotal), 0);
-      const totalCollected = appState.bookings.reduce((sum, b) => sum + num(b.depositPaid), 0);
-      const pendingBalance = appState.bookings.reduce((sum, b) => sum + num(b.balanceDue), 0);
-      const totalExpenses = appState.expenses.reduce((sum, e) => sum + num(e.amount), 0);
+      const todayStr = localDateStr();
+      const inPeriod = (ds) => dashPeriod === 'all' || ds.startsWith(dashPeriod);
+      const jobs = appState.bookings.filter(b => inPeriod(b.eventDate));
+      const exps = appState.expenses.filter(e => inPeriod(e.date));
+
+      const totalBooked = jobs.reduce((sum, b) => sum + num(b.subtotal), 0);
+      const totalCollected = jobs.reduce((sum, b) => sum + num(b.depositPaid), 0);
+      const pendingBalance = jobs.reduce((sum, b) => sum + num(b.balanceDue), 0);
+      const totalExpenses = exps.reduce((sum, e) => sum + num(e.amount), 0);
       const netProfit = totalCollected - totalExpenses;
 
-      const todayStr = localDateStr();
       const upcomingJobs = appState.bookings
         .filter(b => b.eventDate >= todayStr)
         .sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
@@ -1487,6 +1820,41 @@
       document.getElementById('kpi-net-profit').textContent = formatRM(netProfit);
       document.getElementById('kpi-upcoming-count').textContent = upcomingJobs.length;
 
+      // Period selector
+      const isAll = dashPeriod === 'all';
+      document.getElementById('dash-period-label').textContent = isAll ? 'All time' : monthLabel(dashPeriod);
+      document.getElementById('dash-prev').classList.toggle('invisible', isAll);
+      document.getElementById('dash-next').classList.toggle('invisible', isAll);
+      const on = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white';
+      const off = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200';
+      document.getElementById('dash-seg-month').className = isAll ? off : on;
+      document.getElementById('dash-seg-all').className = isAll ? on : off;
+
+      // Backup reminder (every 14 days)
+      const reminder = document.getElementById('backup-reminder');
+      const last = appState.settings.lastBackup;
+      const hasData = appState.bookings.length > 0 || appState.expenses.length > 0;
+      if (hasData && (!last || daysSinceDate(last) >= 14)) {
+        document.getElementById('backup-reminder-text').textContent = last
+          ? `Your last backup was ${daysSinceDate(last)} days ago. Download a fresh copy and keep it in Google Drive.`
+          : 'You have not downloaded a backup yet. Download one and keep it in Google Drive as an extra copy.';
+        reminder.classList.remove('hidden');
+      } else {
+        reminder.classList.add('hidden');
+      }
+
+      // Jobs without a price
+      const noPrice = appState.bookings.filter(b => b.subtotal <= 0 && b.eventDate >= todayStr).length;
+      const npBanner = document.getElementById('needs-price-banner');
+      if (noPrice > 0) {
+        document.getElementById('needs-price-text').textContent =
+          `${noPrice} upcoming job${noPrice === 1 ? ' has' : 's have'} no price yet, so totals and receipts are incomplete.`;
+        npBanner.classList.remove('hidden');
+      } else {
+        npBanner.classList.add('hidden');
+      }
+
+      // Upcoming list
       const upContainer = document.getElementById('dashboard-upcoming-list');
       if (upcomingJobs.length === 0) {
         upContainer.innerHTML = `
@@ -1495,32 +1863,53 @@
             <button onclick="openBookingModal()" class="mt-2 text-xs font-bold text-blush-700 hover:underline">+ Add First Booking</button>
           </div>`;
       } else {
-        upContainer.innerHTML = upcomingJobs.slice(0, 4).map(b => `
-          <div class="p-3.5 rounded-2xl bg-blush-50/50 hover:bg-blush-50 border border-blush-100 flex items-center justify-between gap-3 transition">
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-blush-800 bg-blush-100 px-2 py-0.5 rounded-md">${esc(formatDisplayDate(b.eventDate))}</span>
+        upContainer.innerHTML = upcomingJobs.slice(0, 5).map((b, i) => {
+          const chip = relativeDayChip(b.eventDate);
+          return `
+          <div class="p-3 rounded-2xl ${i === 0 ? 'bg-blush-50 border-blush-300' : 'bg-white border-blush-100'} border flex items-center gap-3">
+            ${dateBlockHTML(b.eventDate, false)}
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${chip.cls}">${esc(chip.text)}</span>
                 <span class="text-[11px] text-slate-500 font-medium">${esc(formatDisplayTime(b.startTime))}</span>
               </div>
-              <p class="font-bold text-sm text-charcoal truncate mt-1">${esc(b.clientName)} <span class="font-normal text-slate-500">• ${esc(b.packageName)}</span></p>
-              <p class="text-[11px] text-slate-500 truncate">${esc(b.venue)}</p>
+              <p class="font-bold text-sm text-charcoal truncate mt-0.5">${esc(b.clientName)}</p>
+              <p class="text-[11px] text-slate-500 truncate">${esc(b.packageName)}${b.venue ? ' • ' + esc(b.venue) : ''}</p>
             </div>
-            <div class="text-right shrink-0 space-y-1.5">
+            <div class="text-right shrink-0 space-y-1">
               ${getStatusBadgeHTML(b.status)}
-              <div>
-                <button onclick="openReceiptModal('${esc(b.id)}')" class="text-[11px] font-semibold text-blush-700 hover:text-blush-900 underline">Receipt</button>
-              </div>
+              <div><button onclick="openReceiptModal('${esc(b.id)}')" class="text-[11px] font-semibold text-blush-700 hover:text-blush-900 underline">Receipt</button></div>
             </div>
-          </div>
-        `).join('');
+          </div>`;
+        }).join('');
       }
 
-      document.getElementById('dashboard-packages-list').innerHTML = appState.packages.slice(0, 5).map(p => `
-        <div class="flex items-center justify-between py-2 border-b border-blush-100 last:border-0 text-xs">
-          <span class="font-medium text-slate-700 truncate pr-2">${esc(p.name)}</span>
-          <span class="font-bold text-blush-800 shrink-0">${esc(formatRM(p.price))}</span>
-        </div>
-      `).join('');
+      // Balances to collect
+      const owing = appState.bookings
+        .filter(b => b.balanceDue > 0 && b.subtotal > 0)
+        .sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
+      const owingTotal = owing.reduce((sum, b) => sum + b.balanceDue, 0);
+      document.getElementById('dashboard-balances-total').textContent = owing.length
+        ? `${formatRM(owingTotal)} across ${owing.length} job${owing.length === 1 ? '' : 's'}`
+        : 'Nothing outstanding';
+      const balContainer = document.getElementById('dashboard-balances-list');
+      if (owing.length === 0) {
+        balContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">All payments are up to date.</p>`;
+      } else {
+        balContainer.innerHTML = owing.slice(0, 6).map(b => {
+          const passed = b.eventDate < todayStr;
+          return `
+          <div class="p-2.5 rounded-2xl border ${passed ? 'border-red-200 bg-red-50/50' : 'border-blush-100 bg-blush-50/40'} flex items-center gap-2">
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-bold text-charcoal truncate">${esc(b.clientName)}</p>
+              <p class="text-[11px] ${passed ? 'text-red-600 font-semibold' : 'text-slate-500'}">${esc(formatDisplayDate(b.eventDate))}${passed ? ' • event passed' : ''}</p>
+            </div>
+            <p class="text-sm font-bold text-amber-700 shrink-0">${esc(formatRM(b.balanceDue))}</p>
+            <button onclick="quickReminderWhatsApp('${esc(b.id)}')" class="p-2 rounded-xl hover:bg-emerald-50 text-emerald-600 transition" title="WhatsApp reminder" aria-label="WhatsApp reminder"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
+            <button onclick="markFullyPaid('${esc(b.id)}')" class="p-2 rounded-xl hover:bg-emerald-50 text-emerald-600 transition" title="Mark as paid" aria-label="Mark as paid"><i data-lucide="check-circle-2" class="w-4 h-4"></i></button>
+          </div>`;
+        }).join('');
+      }
     }
 
     function getStatusBadgeHTML(status) {
@@ -1529,7 +1918,7 @@
       } else if (status === 'Deposit Paid') {
         return `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Deposit Paid</span>`;
       }
-      return `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Unpaid</span>`;
+      return `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800">Unpaid</span>`;
     }
 
     // =========================================================================
@@ -1559,7 +1948,7 @@
         if (dayBookings.length > 0) {
           dotsHtml = `<div class="flex justify-center gap-0.5 mt-0.5">` +
             dayBookings.slice(0, 3).map(b => {
-              const color = b.status === 'Fully Paid' ? 'bg-emerald-500' : (b.status === 'Deposit Paid' ? 'bg-amber-500' : 'bg-rose-500');
+              const color = b.status === 'Fully Paid' ? 'bg-emerald-500' : (b.status === 'Deposit Paid' ? 'bg-amber-500' : 'bg-red-500');
               return `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'ring-1 ring-white ' : ''}${color}"></span>`;
             }).join('') + `</div>`;
         }
@@ -1624,25 +2013,94 @@
       renderBookingsList();
     };
 
+    function bookingCardHTML(b) {
+      const id = esc(b.id);
+      const chip = relativeDayChip(b.eventDate);
+      const past = daysUntil(b.eventDate) < 0;
+      const stripe = b.status === 'Fully Paid' ? 'border-l-emerald-500' : (b.status === 'Deposit Paid' ? 'border-l-amber-400' : 'border-l-red-400');
+      const venue = b.venue
+        ? `<a href="${esc(mapsUrl(b.venue))}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-blush-700 max-w-full"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blush-500 shrink-0"></i><span class="truncate">${esc(b.venue)}</span></a>`
+        : `<span class="text-xs text-slate-400 italic">Venue not set</span>`;
+      const money = b.subtotal <= 0
+        ? `<button onclick="openBookingModal(null,'${id}')" class="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 shrink-0">Add price</button>`
+        : `<div class="text-right shrink-0">
+             <p class="font-bold text-sm text-charcoal">${esc(formatRM(b.subtotal))}</p>
+             ${getStatusBadgeHTML(b.status)}
+             <p class="text-[11px] mt-1 ${b.balanceDue > 0 ? 'text-amber-700 font-bold' : 'text-emerald-700 font-semibold'}">${b.balanceDue > 0 ? 'Balance ' + esc(formatRM(b.balanceDue)) : 'Paid in full'}</p>
+           </div>`;
+      const markPaid = (b.balanceDue > 0 && b.subtotal > 0)
+        ? `<button onclick="markFullyPaid('${id}')" class="px-3 py-2 rounded-xl border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Mark paid</button>`
+        : '';
+      return `
+      <article class="bg-white rounded-3xl border border-blush-200/80 border-l-4 ${stripe} shadow-sm p-4 space-y-3 ${past ? 'opacity-90' : ''}">
+        <div class="flex gap-3">
+          ${dateBlockHTML(b.eventDate, past)}
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${chip.cls}">${esc(chip.text)}</span>
+              <span class="text-[11px] font-semibold text-slate-400">${esc(b.receiptNo)}</span>
+            </div>
+            <h4 class="font-serif font-bold text-base text-charcoal truncate mt-1">${esc(b.clientName)}</h4>
+            <p class="text-xs font-semibold text-slate-700 mt-0.5">${esc(formatDisplayTime(b.startTime))} – ${esc(formatDisplayTime(b.endTime))}</p>
+            <div class="mt-0.5 min-w-0">${venue}</div>
+          </div>
+        </div>
+
+        <div class="flex items-end justify-between gap-3 rounded-2xl bg-blush-50/70 px-3 py-2.5">
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-blush-900 truncate">${esc(b.packageName)}</p>
+            ${b.notes ? `<p class="text-[11px] text-slate-500 italic line-clamp-2 mt-0.5">"${esc(b.notes)}"</p>` : ''}
+          </div>
+          ${money}
+        </div>
+
+        <div class="pt-2.5 flex flex-wrap items-center gap-2 border-t border-blush-100">
+          <button onclick="openReceiptModal('${id}')" class="px-3 py-2 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Receipt / PDF
+          </button>
+          <button onclick="quickWhatsAppClient('${id}')" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+          </button>
+          <button onclick="copyReminder('${id}')" class="px-3 py-2 rounded-xl bg-white border border-blush-200 hover:bg-blush-50 text-blush-800 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> Copy reminder
+          </button>
+          ${markPaid}
+          <div class="flex items-center gap-0.5 ml-auto">
+            <button onclick="openGoogleCalendar('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Add to Google Calendar" aria-label="Add to Google Calendar"><i data-lucide="calendar-plus" class="w-4 h-4"></i></button>
+            <button onclick="downloadBookingICS('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Download .ics calendar file" aria-label="Download calendar file"><i data-lucide="download" class="w-4 h-4"></i></button>
+            <button onclick="openBookingModal(null, '${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Edit Booking" aria-label="Edit booking"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+            <button onclick="confirmDeleteBooking('${id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-500 transition" title="Delete Booking" aria-label="Delete booking"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      </article>`;
+    }
+
     function renderBookingsList() {
       const search = (document.getElementById('booking-search-input').value || '').toLowerCase();
       const todayStr = localDateStr();
+      const weekEndDate = new Date();
+      weekEndDate.setDate(weekEndDate.getDate() + 6);
+      const weekEnd = localDateStr(weekEndDate);
 
       let list = [...appState.bookings].sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
 
+      const titles = {
+        all: 'All Client Bookings', upcoming: 'Upcoming Bookings', week: 'Next 7 Days',
+        deposit: 'Balances to Collect', paid: 'Fully Paid', noprice: 'Jobs Needing a Price', past: 'Past Bookings'
+      };
+
       if (selectedCalendarDate) {
+        // A chosen calendar day shows everything booked on that day
         list = list.filter(b => b.eventDate === selectedCalendarDate);
         document.getElementById('bookings-list-title').textContent = `Schedule for ${formatDisplayDate(selectedCalendarDate)}`;
       } else {
-        document.getElementById('bookings-list-title').textContent = 'All Client Bookings';
-      }
-
-      if (activeBookingFilter === 'upcoming') {
-        list = list.filter(b => b.eventDate >= todayStr);
-      } else if (activeBookingFilter === 'deposit') {
-        list = list.filter(b => b.balanceDue > 0);
-      } else if (activeBookingFilter === 'paid') {
-        list = list.filter(b => b.status === 'Fully Paid');
+        document.getElementById('bookings-list-title').textContent = titles[activeBookingFilter] || titles.all;
+        if (activeBookingFilter === 'upcoming') list = list.filter(b => b.eventDate >= todayStr);
+        else if (activeBookingFilter === 'week') list = list.filter(b => b.eventDate >= todayStr && b.eventDate <= weekEnd);
+        else if (activeBookingFilter === 'deposit') list = list.filter(b => b.balanceDue > 0 && b.subtotal > 0);
+        else if (activeBookingFilter === 'paid') list = list.filter(b => b.status === 'Fully Paid');
+        else if (activeBookingFilter === 'noprice') list = list.filter(b => b.subtotal <= 0);
+        else if (activeBookingFilter === 'past') list = list.filter(b => b.eventDate < todayStr).reverse();
       }
 
       if (search) {
@@ -1654,75 +2112,34 @@
         );
       }
 
+      const subtitle = document.getElementById('bookings-list-subtitle');
+      if (subtitle) subtitle.textContent = `${list.length} booking${list.length === 1 ? '' : 's'} shown`;
+
       const container = document.getElementById('bookings-cards-container');
       if (list.length === 0) {
         container.innerHTML = `
           <div class="bg-white rounded-3xl border border-blush-200/80 p-8 text-center">
             <p class="text-sm font-semibold text-charcoal">No bookings match this view</p>
-            <p class="text-xs text-slate-400 mt-1">Click "+ Add Job" or "Import .ics" to add client sessions.</p>
+            <p class="text-xs text-slate-400 mt-1">Try another filter, or click "+ Add Job" or "Import .ics" to add client sessions.</p>
           </div>`;
         return;
       }
 
-      container.innerHTML = list.map(b => {
-        const id = esc(b.id);
-        return `
-        <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-xs hover:border-blush-400 transition space-y-3">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[11px] font-bold text-slate-400">${esc(b.receiptNo)}</span>
-                <span class="text-xs font-bold text-blush-800 bg-blush-100 px-2.5 py-0.5 rounded-lg">${esc(formatDisplayDate(b.eventDate))}</span>
-                <span class="text-xs text-slate-600 font-medium">${esc(formatDisplayTime(b.startTime))} – ${esc(formatDisplayTime(b.endTime))}</span>
-              </div>
-              <h4 class="font-serif font-bold text-base text-charcoal mt-1.5">${esc(b.clientName)}</h4>
-              <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blush-500 shrink-0"></i> ${esc(b.venue || 'Venue not set')}
-              </p>
-            </div>
-            <div class="text-right shrink-0">
-              ${getStatusBadgeHTML(b.status)}
-              <p class="font-bold text-sm text-charcoal mt-1.5">${esc(formatRM(b.subtotal))}</p>
-              ${b.subtotal <= 0 ? '<p class="text-[10px] font-semibold text-amber-600 mt-0.5">Add price</p>' : ''}
-              <p class="text-[11px] ${b.balanceDue > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}">
-                ${b.balanceDue > 0 ? 'Bal: ' + esc(formatRM(b.balanceDue)) : 'Settled'}
-              </p>
-            </div>
-          </div>
-
-          <div class="px-3 py-2 rounded-xl bg-blush-50/70 text-xs flex flex-wrap items-center justify-between gap-2">
-            <span class="font-semibold text-blush-900">${esc(b.packageName)}</span>
-            ${b.notes ? `<span class="text-[11px] text-slate-500 italic truncate max-w-xs">"${esc(b.notes)}"</span>` : ''}
-          </div>
-
-          <div class="pt-1 flex flex-wrap items-center justify-between gap-2 border-t border-blush-100">
-            <div class="flex items-center gap-1.5">
-              <button onclick="openReceiptModal('${id}')" class="px-3 py-1.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-                <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Receipt / PDF
-              </button>
-              <button onclick="quickWhatsAppClient('${id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1 transition">
-                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
-              </button>
-            </div>
-            <div class="flex items-center gap-1">
-              <button onclick="openGoogleCalendar('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Add to Google Calendar" aria-label="Add to Google Calendar">
-                <i data-lucide="calendar-plus" class="w-4 h-4"></i>
-              </button>
-              <button onclick="downloadBookingICS('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Download .ics calendar file" aria-label="Download calendar file">
-                <i data-lucide="download" class="w-4 h-4"></i>
-              </button>
-              <button onclick="openBookingModal(null, '${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Edit Booking" aria-label="Edit booking">
-                <i data-lucide="pencil" class="w-4 h-4"></i>
-              </button>
-              <button onclick="confirmDeleteBooking('${id}')" class="p-2 rounded-xl hover:bg-rose-50 text-rose-500 transition" title="Delete Booking" aria-label="Delete booking">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
+      let html = '';
+      let currentMonth = '';
+      list.forEach(b => {
+        const ym = b.eventDate.slice(0, 7);
+        if (!selectedCalendarDate && ym !== currentMonth) {
+          currentMonth = ym;
+          const count = list.filter(x => x.eventDate.startsWith(ym)).length;
+          html += `<h4 class="pt-2 pb-0.5 px-1 text-xs font-bold uppercase tracking-wider text-blush-800">${esc(monthLabel(ym))} <span class="font-medium text-slate-400 normal-case tracking-normal">• ${count} job${count === 1 ? '' : 's'}</span></h4>`;
+        }
+        html += bookingCardHTML(b);
+      });
+      container.innerHTML = html;
       lucide.createIcons();
     }
+    window.renderBookingsList = renderBookingsList;
 
     // =========================================================================
     // GOOGLE CALENDAR LINK & .ICS EXPORT
@@ -1833,7 +2250,7 @@
     };
 
     // =========================================================================
-    // BOOKING MODAL & FIRESTORE SAVE/DELETE
+    // BOOKING MODAL & FIRESTORE + APPS SCRIPT SAVE/DELETE
     // =========================================================================
     window.openBookingModal = function(preselectedDate = null, editBookingId = null) {
       const modal = document.getElementById('booking-modal');
@@ -1999,39 +2416,41 @@
         updatedAt: serverTimestamp()
       };
 
+      if (savingBooking) return;
+      savingBooking = true;
       try {
         if (editId) {
           const old = appState.bookings.find(b => b.id === editId);
           const samePackage = old && old.packageId === fields.packageId;
-          await setDoc(userDoc('bookings', editId), {
+          const fullBooking = {
             ...(old || {}),
             ...fields,
+            id: editId,
             packageDesc: samePackage && old.packageDesc ? old.packageDesc : (foundPkg ? foundPkg.description : '')
-          });
-          showToast('Booking updated in cloud!');
+          };
+          fireWrite(setDoc(userDoc('bookings', editId), fullBooking, { merge: true }), 'Could not save booking changes.');
+          window.closeBookingModal();
+          showToast('Booking updated!');
         } else {
-          const nextNo = appState.settings.nextReceiptNo || 1;
-          const receiptNo = 'R-' + String(nextNo).padStart(4, '0');
+          const receiptNo = await allocateReceiptNo();
           const id = 'bk_' + Date.now();
-          await setDoc(userDoc('bookings', id), {
+          const newBooking = {
             id,
             receiptNo,
             issuedDate: localDateStr(),
             ...fields,
             packageDesc: foundPkg ? foundPkg.description : '',
             createdAt: serverTimestamp()
-          });
-          await setDoc(userDoc('meta', 'profile'), {
-            ...appState.settings,
-            nextReceiptNo: nextNo + 1,
-            updatedAt: serverTimestamp()
-          });
+          };
+          fireWrite(setDoc(userDoc('bookings', id), newBooking), 'Could not save booking.');
+          window.closeBookingModal();
           showToast(`Booking ${receiptNo} saved!`);
         }
-        window.closeBookingModal();
       } catch (err) {
         console.error(err);
         showToast('Could not save booking.', 'error');
+      } finally {
+        savingBooking = false;
       }
     };
 
@@ -2056,7 +2475,11 @@
     function renderPackagesGrid() {
       const grid = document.getElementById('packages-grid');
       if (appState.packages.length === 0) {
-        grid.innerHTML = `<p class="text-xs text-slate-400 col-span-full text-center py-8">No packages yet. Add your first one.</p>`;
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-8 space-y-3">
+            <p class="text-xs text-slate-500">No packages yet. Add your first one, or load the starter packages.</p>
+            <button onclick="restoreDefaultPackages()" class="px-4 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-800 text-xs font-semibold transition">Load starter packages</button>
+          </div>`;
         return;
       }
       grid.innerHTML = appState.packages.map(pkg => `
@@ -2070,7 +2493,7 @@
           </div>
           <div class="flex items-center justify-end gap-2 pt-2 border-t border-blush-200/50">
             <button onclick="openPackageModal('${esc(pkg.id)}')" class="px-3 py-1.5 rounded-xl bg-white hover:bg-blush-100 text-slate-700 text-xs font-semibold transition">Edit</button>
-            <button onclick="confirmDeletePackage('${esc(pkg.id)}')" class="px-3 py-1.5 rounded-xl hover:bg-rose-50 text-rose-600 text-xs font-semibold transition">Delete</button>
+            <button onclick="confirmDeletePackage('${esc(pkg.id)}')" class="px-3 py-1.5 rounded-xl hover:bg-red-50 text-red-600 text-xs font-semibold transition">Delete</button>
           </div>
         </div>
       `).join('');
@@ -2112,13 +2535,9 @@
         price: Math.max(0, num(document.getElementById('pkg-price').value)),
         description: document.getElementById('pkg-desc').value.trim()
       };
-      try {
-        await setDoc(userDoc('packages', id), payload);
-        showToast(existingId ? 'Package updated!' : 'New package added!');
-        window.closePackageModal();
-      } catch (err) {
-        showToast('Could not save package.', 'error');
-      }
+      fireWrite(setDoc(userDoc('packages', id), payload), 'Could not save package.');
+      showToast(existingId ? 'Package updated!' : 'New package added!');
+      window.closePackageModal();
     };
 
     window.confirmDeletePackage = function(id) {
@@ -2154,7 +2573,7 @@
 
       if (!b.issuedDate && currentUser && db) {
         b.issuedDate = localDateStr();
-        try { await setDoc(userDoc('bookings', b.id), { ...b, issuedDate: b.issuedDate }); } catch (e) {}
+        fireWrite(setDoc(userDoc('bookings', b.id), { issuedDate: b.issuedDate }, { merge: true }));
       }
 
       const s = appState.settings;
@@ -2212,7 +2631,7 @@
       const badgeBase = 'self-start sm:self-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider shrink-0 ';
       badge.className = badgeBase + (b.status === 'Fully Paid'
         ? 'bg-emerald-100 text-emerald-800'
-        : b.status === 'Deposit Paid' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
+        : b.status === 'Deposit Paid' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800');
 
       const modal = document.getElementById('receipt-modal');
       modal.classList.remove('hidden');
@@ -2323,21 +2742,105 @@
       if (type === 'receipt') {
         msg = `Hi ${b.clientName}! Thank you for booking with *${s.businessName}* ✨\n\nHere is your booking & payment summary:\n\n` + buildFormattedReceiptText(b);
       } else {
-        msg = `Hi ${b.clientName}! Gentle reminder for your upcoming makeup session with *${s.businessName}* 💄✨\n\n` +
-          `📅 *Date:* ${formatDisplayDate(b.eventDate)}\n` +
-          `⏰ *Time:* ${formatDisplayTime(b.startTime)}\n` +
-          `📍 *Venue:* ${b.venue}\n` +
-          `💳 *Remaining Balance:* *${formatRM(b.balanceDue)}*\n\n` +
-          `*Skin & Session Prep Tips:*\n` +
-          `1. Please arrive/be ready with a clean, bare face (no makeup/sunscreen).\n` +
-          `2. Moisturize your skin & lips well the night before.\n` +
-          `3. Wear a button-down or loose-neck top.\n\n` +
-          `See you soon! 💕`;
+        msg = buildReminderText(b);
       }
       window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
     };
 
     // =========================================================================
+    // BACKUP & RESTORE (JSON)
+    // =========================================================================
+    window.exportJSON = function() {
+      const { updatedAt, ...settings } = appState.settings;
+      const data = {
+        app: 'makeup-booking-studio',
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        settings,
+        packages: appState.packages,
+        bookings: appState.bookings,
+        expenses: appState.expenses
+      };
+      downloadBlob(JSON.stringify(data, null, 2), 'application/json', `MakeupByNureen_Backup_${localDateStr()}.json`);
+      if (currentUser && db) {
+        fireWrite(setDoc(userDoc('meta', 'profile'), { lastBackup: localDateStr(), updatedAt: serverTimestamp() }, { merge: true }));
+      }
+      showToast('Backup downloaded. Save it to Google Drive or email it to yourself.');
+    };
+
+    window.importJSON = function(event) {
+      const input = event.target;
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('That file is too large to be a backup.', 'error');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        input.value = '';
+        let parsed = null;
+        try { parsed = JSON.parse(e.target.result); } catch (err) { parsed = null; }
+        if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.bookings)) {
+          showToast('That is not a valid backup file.', 'error');
+          return;
+        }
+        const okId = (id) => /^[A-Za-z0-9_.-]{1,128}$/.test(String(id));
+        const bookings = parsed.bookings.map(normalizeBooking).filter(b => b && okId(b.id));
+        const expenses = (Array.isArray(parsed.expenses) ? parsed.expenses : [])
+          .filter(x => x && okId(x.id) && DATE_RE.test(String(x.date || '')))
+          .map(x => ({
+            id: String(x.id), date: x.date, category: String(x.category || 'Other'),
+            description: String(x.description || ''), amount: Math.max(0, num(x.amount))
+          }));
+        const packages = (Array.isArray(parsed.packages) ? parsed.packages : [])
+          .filter(p => p && okId(p.id) && p.name)
+          .map(p => ({ id: String(p.id), name: String(p.name), price: Math.max(0, num(p.price)), description: String(p.description || '') }));
+
+        openConfirmModal(
+          'Restore this backup?',
+          `This adds or updates ${bookings.length} bookings, ${expenses.length} expenses and ${packages.length} packages from the backup. Nothing already in your account is deleted.`,
+          async () => {
+            if (!currentUser || !db) return;
+            const ops = [];
+            bookings.forEach(b => ops.push({ ref: userDoc('bookings', b.id), data: b, merge: true }));
+            expenses.forEach(x => ops.push({ ref: userDoc('expenses', x.id), data: x, merge: true }));
+            packages.forEach(p => ops.push({ ref: userDoc('packages', p.id), data: p, merge: true }));
+
+            const st = parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : {};
+            let maxNo = 0;
+            [...bookings, ...appState.bookings].forEach(b => {
+              const m = /(\d+)/.exec(b.receiptNo || '');
+              if (m) maxNo = Math.max(maxNo, parseInt(m[1], 10));
+            });
+            const profile = { nextReceiptNo: Math.max(parseInt(appState.settings.nextReceiptNo, 10) || 1, parseInt(st.nextReceiptNo, 10) || 1, maxNo + 1) };
+            ['businessName', 'ownerName', 'tagline', 'ssmNo', 'igHandle', 'whatsappNo', 'terms'].forEach(k => {
+              if (typeof st[k] === 'string' && st[k]) profile[k] = st[k];
+            });
+            if (typeof st.logoBase64 === 'string' && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(st.logoBase64)) {
+              profile.logoBase64 = st.logoBase64;
+            }
+            profile.updatedAt = serverTimestamp();
+            ops.push({ ref: userDoc('meta', 'profile'), data: profile, merge: true });
+
+            try {
+              const result = await Promise.race([commitInChunks(ops), sleep(20000).then(() => 'timeout')]);
+              showToast(result === 'timeout'
+                ? 'Backup is saved on this device and will finish uploading when you are online.'
+                : 'Backup restored successfully!');
+            } catch (err) {
+              console.error(err);
+              showToast('Could not restore the backup.', 'error');
+            }
+          },
+          'Restore'
+        );
+      };
+      reader.readAsText(file);
+    };
+
+    // ====================================================================
     // EXPENSES & CSV EXPORT
     // =========================================================================
     function renderExpensesView() {
@@ -2369,8 +2872,8 @@
             <p class="text-xs sm:text-sm font-semibold text-charcoal mt-1 truncate">${esc(exp.description)}</p>
           </div>
           <div class="flex items-center gap-2.5 shrink-0">
-            <span class="font-bold text-sm text-rose-600">- ${esc(formatRM(exp.amount))}</span>
-            <button onclick="deleteExpense('${esc(exp.id)}')" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition" aria-label="Delete expense">
+            <span class="font-bold text-sm text-red-600">- ${esc(formatRM(exp.amount))}</span>
+            <button onclick="deleteExpense('${esc(exp.id)}')" class="p-1.5 rounded-lg hover:bg-red-100 text-slate-400 hover:text-red-600 transition" aria-label="Delete expense">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
@@ -2390,24 +2893,16 @@
         description: document.getElementById('exp-desc').value.trim(),
         amount: Math.max(0, num(document.getElementById('exp-amount').value))
       };
-      try {
-        await setDoc(userDoc('expenses', id), payload);
-        document.getElementById('exp-desc').value = '';
-        document.getElementById('exp-amount').value = '';
-        showToast('Expense recorded in cloud!');
-      } catch (err) {
-        showToast('Could not save expense.', 'error');
-      }
+      fireWrite(setDoc(userDoc('expenses', id), payload), 'Could not save expense.');
+      document.getElementById('exp-desc').value = '';
+      document.getElementById('exp-amount').value = '';
+      showToast('Expense recorded!');
     };
 
     window.deleteExpense = async function(id) {
       if (!currentUser || !db) return;
-      try {
-        await deleteDoc(userDoc('expenses', id));
-        showToast('Expense removed.');
-      } catch (err) {
-        showToast('Could not remove expense.', 'error');
-      }
+      fireWrite(deleteDoc(userDoc('expenses', id)), 'Could not remove expense.');
+      showToast('Expense removed.');
     };
 
     function csvCell(value) {
@@ -2688,13 +3183,12 @@
       btn.disabled = true;
       btn.textContent = 'Importing...';
 
-      let nextNo = appState.settings.nextReceiptNo || 1;
       let added = 0;
-
       try {
-        for (let i = 0; i < chosen.length; i++) {
-          const ev = chosen[i];
-          const receiptNo = 'R-' + String(nextNo).padStart(4, '0');
+        const firstNo = await allocateReceiptNos(chosen.length);
+        const ops = [];
+        chosen.forEach((ev, i) => {
+          const receiptNo = 'R-' + String(firstNo + i).padStart(4, '0');
           const id = 'bk_' + Date.now() + '_' + i;
           const booking = normalizeBooking({
             id,
@@ -2716,18 +3210,15 @@
             notes: ev.description
           });
           if (booking) {
-            await setDoc(userDoc('bookings', id), { ...booking, createdAt: serverTimestamp() });
-            nextNo += 1;
+            ops.push({ ref: userDoc('bookings', id), data: { ...booking, createdAt: serverTimestamp() } });
             added += 1;
           }
-        }
-        await setDoc(userDoc('meta', 'profile'), {
-          ...appState.settings,
-          nextReceiptNo: nextNo,
-          updatedAt: serverTimestamp()
         });
+        const result = await Promise.race([commitInChunks(ops), sleep(20000).then(() => 'timeout')]);
         window.closeImportModal();
-        showToast(`${added} booking${added === 1 ? '' : 's'} imported & synced!`);
+        showToast(result === 'timeout'
+          ? `${added} bookings are saved on this device and will finish uploading when you are online.`
+          : `${added} booking${added === 1 ? '' : 's'} imported! Add prices and deposits next.`);
       } catch (err) {
         console.error(err);
         showToast('Error importing bookings.', 'error');
@@ -2738,21 +3229,41 @@
     // =========================================================================
     // CONFIRMATION DIALOG & KEYBOARD SHORTCUTS
     // =========================================================================
-    function openConfirmModal(title, desc, callback, confirmLabel = 'Confirm') {
+    function openConfirmModal(title, desc, callback, confirmLabel = 'Confirm', requireText = null) {
       document.getElementById('confirm-modal-title').textContent = title;
       document.getElementById('confirm-modal-desc').textContent = desc;
-      document.getElementById('confirm-modal-action-btn').textContent = confirmLabel;
+      const btn = document.getElementById('confirm-modal-action-btn');
+      const input = document.getElementById('confirm-modal-input');
+      btn.textContent = confirmLabel;
       pendingConfirmCallback = callback;
+      pendingRequireText = requireText;
+      if (requireText) {
+        input.value = '';
+        input.placeholder = `Type ${requireText} to confirm`;
+        input.classList.remove('hidden');
+        btn.disabled = true;
+      } else {
+        input.classList.add('hidden');
+        btn.disabled = false;
+      }
       const modal = document.getElementById('confirm-modal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+      if (requireText) input.focus();
     }
+
+    window.onConfirmInput = function() {
+      const input = document.getElementById('confirm-modal-input');
+      document.getElementById('confirm-modal-action-btn').disabled =
+        !pendingRequireText || input.value.trim().toUpperCase() !== pendingRequireText;
+    };
 
     window.closeConfirmModal = function() {
       const modal = document.getElementById('confirm-modal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       pendingConfirmCallback = null;
+      pendingRequireText = null;
     };
 
     document.getElementById('confirm-modal-action-btn').addEventListener('click', async () => {
@@ -2764,20 +3275,21 @@
     window.openConfirmClearModal = function() {
       openConfirmModal(
         'Clear All Bookings & Expenses?',
-        'Your business profile and packages stay, while all bookings and expenses in Firestore will be removed.',
+        'This permanently deletes every booking and expense from your cloud account and all your devices. Your profile and packages stay. Download a backup first if you may need these records.',
         async () => {
           if (!currentUser || !db) return;
           try {
-            const bSnap = await getDocs(userCol('bookings'));
-            for (const d of bSnap.docs) await deleteDoc(d.ref);
-            const eSnap = await getDocs(userCol('expenses'));
-            for (const d of eSnap.docs) await deleteDoc(d.ref);
+            const [bSnap, eSnap] = await Promise.all([getDocs(userCol('bookings')), getDocs(userCol('expenses'))]);
+            const ops = [...bSnap.docs, ...eSnap.docs].map(d => ({ ref: d.ref, delete: true }));
+            await commitInChunks(ops);
             showToast('Bookings & expenses cleared.');
           } catch (err) {
+            console.error(err);
             showToast('Could not clear records.', 'error');
           }
         },
-        'Clear data'
+        'Clear data',
+        'DELETE'
       );
     };
 
