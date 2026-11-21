@@ -1109,9 +1109,17 @@
       document.getElementById('firebase-config-banner').classList.remove('hidden');
     }
 
+    // Paste your reCAPTCHA v3 SITE key here (same key as in book.html). Leave empty until the App Check guide step.
+    const RECAPTCHA_SITE_KEY = "";
+
     let app, auth, db;
     try {
       app = initializeApp(firebaseConfig);
+      if (RECAPTCHA_SITE_KEY) {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js")
+          .then(m => m.initializeAppCheck(app, { provider: new m.ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true }))
+          .catch(e => console.warn('App Check unavailable', e));
+      }
       auth = getAuth(app);
       try {
         db = initializeFirestore(app, {
