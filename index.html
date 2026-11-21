@@ -1311,7 +1311,7 @@
 
     async function saveBookingWithCapacity(booking, options = {}) {
       if (!currentUser || !db) throw new Error('not-signed-in');
-      if (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites) throw new Error('bookings-not-ready');
+      if (!options.skipReadyCheck && (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites)) throw new Error('bookings-not-ready');
       if (!navigator.onLine) throw new Error('offline');
       if (!booking || !booking.id || !DATE_RE.test(String(booking.eventDate || ''))) throw new Error('invalid-booking');
 
@@ -2195,7 +2195,7 @@
       document.getElementById('dash-seg-all').className = isAll ? on : off;
 
       // New booking requests
-      const pendingReq = appState.requests.filter(r => r.status === 'pending').length;
+      const pendingReq = appState.requests.filter(r => r.status === 'pending' && r.eventDate >= todayStr).length;
       const reqBanner = document.getElementById('req-banner');
       if (reqBanner) {
         document.getElementById('req-banner-text').textContent = pendingReq === 1 ? '1 new booking request is waiting for you' : `${pendingReq} new booking requests are waiting for you`;
@@ -3407,7 +3407,7 @@
       const s = appState.settings;
       let msg;
       if (kind === 'approve') {
-        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nTo confirm your date, please pay the deposit and send the receipt here. Thank you!`;
+        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nTo confirm your date, please pay the deposit and send the receipt here.${s.depositText ? '\n\n' + s.depositText : ''}${s.duitnowQr ? '\n\nI will send you the DuitNow QR in this chat.' : ''}\n\nThank you!`;
       } else if (kind === 'decline') {
         msg = `Hi ${r.clientName}, thank you for your request (${r.ref}). Unfortunately I am not available at that date and time. Would you like to look at another date? 💕`;
       } else {
@@ -3468,8 +3468,10 @@
       const box = document.getElementById('requests-pending');
       if (!box) return;
       const all = appState.requests.filter(r => r && DATE_RE.test(String(r.eventDate || '')) && /^\d\d:\d\d$/.test(String(r.startTime || '')));
-      const pending = all.filter(r => r.status === 'pending').sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
-      const handled = all.filter(r => r.status !== 'pending').sort((a, b) => b.eventDate.localeCompare(a.eventDate)).slice(0, 30);
+      const todayStr = localDateStr();
+      const pending = all.filter(r => r.status === 'pending' && r.eventDate >= todayStr).sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
+      const handledAll = all.filter(r => !(r.status === 'pending' && r.eventDate >= todayStr)).sort((a, b) => b.eventDate.localeCompare(a.eventDate));
+      const handled = handledAll.slice(0, 40);
 
       ['req-badge', 'req-badge-m'].forEach(id => {
         const el = document.getElementById(id);
@@ -3486,12 +3488,52 @@
           : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p></div>';
       }
       document.getElementById('req-handled-count').textContent = handled.length ? `(${handled.length})` : '';
-      document.getElementById('requests-handled').innerHTML = handled.length ? handled.map(r => `
+      document.getElementById('requests-handled').innerHTML = handled.length ? handled.map(r => {
+        const label = r.status === 'pending' ? 'expired' : r.status;
+        return `
         <div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-blush-50/50 text-xs">
           <div class="min-w-0"><p class="font-semibold text-charcoal truncate">${esc(r.clientName)} <span class="text-slate-400 font-normal">${esc(r.ref)}</span></p><p class="text-slate-500">${esc(formatDisplayDate(r.eventDate))}</p></div>
-          <span class="px-2 py-0.5 rounded-full font-bold ${r.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(r.status)}</span>
-        </div>`).join('') : '<p class="text-xs text-slate-400">Nothing yet.</p>';
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="px-2 py-0.5 rounded-full font-bold ${label === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(label)}</span>
+            ${label === 'declined' ? `<button onclick="restoreRequest('${esc(r.id)}')" class="font-semibold text-blush-700 underline">Restore</button>` : ''}
+            <button onclick="deleteRequest('${esc(r.id)}')" class="p-1 text-red-500 font-bold" aria-label="Delete request" title="Delete">✕</button>
+          </div>
+        </div>`;
+      }).join('') + `<button onclick="clearHandledRequests()" class="mt-2 w-full py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold">Delete all handled requests (${handledAll.length})</button>` : '<p class="text-xs text-slate-400">Nothing yet.</p>';
     }
+
+    window.deleteRequest = function(id) {
+      const r = appState.requests.find(x => x.id === id);
+      if (!r) return;
+      openConfirmModal(
+        'Delete this request?',
+        `${r.clientName} (${r.ref}) will be removed permanently. If it was approved, the booking itself stays.`,
+        () => { fireWrite(deleteDoc(doc(db, 'requests', id)), 'Could not delete the request.'); showToast('Request deleted.'); },
+        'Delete'
+      );
+    };
+
+    window.restoreRequest = function(id) {
+      fireWrite(setDoc(doc(db, 'requests', id), { status: 'pending', handledAt: serverTimestamp() }, { merge: true }), 'Could not restore the request.');
+      showToast('Moved back to pending.');
+    };
+
+    window.clearHandledRequests = function() {
+      const todayStr = localDateStr();
+      const list = appState.requests.filter(r => !(r.status === 'pending' && r.eventDate >= todayStr));
+      if (!list.length) return;
+      openConfirmModal(
+        'Delete all handled requests?',
+        `${list.length} approved, declined and expired requests will be removed. Pending requests and your bookings stay.`,
+        async () => {
+          try {
+            await commitInChunks(list.map(r => ({ ref: doc(db, 'requests', r.id), delete: true })));
+            showToast('Handled requests deleted.');
+          } catch (err) { console.error(err); showToast('Could not delete them.', 'error'); }
+        },
+        'Delete all'
+      );
+    };
 
     window.approveRequest = function(id) {
       const r = appState.requests.find(x => x.id === id);
@@ -3647,7 +3689,7 @@
             try {
               let restoredBookings = 0;
               for (const b of bookings) {
-                await saveBookingWithCapacity(b, { allowOverwrite: true, enforceCapacity: false });
+                await saveBookingWithCapacity(b, { allowOverwrite: true, enforceCapacity: false, skipReadyCheck: true });
                 restoredBookings += 1;
               }
               await commitInChunks(ops);
@@ -4035,7 +4077,7 @@
           });
           if (!booking) { skipped += 1; continue; }
           try {
-            await saveBookingWithCapacity({ ...booking, createdAt: serverTimestamp() }, { enforceCapacity: false });
+            await saveBookingWithCapacity({ ...booking, createdAt: serverTimestamp() }, { enforceCapacity: false, skipReadyCheck: true });
             added += 1;
           } catch (err) {
             console.warn('Skipped imported calendar item:', err);
