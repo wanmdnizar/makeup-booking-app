@@ -2,748 +2,364 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Book Your Makeup Session</title>
-  <meta name="description" content="Request a makeup session: choose a package, pick an available date and send your booking request." />
-  <meta property="og:title" content="Book your makeup session" />
-  <meta property="og:description" content="Choose a package, pick an available date and send your request." />
-  <meta name="theme-color" content="#b81d55" />
-  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: {
-        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'], serif: ['Playfair Display', 'ui-serif', 'Georgia'] },
-        colors: {
-          blush: { 50:'#fff5f8',100:'#ffe8ef',200:'#fed0df',300:'#fbaac6',400:'#f77aa6',500:'#ec4c85',600:'#d92b68',700:'#b81d55',800:'#981b4a',900:'#80193f' },
-          charcoal: '#231F20'
-        }
-      } }
-    };
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Session &amp; Check Booking</title>
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: #fff5f8; color: #231F20; -webkit-tap-highlight-color: transparent; }
-    .field { width: 100%; padding: .7rem .9rem; font-size: 1rem; background: #fff; border: 1px solid #fed0df; border-radius: .9rem; }
-    .field:focus { outline: none; border-color: #ec4c85; box-shadow: 0 0 0 3px rgba(236,76,133,.15); }
-    .field.err { border-color: #dc2626; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-    .day { aspect-ratio: 1 / 1; }
-    @media print { .no-print { display: none !important; } }
+    :root {
+      --bg: #fff5f8;
+      --card: #ffffff;
+      --ink: #231f20;
+      --muted: #64748b;
+      --accent: #b81d55;
+      --accent-dark: #981b4a;
+      --border: #fed0df;
+      --soft: #ffe8ef;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: 0 6px 20px rgba(184, 29, 85, 0.05);
+    }
+
+    h1, h2 {
+      margin: 0 0 0.4rem;
+    }
+
+    p.muted {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid rgba(184, 29, 85, 0.25);
+      border-color: var(--accent);
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 0.72rem 1.05rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background: var(--soft);
+      color: var(--accent-dark);
+      border: 1px solid var(--border);
+    }
+
+    .summary-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 14px;
+      background: var(--soft);
+      font-size: 0.92rem;
+    }
+
+    .booking-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.95rem;
+      margin-top: 0.75rem;
+      background: #fff;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
-<body class="min-h-screen">
-
-  <!-- Header -->
-  <header class="bg-white/90 backdrop-blur border-b border-blush-200 sticky top-0 z-20 no-print">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div id="brand-logo" class="w-10 h-10 rounded-2xl bg-blush-700 text-white flex items-center justify-center font-serif font-bold overflow-hidden shrink-0">M</div>
-        <div class="min-w-0">
-          <p id="brand-name" class="font-serif font-bold text-lg leading-tight truncate">Makeup by Nureen</p>
-          <p id="brand-tagline" class="text-[10px] tracking-[0.18em] uppercase text-blush-700 font-semibold truncate">ART • BEAUTY • BRIDAL</p>
-        </div>
+<body>
+  <header>
+    <div class="nav-inner">
+      <div class="brand">Session Booking</div>
+      <div class="nav-actions">
+        <button type="button" class="btn-secondary" id="tab-book-btn">Book Session</button>
+        <button type="button" class="btn-secondary" id="tab-my-btn">My Booking</button>
       </div>
-      <a id="top-whatsapp" href="#" target="_blank" rel="noopener" class="hidden shrink-0 px-3.5 py-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold items-center gap-1.5">
-        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
-      </a>
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 py-6 pb-28 space-y-8">
+  <main class="container">
+    <!-- Booking Request View -->
+    <section id="view-book" class="card">
+      <h1>Request a Booking</h1>
+      <p class="muted">Fill out your session details below to generate a reference and save it to My Booking.</p>
 
-    <!-- Loading / error -->
-    <section id="state-loading" class="py-20 text-center text-slate-500 text-sm">Loading…</section>
-    <section id="state-error" class="hidden py-16 text-center">
-      <p class="font-serif text-xl font-bold">Booking is not available right now</p>
-      <p id="state-error-text" class="text-sm text-slate-500 mt-2">Please message us on WhatsApp to book.</p>
+      <form id="booking-form">
+        <div class="grid-2">
+          <div>
+            <label for="client-name">Full Name *</label>
+            <input id="client-name" type="text" required placeholder="Your name" />
+          </div>
+          <div>
+            <label for="client-phone">Phone / WhatsApp *</label>
+            <input id="client-phone" type="tel" required placeholder="012-345 6789" />
+          </div>
+          <div>
+            <label for="package-select">Package *</label>
+            <select id="package-select">
+              <option value="Soft Glam|250">Soft Glam — RM 250</option>
+              <option value="Full Glam|450">Full Glam — RM 450</option>
+              <option value="Bridal Session|1200">Bridal Session — RM 1,200</option>
+            </select>
+          </div>
+          <div>
+            <label for="event-date">Event Date *</label>
+            <input id="event-date" type="date" required />
+          </div>
+          <div>
+            <label for="start-time">Start Time *</label>
+            <input id="start-time" type="time" value="08:00" required />
+          </div>
+          <div>
+            <label for="venue">Location / Venue *</label>
+            <input id="venue" type="text" required placeholder="Venue or address" />
+          </div>
+        </div>
+
+        <div style="margin-top: 0.9rem;">
+          <label for="notes">Notes (Optional)</label>
+          <textarea id="notes" rows="2" placeholder="Look preference, ready-by time, or special notes"></textarea>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <button type="submit" class="btn-primary">Submit Request</button>
+        </div>
+      </form>
+
+      <div id="confirmation-box" class="summary-box hidden" aria-live="polite"></div>
     </section>
 
-    <!-- Booking flow -->
-    <div id="flow" class="hidden space-y-8">
+    <!-- My Booking View -->
+    <section id="view-my" class="card hidden">
+      <h2>My Bookings</h2>
+      <p class="muted">Bookings submitted on this browser appear below. You can also look up a booking by reference.</p>
 
-      <!-- Intro -->
-      <section class="text-center space-y-2 pt-2">
-        <p class="text-[11px] tracking-[0.2em] uppercase text-blush-700 font-semibold">Request a booking</p>
-        <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Your best look,<br class="sm:hidden"> on your big day</h1>
-        <p class="text-sm text-slate-600 max-w-md mx-auto">Choose your package, pick an available date and send your request. You will be asked to pay a deposit once it is approved.</p>
-        <a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline pt-1"><i data-lucide="instagram" class="w-4 h-4"></i> See my work on Instagram</a>
-      </section>
+      <div id="saved-bookings-list"></div>
 
-      <!-- Progress -->
-      <nav id="progress" class="flex items-center justify-center gap-2 text-[11px] font-semibold" aria-label="Progress"></nav>
+      <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.25rem 0;" />
 
-      <!-- STEP 1: package -->
-      <section id="step-1" class="space-y-4">
-        <h2 class="font-serif text-xl font-bold">1. Choose your package</h2>
-        <div id="package-list" class="grid gap-3"></div>
-        <div id="addon-wrap" class="hidden space-y-2">
-          <h3 class="text-sm font-bold">Add-ons <span class="font-normal text-slate-500">(optional)</span></h3>
-          <div id="addon-list" class="grid gap-2"></div>
+      <h3>Find by Booking Reference</h3>
+      <div class="grid-2">
+        <div>
+          <label for="lookup-ref">Reference Code</label>
+          <input id="lookup-ref" type="text" placeholder="e.g. BK-8A4K2M" />
         </div>
-        <p id="e-package" class="hidden text-xs font-medium text-red-600"></p>
-        <button onclick="goStep(2)" class="w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button>
-      </section>
-
-      <!-- STEP 2: date & time -->
-      <section id="step-2" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">2. Pick a date &amp; time</h2>
-        <p class="text-sm text-slate-500">Dates show how many sessions are already booked. Client names and details are never shown.</p>
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <button onclick="shiftMonth(-1)" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-            <p id="cal-title" class="font-serif font-bold"></p>
-            <button onclick="shiftMonth(1)" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Next month"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
-          </div>
-          <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase mb-1">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-          </div>
-          <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
-          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Available</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Full / unavailable</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
-          </div>
-          <p id="capacity-hint" class="text-xs text-slate-500 mt-2">Daily booking limit: 3 confirmed sessions.</p>
-        </div>
-
-        <div id="time-wrap" class="hidden space-y-3">
-          <div>
-            <label class="block text-sm font-semibold mb-1">Makeup start time *</label>
-            <select id="f-time" class="field"></select>
-            <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1">Event / ready-by time <span class="font-normal text-slate-500">(optional)</span></label>
-            <input type="time" id="f-ready" class="field">
-            <p class="text-xs text-slate-500 mt-1">When must you be fully ready? We will plan the start time around this.</p>
-          </div>
-        </div>
-        <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
-
-        <div class="flex gap-2">
-          <button onclick="goStep(1)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
-          <button onclick="goStep(3)" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button>
-        </div>
-      </section>
-
-      <!-- STEP 3: details -->
-      <section id="step-3" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">3. Your details</h2>
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-name">Full name *</label>
-            <input id="f-name" class="field" autocomplete="name" maxlength="80">
-            <p id="e-name" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1" for="f-phone">Phone / WhatsApp *</label>
-              <input id="f-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="012-345 6789" maxlength="20">
-              <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
-              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120" placeholder="Optional">
-              <p id="e-email" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>
-          </div>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1" for="f-pax">Number of people to be made up *</label>
-              <input id="f-pax" class="field" type="number" min="1" max="50" value="1" inputmode="numeric">
-              <p class="text-xs text-slate-500 mt-1">Including the main client.</p>
-              <p id="e-pax" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
-            <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
-            <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
-            <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
-            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
-            <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div>
-            <p class="text-sm font-semibold mb-2">Do you have any allergies or sensitive skin? *</p>
-            <div class="grid grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 p-3 rounded-xl border border-blush-200 cursor-pointer has-[:checked]:bg-blush-50 has-[:checked]:border-blush-500 text-sm"><input type="radio" name="allergy" value="none" class="accent-pink-600"> No allergies</label>
-              <label class="flex items-center gap-2 p-3 rounded-xl border border-blush-200 cursor-pointer has-[:checked]:bg-blush-50 has-[:checked]:border-blush-500 text-sm"><input type="radio" name="allergy" value="yes" class="accent-pink-600"> Yes, I do</label>
-            </div>
-            <div id="allergy-detail" class="hidden mt-2">
-              <textarea id="f-allergies" rows="2" class="field" maxlength="500" placeholder="E.g. latex, fragrance, lash glue, eczema…"></textarea>
-            </div>
-            <p id="e-allergy" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
-            <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
-            <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
-            <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
-            <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
-          </div>
-        </div>
-
-        <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
-
-        <div class="flex gap-2">
-          <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
-          <button onclick="goStep(4)" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Review request</button>
-        </div>
-      </section>
-
-      <!-- STEP 4: review -->
-      <section id="step-4" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">4. Review &amp; send</h2>
-        <div id="review-card" class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm space-y-3 text-sm"></div>
-        <label class="flex items-start gap-3 text-xs text-slate-600 leading-relaxed">
-          <input type="checkbox" id="f-terms" class="mt-0.5 accent-pink-600 w-4 h-4 shrink-0">
-          <span>I understand this is a booking <b>request</b>. My date is only confirmed after approval and deposit payment. <span id="terms-text"></span></span>
-        </label>
-        <p id="e-terms" class="hidden text-xs font-medium text-red-600"></p>
-        <p id="e-submit" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-3"></p>
-        <div class="flex gap-2">
-          <button onclick="goStep(3)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
-          <button id="submit-btn" onclick="submitRequest()" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 disabled:opacity-60 text-white font-semibold text-sm transition">Send booking request</button>
-        </div>
-      </section>
-
-      <!-- Info: reviews & FAQ -->
-      <section id="reviews-wrap" class="hidden space-y-3 pt-4">
-        <h2 class="font-serif text-xl font-bold text-center">Kind words</h2>
-        <div id="reviews-list" class="grid gap-3"></div>
-      </section>
-      <section id="faq-wrap" class="hidden space-y-3">
-        <h2 class="font-serif text-xl font-bold text-center">Good to know</h2>
-        <div id="faq-list" class="space-y-2"></div>
-      </section>
-    </div>
-
-    <!-- CONFIRMATION -->
-    <section id="confirmation" class="hidden space-y-5">
-      <div class="text-center space-y-2 pt-2">
-        <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto"><i data-lucide="check" class="w-7 h-7"></i></div>
-        <h1 class="font-serif text-2xl font-bold">Request received</h1>
-        <p class="text-sm text-slate-600">Thank you! Your request is waiting for approval. Your date is <b>not confirmed yet</b>.</p>
-      </div>
-      <div class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm text-center space-y-1">
-        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Booking reference</p>
-        <p id="conf-ref" class="font-serif text-3xl font-bold text-blush-700 tracking-wider"></p>
-        <span class="inline-block mt-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">Pending approval</span>
-      </div>
-      <div id="conf-summary" class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm text-sm space-y-2"></div>
-      <div class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm space-y-3">
-        <h2 class="font-serif font-bold text-lg">What happens next</h2>
-        <ol class="text-sm text-slate-600 space-y-2 list-decimal list-inside">
-          <li>We review your request and reply on WhatsApp, usually within 24 hours.</li>
-          <li>Once approved, pay the deposit to secure your date.</li>
-          <li>We confirm your booking and send your receipt.</li>
-        </ol>
-        <p id="conf-deposit" class="text-sm text-slate-700 bg-blush-50 rounded-2xl p-3 whitespace-pre-line hidden"></p>
-        <div id="conf-qr-wrap" class="hidden text-center space-y-2">
-          <p class="text-xs font-semibold">DuitNow QR</p>
-          <img id="conf-qr" alt="DuitNow QR code" class="mx-auto w-52 max-w-full rounded-2xl border border-blush-200">
-          <a id="conf-qr-dl" download="DuitNow-QR.png" class="inline-block text-xs font-semibold text-blush-700 underline">Save QR image</a>
+        <div style="display: flex; align-items: end;">
+          <button type="button" class="btn-primary" id="lookup-btn" style="width: 100%;">Find Booking</button>
         </div>
       </div>
-      <a id="conf-wa" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition">
-        <i data-lucide="message-circle" class="w-5 h-5"></i> Send a copy via WhatsApp
-      </a>
-      <button onclick="location.reload()" class="w-full py-3 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Make another request</button>
+      <p id="lookup-status" class="muted" style="margin-top: 0.6rem;"></p>
     </section>
   </main>
 
-  <footer class="text-center text-[11px] text-slate-400 pb-8 px-4"><span id="footer-text"></span></footer>
+  <script>
+    const STORAGE_KEY = "demo_client_bookings_v1";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    const viewBook = document.getElementById("view-book");
+    const viewMy = document.getElementById("view-my");
+    const tabBookBtn = document.getElementById("tab-book-btn");
+    const tabMyBtn = document.getElementById("tab-my-btn");
+    const form = document.getElementById("booking-form");
+    const confBox = document.getElementById("confirmation-box");
+    const savedList = document.getElementById("saved-bookings-list");
+    const lookupRef = document.getElementById("lookup-ref");
+    const lookupBtn = document.getElementById("lookup-btn");
+    const lookupStatus = document.getElementById("lookup-status");
 
-    // =========================================================================
-    // SETTINGS YOU MAY CHANGE
-    // =========================================================================
-    // After you create a reCAPTCHA Enterprise key (see the guide), paste it between the quotes.
-    // Leave it empty until then. The page works without it.
-    const RECAPTCHA_SITE_KEY = "";
+    function showView(name) {
+      const isMy = name === "my";
+      viewBook.classList.toggle("hidden", isMy);
+      viewMy.classList.toggle("hidden", !isMy);
+      if (isMy) renderSavedBookings();
+    }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCTVI7cv5m1EV-PS9DDc5ntv5umxbQE44Y",
-      authDomain: "makeup-booking-app-60dd6.firebaseapp.com",
-      projectId: "makeup-booking-app-60dd6",
-      storageBucket: "makeup-booking-app-60dd6.firebasestorage.app",
-      messagingSenderId: "452759012871",
-      appId: "1:452759012871:web:2a1d4be7d7aba0d8eb4ca2",
-      measurementId: "G-3LHBP581XN"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    if (RECAPTCHA_SITE_KEY) {
+    function loadBookings() {
       try {
-        const m = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js");
-        m.initializeAppCheck(app, { provider: new m.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
-      } catch (e) { console.warn('App Check unavailable', e); }
-    }
-    const db = getFirestore(app);
-
-    // ---------- helpers ----------
-    const $ = (id) => document.getElementById(id);
-    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
-    const pad = (n) => String(n).padStart(2, '0');
-    const dstr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const toMin = (t) => { const [h, m] = String(t).split(':').map(Number); return h * 60 + m; };
-    const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
-    const fmtRM = (n) => 'RM ' + num(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const fmtTime = (t) => { const m = toMin(t); const h = Math.floor(m / 60); return `${(h % 12) || 12}:${pad(m % 60)} ${h < 12 ? 'AM' : 'PM'}`; };
-    const fmtDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
-    const fmtDur = (m) => m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ' ' + (m % 60) + 'm' : ''}` : `${m}m`;
-    const waNum = (raw) => {
-      let d = String(raw || '').replace(/\D/g, '');
-      if (!d) return '';
-      if (d.startsWith('00')) d = d.slice(2);
-      if (d.startsWith('60')) return d;
-      if (d.startsWith('0')) return '6' + d;
-      return '60' + d;
-    };
-    const validMyPhone = (raw) => /^(60|0)1\d{8,9}$/.test(String(raw).replace(/[\s\-+()]/g, ''));
-    const safeUrl = (u) => { try { const x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : ''; } catch { return ''; } };
-
-    // ---------- state ----------
-    let cfg = null;
-    const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
-    let availabilityReady = false;
-    let step = 1;
-    let selPkg = null;
-    let selAddons = new Set();
-    let selDate = '';
-    let viewMonth = new Date(); viewMonth.setDate(1);
-    let submitting = false;
-
-    const settingInt = (value, fallback, min, max) => {
-      const n = Number.parseInt(value, 10);
-      return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
-    };
-    const BUFFER = () => settingInt(cfg.bufferMins, 90, 0, 480);
-    const LEAD = () => settingInt(cfg.minLeadDays, 1, 0, 60);
-    const MAX_PER_DAY = () => settingInt(cfg.maxBookingsPerDay, 3, 1, 50);
-    const DAY_START = 5 * 60, LAST_START = 19 * 60, STEP = 30;
-
-    function mainPackages() { return (cfg.packages || []).filter(p => !p.addon); }
-    function addonPackages() { return (cfg.packages || []).filter(p => p.addon); }
-    function currentDuration() { return selPkg ? Math.max(30, selPkg.durationMins || 120) : 120; }
-
-    function capacityReached(date) {
-      const day = busy[date] || {};
-      const count = Number(day.bookingCount) || 0;
-      const cap = settingInt(day.maxBookingsPerDay, MAX_PER_DAY(), 1, 50);
-      return day.capacityReached === true || count >= cap;
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
     }
 
-    // Is a start time free for a job of `dur` minutes on `date`? Travel buffer is kept on both sides.
-    function startIsFree(date, start, dur) {
-      if (!availabilityReady || capacityReached(date)) return false;
-      const slots = Array.isArray(busy[date]?.slots) ? busy[date].slots : [];
-      const end = start + dur;
-      const buf = BUFFER();
-      return slots.every(s => {
-        const bs = toMin(s.s), be = s.e === '24:00' ? 1440 : toMin(s.e);
-        if (bs === 0 && be >= 1440) return false; // whole day blocked
-        return !(start < be + buf && end + buf > bs);
-      });
-    }
-    function freeStarts(date, dur) {
-      const out = [];
-      for (let t = DAY_START; t <= LAST_START; t += STEP) if (startIsFree(date, t, dur)) out.push(t);
-      return out;
-    }
-    function dayState(date) {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const [y, m, d] = date.split('-').map(Number);
-      const dt = new Date(y, m - 1, d);
-      const diff = Math.round((dt - today) / 86400000);
-      if (diff < LEAD()) return 'past';
-      if (diff > 540) return 'far';
-      if (!availabilityReady) return 'loading';
-      return freeStarts(date, currentDuration()).length ? 'open' : 'booked';
+    function saveBookings(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     }
 
-    // ---------- load ----------
-    async function init() {
-      try {
-        const snap = await getDoc(doc(db, 'public', 'config'));
-        if (!snap.exists()) throw new Error('no-config');
-        cfg = snap.data();
-      } catch (e) {
-        console.error(e);
-        $('state-loading').classList.add('hidden');
-        $('state-error').classList.remove('hidden');
+    function makeRef() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "BK-";
+      for (let i = 0; i < 6; i += 1) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return code;
+    }
+
+    function renderSavedBookings(filterRef = "") {
+      const items = loadBookings();
+      const filtered = filterRef
+        ? items.filter((item) => item.ref.toUpperCase() === filterRef.toUpperCase())
+        : items;
+
+      if (!filtered.length) {
+        savedList.innerHTML = `<p class="muted">No matching bookings found yet.</p>`;
         return;
       }
-      applyBrand();
-      $('state-loading').classList.add('hidden');
-      $('flow').classList.remove('hidden');
-      renderProgress();
-      renderPackages();
-      renderInfo();
-      renderCalendar();
-      onSnapshot(collection(db, 'busy'), (snap) => {
-        Object.keys(busy).forEach(k => delete busy[k]);
-        snap.forEach(d => {
-          const v = d.data();
-          if (v && Array.isArray(v.slots)) busy[d.id] = {
-            slots: v.slots,
-            bookingCount: Number(v.bookingCount) || 0,
-            maxBookingsPerDay: settingInt(v.maxBookingsPerDay, MAX_PER_DAY(), 1, 50),
-            capacityReached: v.capacityReached === true
-          };
-        });
-        availabilityReady = true;
-        if (step === 2) { renderCalendar(); refreshTimes(); }
-      }, (err) => {
-        console.warn('availability unavailable', err);
-        availabilityReady = false;
-      });
-      lucide.createIcons();
-    }
 
-    function applyBrand() {
-      document.title = `Book your session | ${cfg.businessName || 'Makeup'}`;
-      $('brand-name').textContent = cfg.businessName || 'Makeup Artist';
-      $('brand-tagline').textContent = cfg.tagline || '';
-      $('footer-text').textContent = `© ${new Date().getFullYear()} ${cfg.businessName || ''}` + (cfg.igHandle ? ` • ${cfg.igHandle}` : '');
-      if (typeof cfg.logo === 'string' && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(cfg.logo)) {
-        const box = $('brand-logo'); box.textContent = '';
-        const img = document.createElement('img'); img.src = cfg.logo; img.alt = ''; img.className = 'w-full h-full object-cover'; box.appendChild(img);
-      }
-      const wa = waNum(cfg.whatsappNo);
-      if (wa) {
-        const a = $('top-whatsapp'); a.href = `https://wa.me/${wa}`; a.classList.remove('hidden'); a.classList.add('inline-flex');
-      }
-      $('terms-text').textContent = cfg.terms || '';
-      const ig = String(cfg.igHandle || '').replace(/^.*instagram\.com\//i, '').replace(/[^A-Za-z0-9._]/g, '');
-      if (ig) { const l = $('ig-link'); l.href = `https://instagram.com/${ig}`; l.classList.remove('hidden'); }
-    }
-
-    function renderProgress() {
-      const labels = ['Package', 'Date', 'Details', 'Review'];
-      $('progress').innerHTML = labels.map((l, i) => {
-        const n = i + 1, on = n === step, done = n < step;
-        return `<span class="flex items-center gap-1.5 ${on ? 'text-blush-800' : done ? 'text-blush-600' : 'text-slate-400'}">
-          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${on ? 'bg-blush-700 text-white' : done ? 'bg-blush-200 text-blush-800' : 'bg-slate-200 text-slate-500'}">${n}</span>${l}</span>${n < 4 ? '<span class="w-4 h-px bg-blush-200"></span>' : ''}`;
-      }).join('');
-    }
-
-    function renderPackages() {
-      const list = mainPackages();
-      $('package-list').innerHTML = list.length ? list.map(p => `
-        <label class="block cursor-pointer">
-          <input type="radio" name="pkg" value="${esc(p.id)}" class="peer sr-only" ${selPkg && selPkg.id === p.id ? 'checked' : ''}>
-          <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm transition peer-checked:border-blush-600 peer-checked:ring-2 peer-checked:ring-blush-300 peer-focus-visible:ring-2">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="font-serif font-bold text-lg leading-tight">${esc(p.name)}</h3>
-              <p class="font-bold text-blush-700 shrink-0">${esc(fmtRM(p.price))}</p>
+      savedList.innerHTML = filtered
+        .map(
+          (b) => `
+          <div class="booking-item">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
+              <strong>${b.ref} — ${b.packageName}</strong>
+              <span class="badge">${b.status}</span>
             </div>
-            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">${esc(p.description || '')}</p>
-            <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> About ${esc(fmtDur(p.durationMins || 120))}</p>
-          </div>
-        </label>`).join('') : '<p class="text-sm text-slate-500 text-center py-6">Packages will appear here soon. Please message us on WhatsApp.</p>';
-      $('package-list').querySelectorAll('input[name=pkg]').forEach(r => r.addEventListener('change', () => {
-        selPkg = mainPackages().find(p => p.id === r.value) || null;
-        $('e-package').classList.add('hidden');
-        if (selDate) { if (!freeStarts(selDate, currentDuration()).length) selDate = ''; }
-      }));
-      const adds = addonPackages();
-      $('addon-wrap').classList.toggle('hidden', adds.length === 0);
-      $('addon-list').innerHTML = adds.map(p => `
-        <label class="flex items-center gap-3 bg-white rounded-2xl border border-blush-200 p-3 cursor-pointer has-[:checked]:border-blush-600 has-[:checked]:bg-blush-50">
-          <input type="checkbox" value="${esc(p.id)}" class="accent-pink-600 w-4 h-4 addon-cb" ${selAddons.has(p.id) ? 'checked' : ''}>
-          <span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="block text-[11px] text-slate-500">${esc(p.description || '')}</span></span>
-          <span class="text-sm font-bold text-blush-700 shrink-0">${esc(fmtRM(p.price))}</span>
-        </label>`).join('');
-      $('addon-list').querySelectorAll('.addon-cb').forEach(cb => cb.addEventListener('change', () => {
-        cb.checked ? selAddons.add(cb.value) : selAddons.delete(cb.value);
-      }));
-      lucide.createIcons();
+            <div class="muted" style="margin-top:0.35rem; margin-bottom:0;">
+              Client: ${b.clientName} (${b.clientPhone})<br />
+              Date &amp; Time: ${b.eventDate} at ${b.startTime}<br />
+              Venue: ${b.venue} • Estimated: RM ${Number(b.price).toFixed(2)}
+            </div>
+          </div>`
+        )
+        .join("");
     }
 
-    function renderInfo() {
-      const rev = String(cfg.reviews || '').split('\n').map(l => l.trim()).filter(Boolean).slice(0, 8);
-      if (rev.length) {
-        $('reviews-wrap').classList.remove('hidden');
-        $('reviews-list').innerHTML = rev.map(l => {
-          const i = l.indexOf('|');
-          const who = i > -1 ? l.slice(0, i).trim() : '';
-          const text = i > -1 ? l.slice(i + 1).trim() : l;
-          return `<figure class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm"><blockquote class="text-sm text-slate-700 italic leading-relaxed">“${esc(text)}”</blockquote>${who ? `<figcaption class="text-xs font-semibold text-blush-700 mt-2">${esc(who)}</figcaption>` : ''}</figure>`;
-        }).join('');
-      }
-      const faq = String(cfg.faq || '').split('\n').map(l => l.trim()).filter(Boolean).slice(0, 12);
-      if (faq.length) {
-        $('faq-wrap').classList.remove('hidden');
-        $('faq-list').innerHTML = faq.map(l => {
-          const i = l.indexOf('|');
-          const q = i > -1 ? l.slice(0, i).trim() : l;
-          const a = i > -1 ? l.slice(i + 1).trim() : '';
-          return `<details class="bg-white rounded-2xl border border-blush-200 p-3.5 shadow-sm"><summary class="text-sm font-semibold cursor-pointer">${esc(q)}</summary>${a ? `<p class="text-sm text-slate-600 mt-2 leading-relaxed">${esc(a)}</p>` : ''}</details>`;
-        }).join('');
-      }
-    }
+    tabBookBtn.addEventListener("click", () => showView("book"));
+    tabMyBtn.addEventListener("click", () => showView("my"));
 
-    // ---------- calendar ----------
-    window.shiftMonth = (d) => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + d, 1); renderCalendar(); };
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const [packageName, price] = document.getElementById("package-select").value.split("|");
+      const entry = {
+        ref: makeRef(),
+        status: "Pending Approval",
+        clientName: document.getElementById("client-name").value.trim(),
+        clientPhone: document.getElementById("client-phone").value.trim(),
+        packageName,
+        price: Number(price || 0),
+        eventDate: document.getElementById("event-date").value,
+        startTime: document.getElementById("start-time").value,
+        venue: document.getElementById("venue").value.trim(),
+        notes: document.getElementById("notes").value.trim()
+      };
 
-    function renderCalendar() {
-      const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
-      $('cal-title').textContent = viewMonth.toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
-      if (!availabilityReady) { $('capacity-hint').textContent = 'Loading availability… If dates do not appear, please refresh or message us on WhatsApp.'; }
-      else $('capacity-hint').textContent = `Daily booking limit: ${MAX_PER_DAY()} confirmed session${MAX_PER_DAY() === 1 ? '' : 's'}. Pending requests do not reserve a slot.`;
-      const first = new Date(y, m, 1).getDay();
-      const days = new Date(y, m + 1, 0).getDate();
-      const now = new Date();
-      $('cal-prev').classList.toggle('invisible', y === now.getFullYear() && m <= now.getMonth());
-      let html = '';
-      for (let i = 0; i < first; i++) html += '<div></div>';
-      for (let d = 1; d <= days; d++) {
-        const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
-        const st = dayState(ds);
-        const sel = ds === selDate;
-        const occupied = Number(busy[ds]?.bookingCount) || 0;
-        const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 50);
-        if (st === 'open') {
-          const availabilityLabel = occupied > 0 ? `${occupied}/${dailyCap} booked` : 'Available';
-          html += `<button type="button" data-date="${ds}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[10px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${occupied}/${dailyCap}</span>` : ''}</button>`;
-        } else if (st === 'booked') {
-          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, fully booked or unavailable"><span class="text-sm font-semibold line-through">${d}</span><span class="text-[10px] uppercase mt-0.5">Full</span></div>`;
-        } else {
-          html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
-        }
-      }
-      $('cal-grid').innerHTML = html;
-      $('cal-grid').querySelectorAll('button[data-date]').forEach(b => b.addEventListener('click', () => {
-        selDate = b.dataset.date;
-        $('e-date').classList.add('hidden');
-        renderCalendar(); refreshTimes();
-      }));
-    }
+      const existing = loadBookings();
+      existing.unshift(entry);
+      saveBookings(existing);
 
-    function refreshTimes() {
-      if (!selDate) { $('time-wrap').classList.add('hidden'); return; }
-      const dur = currentDuration();
-      const starts = freeStarts(selDate, dur);
-      if (!starts.length) { selDate = ''; $('time-wrap').classList.add('hidden'); renderCalendar(); return; }
-      const sel = $('f-time');
-      const keep = sel.value;
-      sel.innerHTML = '<option value="">Select a start time</option>' + starts.map(t => `<option value="${fromMin(t)}">${fmtTime(fromMin(t))} – ${fmtTime(fromMin(t + dur))}</option>`).join('');
-      if (keep && starts.includes(toMin(keep))) sel.value = keep;
-      $('time-hint').textContent = `Showing times that fit your package (about ${fmtDur(dur)}) and leave travel time between clients.`;
-      $('time-wrap').classList.remove('hidden');
-    }
-
-    // ---------- steps ----------
-    const showErr = (id, msg) => { const el = $(id); if (!el) return; el.textContent = msg; el.classList.remove('hidden'); };
-    const clearErr = () => document.querySelectorAll('[id^="e-"]').forEach(e => e.classList.add('hidden'));
-
-    window.goStep = function(n) {
-      clearErr();
-      if (n > step) {
-        if (step === 1 && !validateStep1()) return;
-        if (step <= 2 && n >= 3 && !validateStep2()) return;
-        if (step <= 3 && n >= 4 && !validateStep3()) return;
-        if (n === 4) renderReview();
-      }
-      step = n;
-      for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
-      if (n === 2) { renderCalendar(); refreshTimes(); }
-      renderProgress();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      lucide.createIcons();
-    };
-
-    function validateStep1() {
-      if (!selPkg) { showErr('e-package', 'Please choose a package to continue.'); return false; }
-      return true;
-    }
-    function validateStep2() {
-      if (!availabilityReady) { showErr('e-date', 'Availability is still loading. Please wait a moment and try again.'); return false; }
-      if (!selDate) { showErr('e-date', 'Please pick an available date.'); return false; }
-      const t = $('f-time').value;
-      if (!t) { showErr('e-date', 'Please choose a start time.'); return false; }
-      if (!startIsFree(selDate, toMin(t), currentDuration())) { showErr('e-date', 'That time was just taken. Please choose another.'); refreshTimes(); return false; }
-      return true;
-    }
-    function validateStep3() {
-      let ok = true;
-      const bad = (id, msg) => { showErr(id, msg); ok = false; };
-      if ($('f-name').value.trim().length < 2) bad('e-name', 'Please enter your full name.');
-      if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 012-345 6789.');
-      const emailVal = $('f-email').value.trim();
-      if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)) bad('e-email', 'Please enter a valid email address.');
-      const pax = parseInt($('f-pax').value, 10);
-      if (!(pax >= 1 && pax <= 50)) bad('e-pax', 'Enter a number between 1 and 50.');
-      if ($('f-venue').value.trim().length < 3) bad('e-venue', 'Please tell us where the makeup will be done.');
-      const map = $('f-map').value.trim(); if (map && !safeUrl(map)) bad('e-map', 'That does not look like a link. Paste the full https:// link.');
-      const mood = $('f-mood').value.trim(); if (mood && !safeUrl(mood)) bad('e-mood', 'That does not look like a link. Paste the full https:// link.');
-      const al = document.querySelector('input[name=allergy]:checked');
-      if (!al) bad('e-allergy', 'Please let us know about allergies.');
-      else if (al.value === 'yes' && $('f-allergies').value.trim().length < 2) bad('e-allergy', 'Please describe your allergies.');
-      return ok;
-    }
-
-    document.addEventListener('change', (e) => {
-      if (e.target && e.target.name === 'allergy') $('allergy-detail').classList.toggle('hidden', e.target.value !== 'yes');
+      confBox.classList.remove("hidden");
+      confBox.innerHTML = `
+        <strong>Request Saved!</strong><br />
+        Reference: <strong>${entry.ref}</strong> (${entry.status})<br />
+        ${entry.packageName} on ${entry.eventDate} at ${entry.startTime} — ${entry.venue}
+      `;
+      form.reset();
     });
 
-    function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
-    function getPaxCount() {
-      const n = parseInt($('f-pax')?.value, 10);
-      return Number.isFinite(n) && n >= 1 ? Math.min(50, n) : 1;
-    }
-    function extraPaxAddon() {
-      return addonPackages().find(p => /pax|person|people|bridesmaid|extra\s*pax/i.test(p.name)) || null;
-    }
-    function extraPaxSubtotal() {
-      const pax = getPaxCount();
-      const extraCount = Math.max(0, pax - 1);
-      const perExtra = extraPaxAddon() ? num(extraPaxAddon().price) : 0;
-      return { pax, extraCount, perExtra, total: extraCount * perExtra };
-    }
-    function estimate() {
-      return num(selPkg.price) + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0) + extraPaxSubtotal().total;
-    }
-
-    function renderReview() {
-      const al = document.querySelector('input[name=allergy]:checked').value;
-      const paxInfo = extraPaxSubtotal();
-      const emailVal = $('f-email').value.trim();
-      const rows = [
-        ['Package', `${selPkg.name} (${fmtRM(selPkg.price)})`],
-        ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
-        ['Date', fmtDate(selDate)],
-        ['Makeup start', `${fmtTime($('f-time').value)} – ${fmtTime(fromMin(toMin($('f-time').value) + currentDuration()))}`],
-        ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
-        ['Name', $('f-name').value.trim()],
-        ['Phone', $('f-phone').value.trim()],
-        ...(emailVal ? [['Email', emailVal]] : []),
-        ['People', $('f-pax').value],
-        ...(paxInfo.extraCount > 0 && paxInfo.perExtra > 0 ? [['Extra pax', `${paxInfo.extraCount} × ${fmtRM(paxInfo.perExtra)} (${fmtRM(paxInfo.total)})`]] : []),
-        ['Location', $('f-venue').value.trim()],
-        ['Allergies', al === 'yes' ? $('f-allergies').value.trim() : 'None'],
-        ...($('f-mood').value.trim() ? [['Moodboard', $('f-mood').value.trim()]] : []),
-        ...($('f-notes').value.trim() ? [['Notes', $('f-notes').value.trim()]] : [])
-      ];
-      $('review-card').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
-        `<div class="flex gap-3 pt-3 border-t border-blush-100"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Final price is confirmed when your booking is approved (travel may apply).</span></span></div>`;
-    }
-
-    // ---------- submit ----------
-    function makeRef() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      const arr = new Uint32Array(6); crypto.getRandomValues(arr);
-      return 'NB-' + Array.from(arr, n => chars[n % chars.length]).join('');
-    }
-
-    window.submitRequest = async function() {
-      if (submitting) return;
-      clearErr();
-      if ($('f-website').value) return;  // bot trap
-      if (!$('f-terms').checked) { showErr('e-terms', 'Please tick the box to continue.'); return; }
-      if (!validateStep1() || !validateStep2() || !validateStep3()) { showErr('e-submit', 'Some details need fixing. Please go back and check.'); return; }
-
-      // Stop the same browser from sending many requests in a row
-      try {
-        const last = parseInt(localStorage.getItem('lastRequestAt') || '0', 10);
-        if (Date.now() - last < 60000) { showErr('e-submit', 'Your request was just sent. Please wait a minute before sending another.'); return; }
-      } catch {}
-
-      submitting = true;
-      const btn = $('submit-btn'); btn.disabled = true; btn.textContent = 'Sending…';
-      const al = document.querySelector('input[name=allergy]:checked').value;
-      const ref = makeRef();
-      const paxInfo = extraPaxSubtotal();
-      const addons = selectedAddonObjs().map(a => ({ name: String(a.name).slice(0, 80), price: num(a.price) }));
-      if (paxInfo.extraCount > 0 && paxInfo.perExtra > 0) {
-        addons.push({
-          name: `${paxInfo.extraCount}× ${extraPaxAddon()?.name || 'Additional Pax'}`.slice(0, 80),
-          price: num(paxInfo.perExtra) * paxInfo.extraCount
-        });
-      }
-      const data = {
-        ref, status: 'pending',
-        clientName: $('f-name').value.trim(),
-        phone: $('f-phone').value.replace(/[^\d+]/g, '').slice(0, 16),
-        email: $('f-email').value.trim(),
-        packageId: String(selPkg.id).slice(0, 60),
-        packageName: String(selPkg.name).slice(0, 120),
-        packagePrice: num(selPkg.price),
-        durationMins: currentDuration(),
-        addons,
-        eventDate: selDate,
-        startTime: $('f-time').value,
-        readyBy: $('f-ready').value || '',
-        pax: parseInt($('f-pax').value, 10),
-        venue: $('f-venue').value.trim(),
-        mapLink: safeUrl($('f-map').value.trim()),
-        allergyStatus: al,
-        allergies: al === 'yes' ? $('f-allergies').value.trim() : '',
-        moodboardLink: safeUrl($('f-mood').value.trim()),
-        notes: $('f-notes').value.trim(),
-        termsAccepted: true,
-        source: 'public-page',
-        createdAt: serverTimestamp()
-      };
-      try {
-        const id = (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(16).slice(2))).replace(/[^A-Za-z0-9-]/g, '');
-        await Promise.race([
-          setDoc(doc(db, 'requests', id), data),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000))
-        ]);
-        try { localStorage.setItem('lastRequestAt', String(Date.now())); } catch {}
-        showConfirmation(data);
-      } catch (err) {
-        console.error(err);
-        showErr('e-submit', err && err.message === 'timeout'
-          ? 'This is taking too long. Please check your internet and try again.'
-          : 'Sorry, we could not send your request. Please try again, or message us on WhatsApp.');
-        btn.disabled = false; btn.textContent = 'Send booking request';
-        submitting = false;
-      }
-    };
-
-    function showConfirmation(d) {
-      $('flow').classList.add('hidden');
-      $('confirmation').classList.remove('hidden');
-      $('conf-ref').textContent = d.ref;
-      const rows = [
-        ['Package', d.packageName], ...(d.addons.length ? [['Add-ons', d.addons.map(a => a.name).join(', ')]] : []),
-        ['Date', fmtDate(d.eventDate)], ['Start time', fmtTime(d.startTime)], ['Location', d.venue],
-        ['Estimated total', fmtRM(d.packagePrice + d.addons.reduce((s, a) => s + a.price, 0))]
-      ];
-      $('conf-summary').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-28 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 font-medium break-words">${esc(v)}</span></div>`).join('');
-      const depositNotice = $('conf-deposit');
-      depositNotice.textContent = 'Please do not pay a deposit yet. We will send the deposit instructions and DuitNow QR after your booking request has been approved.';
-      depositNotice.classList.remove('hidden');
-      $('conf-qr-wrap').classList.add('hidden');
-      const msg = `Hi ${cfg.ownerName || cfg.businessName || ''}! I just sent a booking request.\n\n` +
-        `Ref: ${d.ref}\nName: ${d.clientName}\nPackage: ${d.packageName}\nDate: ${fmtDate(d.eventDate)}\nStart: ${fmtTime(d.startTime)}\nLocation: ${d.venue}\n\nThank you!`;
-      const wa = waNum(cfg.whatsappNo);
-      const a = $('conf-wa');
-      if (wa) a.href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`; else a.classList.add('hidden');
-      window.scrollTo({ top: 0 });
-      lucide.createIcons();
-    }
-
-    init();
+    lookupBtn.addEventListener("click", () => {
+      const code = lookupRef.value.trim().toUpperCase();
+      lookupStatus.textContent = code ? `Showing results for ${code}.` : "Showing all bookings saved on this browser.";
+      renderSavedBookings(code);
+    });
   </script>
 </body>
 </html>
