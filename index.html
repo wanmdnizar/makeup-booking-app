@@ -357,7 +357,7 @@
             </div>
 
             <div class="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 uppercase mb-2">
-              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
             </div>
 
             <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-center"></div>
@@ -499,6 +499,7 @@
             <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Boutique Profile &amp; Receipt Branding</h2>
             <p class="text-xs text-slate-500 mb-5">Synced to Firestore and applied automatically to your receipts and header.</p>
 
+            <button type="button" onclick="openMyBookings()" class="mb-5 px-4 py-2 rounded-xl bg-blush-50 text-blush-800 text-sm font-semibold">My Bookings</button>
             <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4">
               <div class="flex items-center gap-4 p-4 rounded-2xl bg-blush-50/80 border border-blush-200/70">
                 <div id="settings-logo-preview" class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blush-700 to-blush-500 text-white flex items-center justify-center font-serif font-bold text-2xl shadow-sm overflow-hidden shrink-0">MN</div>
@@ -2045,6 +2046,14 @@
       renderDashboard();
     };
 
+    window.openMyBookings = function() {
+      switchTab('calendar');
+      document.getElementById('booking-search-input').value = '';
+      clearDateFilter();
+      setBookingFilter('all');
+      document.getElementById('bookings-list-title').scrollIntoView({block: 'center'});
+    };
+
     window.reviewNeedsPrice = function() {
       switchTab('calendar');
       setBookingFilter('noprice');
@@ -2303,7 +2312,7 @@
       document.getElementById('calendar-month-year').textContent =
         new Date(year, month, 1).toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
 
-      const firstDayIndex = new Date(year, month, 1).getDay();
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const todayStr = localDateStr();
 
@@ -2713,7 +2722,7 @@
 
       const newStart = timeToMinutes(startVal);
       const newEnd = timeToMinutes(endVal);
-      const bufferMins = 120;
+      const bufferMins = num(appState.settings.bufferMins);
       const items = [];
 
       if (newEnd <= newStart) {
@@ -2730,7 +2739,7 @@
         } else {
           const gap = newStart >= jobEnd ? newStart - jobEnd : jobStart - newEnd;
           if (gap < bufferMins) {
-            items.push({ sev: 2, text: `Only ${gap} min travel buffer between this job and ${job.clientName} (${when}). Recommended: 2 hours.` });
+            items.push({ sev: 2, text: `Only ${gap} min travel buffer between this job and ${job.clientName} (${when}). Configured buffer: ${bufferMins} minutes.` });
           } else {
             items.push({ sev: 3, text: `Note: you already have ${job.clientName} booked on this date (${when}).` });
           }
@@ -3401,13 +3410,13 @@
       return '';
     }
 
-    function requestWhatsApp(r, kind) {
+    function requestWhatsApp(r, kind, finalTotal, travel) {
       const phone = formatMYWhatsAppNumber(r.phone);
       if (!phone) { showToast('This request has no valid phone number.', 'error'); return; }
       const s = appState.settings;
       let msg;
       if (kind === 'approve') {
-        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nTo confirm your date, please pay the deposit and send the receipt here.${s.depositText ? '\n\n' + s.depositText : ''}${s.duitnowQr ? '\n\nI will send you the DuitNow QR in this chat.' : ''}\n\nThank you!`;
+        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nFinal quote: ${formatRM(finalTotal)} (travel: ${formatRM(travel)}).\n\nTo confirm your date, please pay the deposit and send the receipt here.${s.depositText ? '\n\n' + s.depositText : ''}${s.duitnowQr ? '\n\nI will send you the DuitNow QR in this chat.' : ''}\n\nThank you!`;
       } else if (kind === 'decline') {
         msg = `Hi ${r.clientName}, thank you for your request (${r.ref}). Unfortunately I am not available at that date and time. Would you like to look at another date? 💕`;
       } else {
@@ -3420,6 +3429,10 @@
       const r = appState.requests.find(x => x.id === id);
       if (r) requestWhatsApp(r, kind);
     };
+
+    function isTravelCharge(addon) {
+      return /\b(transport|mileage|travel|petrol|parking|toll)\b/i.test(addon.name);
+    }
 
     function requestCardHTML(r) {
       const id = esc(r.id);
@@ -3455,6 +3468,9 @@
           ${mood ? `<p>${mood}</p>` : ''}
         </div>
         <div class="flex flex-wrap items-center gap-2">
+          <label class="text-xs font-semibold">Final travel fee (RM)
+            <input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2)}" class="w-24 ml-1 border border-blush-200 rounded-lg p-2">
+          </label>
           <button onclick="approveRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="check" class="w-3.5 h-3.5"></i> Approve</button>
           <button onclick="declineRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="x" class="w-3.5 h-3.5"></i> Decline</button>
           <button onclick="requestWA('${id}','chat')" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp</button>
@@ -3542,16 +3558,24 @@
         showToast(capacityErrorMessage(new Error('bookings-not-ready')), 'error');
         return;
       }
+      const input = document.getElementById('travel-' + id);
+      if (!input || !Number.isFinite(input.valueAsNumber) || !input.reportValidity()) {
+        showToast('Enter the final travel fee, including 0 for no charge.', 'error');
+        return;
+      }
+      const travel = input.valueAsNumber;
+      const addons = (Array.isArray(r.addons) ? r.addons : []).filter(a => !isTravelCharge(a));
+      if (travel > 0) addons.push({ name: 'Travel fee', price: travel });
+      const finalTotal = num(r.packagePrice) + addons.reduce((sum, a) => sum + num(a.price), 0);
       const clash = requestClash(r);
       openConfirmModal(
         'Approve this request?',
-        (clash ? `Current schedule check: ${clash} ` : '') + `The app will recheck the time conflict and your ${maxBookingsPerDay()}-booking daily limit before saving. This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)}.`,
+        (clash ? `Current schedule check: ${clash} ` : '') + `Final quote: ${formatRM(finalTotal)}, including ${formatRM(travel)} for travel. The app will recheck the time conflict and your ${maxBookingsPerDay()}-booking daily limit before saving. This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)}.`,
         async () => {
           if (!currentUser || !db) return;
           try {
             const receiptNo = await allocateReceiptNo();
             const bid = 'bk_' + Date.now() + '_' + Math.random().toString(16).slice(2, 8);
-            const addons = Array.isArray(r.addons) ? r.addons : [];
             const notes = [
               `Request ${r.ref}`,
               r.pax > 1 ? `${r.pax} pax` : '',
@@ -3580,7 +3604,7 @@
               enforceBlockedDate: true
             });
             showToast('Approved! Booking created. Send the client a WhatsApp next.');
-            requestWhatsApp(r, 'approve');
+            requestWhatsApp(r, 'approve', finalTotal, travel);
           } catch (err) {
             console.error(err);
             showToast(capacityErrorMessage(err), 'error');
