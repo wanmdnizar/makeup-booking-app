@@ -156,6 +156,7 @@
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-1 bg-blush-100/90 p-1 rounded-full border border-blush-200/70">
           <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm">Dashboard</button>
+          <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Requests <span id="req-badge" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blush-700 text-white text-[10px] font-bold">0</span></button>
           <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Calendar &amp; Jobs</button>
           <button onclick="switchTab('packages')" data-tab="packages" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Packages</button>
           <button onclick="switchTab('expenses')" data-tab="expenses" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Expenses</button>
@@ -180,6 +181,12 @@
 
       <!-- ==================== TAB 1: DASHBOARD ==================== -->
       <section id="tab-dashboard" class="tab-content space-y-6">
+
+        <!-- New booking requests -->
+        <div id="req-banner" class="hidden p-3.5 rounded-2xl bg-blush-700 text-white text-sm flex items-center justify-between gap-3 shadow-sm">
+          <p id="req-banner-text" class="font-semibold"></p>
+          <button onclick="switchTab('requests')" class="shrink-0 px-3.5 py-1.5 rounded-xl bg-white text-blush-800 text-xs font-bold">Review</button>
+        </div>
 
         <!-- Backup reminder -->
         <div id="backup-reminder" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between gap-3">
@@ -314,6 +321,24 @@
       </section>
 
       <!-- ==================== TAB 2: CALENDAR & JOBS ==================== -->
+      <!-- ==================== TAB: BOOKING REQUESTS ==================== -->
+      <section id="tab-requests" class="tab-content hidden space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="font-serif font-bold text-2xl text-charcoal">Booking Requests</h2>
+            <p class="text-xs text-slate-500">Requests sent from your public booking page. Approving one creates the booking and blocks that time.</p>
+          </div>
+          <button onclick="copyPublicLink()" class="px-3.5 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-800 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="link" class="w-4 h-4"></i> Copy booking page link
+          </button>
+        </div>
+        <div id="requests-pending" class="space-y-4"></div>
+        <details class="bg-white rounded-3xl border border-blush-200/80 p-4 shadow-sm">
+          <summary class="text-sm font-semibold text-charcoal cursor-pointer">Handled requests <span id="req-handled-count" class="text-slate-400 font-normal"></span></summary>
+          <div id="requests-handled" class="mt-3 space-y-2"></div>
+        </details>
+      </section>
+
       <section id="tab-calendar" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -574,6 +599,66 @@
               </button>
             </div>
 
+            <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
+              <div>
+                <h3 class="font-serif font-bold text-charcoal text-lg">Public Booking Page</h3>
+                <p class="text-xs text-slate-500 mt-0.5">What clients see at your booking page. Only packages, availability and these texts are public. Client details never are.</p>
+              </div>
+              <button type="button" onclick="copyPublicLink()" class="w-full p-3 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-900 text-xs font-semibold flex items-center justify-center gap-2 transition">
+                <i data-lucide="link" class="w-4 h-4"></i> Copy booking page link
+              </button>
+              <form id="public-form" onsubmit="savePublicSettings(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-charcoal mb-1">Travel buffer (minutes)</label>
+                    <input type="number" id="pub-buffer" min="0" max="480" step="15" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                    <p class="text-[11px] text-slate-400 mt-1">Gap kept after each job.</p>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-charcoal mb-1">Earliest booking (days ahead)</label>
+                    <input type="number" id="pub-lead" min="0" max="60" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Deposit instructions</label>
+                  <textarea id="pub-deposit" rows="3" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Good to know (FAQ)</label>
+                  <textarea id="pub-faq" rows="4" placeholder="Question | Answer  (one per line)" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Client reviews</label>
+                  <textarea id="pub-reviews" rows="3" placeholder="Aisyah | Loved my makeup, lasted all day!  (one per line)" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
+                  <p class="text-[11px] text-slate-400 mt-1">Only add real reviews, with the client's permission.</p>
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold transition">Save public page settings</button>
+              </form>
+
+              <div class="pt-3 border-t border-blush-100 space-y-2">
+                <p class="text-xs font-semibold text-charcoal">DuitNow QR</p>
+                <div class="flex items-center gap-3">
+                  <div id="pub-qr-preview" class="w-20 h-20 rounded-xl border border-blush-200 bg-blush-50 flex items-center justify-center text-[10px] text-slate-400 overflow-hidden text-center">No QR</div>
+                  <div class="flex flex-col gap-2">
+                    <label class="px-3 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-800 text-xs font-semibold cursor-pointer text-center">
+                      Upload QR image<input type="file" accept="image/*" onchange="handleQrUpload(event)" class="hidden">
+                    </label>
+                    <button type="button" onclick="removeQr()" class="text-[11px] text-red-600 font-semibold">Remove QR</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-blush-100 space-y-2">
+                <p class="text-xs font-semibold text-charcoal">Block dates (leave, rest days)</p>
+                <div class="flex gap-2">
+                  <input type="date" id="block-date" class="flex-1 min-w-0 px-3 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
+                  <input type="text" id="block-note" maxlength="40" placeholder="Note (private)" class="flex-1 min-w-0 px-3 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
+                  <button type="button" onclick="addBlockedDate()" class="px-3 rounded-xl bg-charcoal text-white text-xs font-bold">Block</button>
+                </div>
+                <div id="blocked-list" class="space-y-1.5"></div>
+              </div>
+            </div>
+
             <div class="bg-white rounded-3xl border border-red-200 p-5 shadow-sm space-y-3">
               <h3 class="font-bold text-charcoal text-sm">Clear Bookings &amp; Expenses</h3>
               <p class="text-xs text-slate-500">Removes all bookings and expense records from Firebase. Your business profile and packages stay intact.</p>
@@ -593,6 +678,10 @@
   <nav id="mobile-nav" style="padding-bottom:max(0.375rem, env(safe-area-inset-bottom))" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-blush-200 z-30 px-2 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(190,24,93,0.06)]">
     <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-blush-700">
       <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[10px] font-semibold mt-0.5">Home</span>
+    </button>
+    <button onclick="switchTab('requests')" data-tab="requests" class="mobile-nav-btn relative flex flex-col items-center py-1 px-2 text-slate-400">
+      <i data-lucide="inbox" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Requests</span>
+      <span id="req-badge-m" class="hidden absolute top-0 right-0 min-w-[16px] h-4 px-1 rounded-full bg-blush-700 text-white text-[9px] font-bold flex items-center justify-center">0</span>
     </button>
     <button onclick="switchTab('calendar')" data-tab="calendar" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
       <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Schedule</span>
@@ -743,7 +832,17 @@
           <label class="block text-xs font-semibold text-charcoal mb-1">Inclusions / Description</label>
           <textarea id="pkg-desc" rows="2" placeholder="Includes premium false lashes, skin prep, hijab styling..." class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
         </div>
-        <p class="text-[11px] text-slate-400">Editing a package never changes receipts that were already created.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-charcoal mb-1">Duration (minutes)</label>
+            <input type="number" id="pkg-duration" min="0" step="15" placeholder="120" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+          </div>
+          <div class="flex flex-col justify-end gap-2 text-xs text-charcoal pb-1">
+            <label class="flex items-center gap-2"><input type="checkbox" id="pkg-addon" class="accent-pink-600"> This is an add-on</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="pkg-hidden" class="accent-pink-600"> Hide from public page</label>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400">Duration is used to stop double bookings on the public calendar. Editing a package never changes receipts that were already created.</p>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closePackageModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
           <button type="submit" class="px-5 py-2 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold">Save Package</button>
@@ -1043,15 +1142,22 @@
       logoBase64: '',
       terms: 'Deposit is non-refundable. Balance due 3 days before event.',
       nextReceiptNo: 1,
-      lastBackup: ''
+      lastBackup: '',
+      bufferMins: 90,
+      minLeadDays: 1,
+      depositText: 'To secure your date, please pay a deposit by DuitNow QR and send the receipt on WhatsApp. The balance is due before the event.',
+      publicFaq: 'How do I confirm my date? | Your date is confirmed once your request is approved and the deposit is received.\nIs the deposit refundable? | The deposit is non-refundable but can be moved once with 7 days notice.\nDo you travel? | Yes. Outstation and venue travel fees may apply and are confirmed when we approve your request.',
+      publicReviews: '',
+      duitnowQr: '',
+      blockedDates: []
     };
 
     const DEFAULT_PACKAGES = [
-      { id: 'pkg_1', name: 'Soft Glam', price: 250, description: 'Natural radiant finish, suitable for engagement, dinner, or graduation. Includes faux lashes.' },
-      { id: 'pkg_2', name: 'Full Glam', price: 450, description: 'High-definition evening/event glam with skin prep, premium lashes & touch-up kit.' },
-      { id: 'pkg_3', name: 'Bridal Akad / Sanding', price: 1200, description: 'Luxury long-wear bridal makeup, luxury skin prep, 3D mink lashes & hijab/veil styling.' },
-      { id: 'pkg_4', name: 'Touch-up Session', price: 150, description: 'On-location second look / reception touch-up session.' },
-      { id: 'pkg_5', name: 'Transport / Mileage Fee', price: 50, description: 'Outstation or venue travel surcharge.' }
+      { id: 'pkg_1', name: 'Soft Glam', price: 250, durationMins: 120, addon: false, description: 'Natural radiant finish, suitable for engagement, dinner, or graduation. Includes faux lashes.' },
+      { id: 'pkg_2', name: 'Full Glam', price: 450, durationMins: 150, addon: false, description: 'High-definition evening/event glam with skin prep, premium lashes & touch-up kit.' },
+      { id: 'pkg_3', name: 'Bridal Akad / Sanding', price: 1200, durationMins: 240, addon: false, description: 'Luxury long-wear bridal makeup, luxury skin prep, 3D mink lashes & hijab/veil styling.' },
+      { id: 'pkg_4', name: 'Touch-up Session', price: 150, durationMins: 60, addon: true, description: 'On-location second look / reception touch-up session.' },
+      { id: 'pkg_5', name: 'Transport / Mileage Fee', price: 50, durationMins: 0, addon: true, description: 'Outstation or venue travel surcharge.' }
     ];
 
     function num(v) {
@@ -1099,7 +1205,8 @@
       settings: { ...DEFAULT_SETTINGS },
       packages: DEFAULT_PACKAGES.map(p => ({ ...p })),
       bookings: [],
-      expenses: []
+      expenses: [],
+      requests: []
     };
 
     let currentUser = null;
@@ -1107,6 +1214,11 @@
     let unsubPackages = null;
     let unsubExpenses = null;
     let unsubMeta = null;
+    let unsubRequests = null;
+    let requestsLoaded = false;
+    let lastPublicHash = '';
+    let lastBusy = {};
+    let publishTimer = null;
     let seededProfile = false;
     let bookingsLoaded = false;
     let savingBooking = false;
@@ -1147,6 +1259,9 @@
       appState.packages = DEFAULT_PACKAGES.map(p => ({ ...p }));
       appState.bookings = [];
       appState.expenses = [];
+      appState.requests = [];
+      lastPublicHash = '';
+      lastBusy = {};
       selectedCalendarDate = null;
       currentReceiptBookingId = null;
       refreshAllViews();
@@ -1315,10 +1430,11 @@
     };
 
     function stopListeners() {
-      [unsubBookings, unsubPackages, unsubExpenses, unsubMeta].forEach(fn => {
+      [unsubBookings, unsubPackages, unsubExpenses, unsubMeta, unsubRequests].forEach(fn => {
         if (typeof fn === 'function') fn();
       });
-      unsubBookings = unsubPackages = unsubExpenses = unsubMeta = null;
+      unsubBookings = unsubPackages = unsubExpenses = unsubMeta = unsubRequests = null;
+      requestsLoaded = false;
     }
 
     function startCloudSync() {
@@ -1326,6 +1442,7 @@
       seededProfile = false;
       bookingsLoaded = false;
       setSyncIndicator('pending');
+      startRequestsListener();
 
       unsubMeta = onSnapshot(userDoc('meta', 'profile'), { includeMetadataChanges: true }, (snap) => {
         if (snap.exists()) {
@@ -1354,7 +1471,12 @@
             id: String(x.id),
             name: String(x.name),
             price: Math.max(0, num(x.price)),
-            description: String(x.description || '')
+            description: String(x.description || ''),
+            durationMins: x.durationMins !== undefined
+              ? Math.max(0, num(x.durationMins))
+              : (/bridal|akad|nikah|sanding/i.test(x.name) ? 240 : /full/i.test(x.name) ? 150 : /touch/i.test(x.name) ? 60 : 120),
+            addon: x.addon !== undefined ? !!x.addon : /touch-up|touch up|transport|mileage|travel|surcharge|extra/i.test(x.name),
+            hidden: !!x.hidden
           }));
         refreshAllViews();
       }, handleSyncError);
@@ -1384,6 +1506,30 @@
           }));
         refreshAllViews();
       }, handleSyncError);
+    }
+
+    function startRequestsListener() {
+      requestsLoaded = false;
+      unsubRequests = onSnapshot(collection(db, 'requests'), (snap) => {
+        if (requestsLoaded) {
+          snap.docChanges().forEach(ch => {
+            const r = ch.doc.data();
+            if (ch.type === 'added' && r && r.status === 'pending' && !ch.doc.metadata.hasPendingWrites) {
+              showToast(`New booking request from ${r.clientName || 'a client'}!`);
+            }
+          });
+        }
+        requestsLoaded = true;
+        appState.requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderRequests();
+        renderDashboard();
+      }, (err) => {
+        console.warn('Requests listener:', err);
+        if (err && err.code === 'permission-denied') {
+          const box = document.getElementById('requests-pending');
+          if (box) box.innerHTML = '<p class="text-sm text-slate-500 bg-white rounded-3xl border border-blush-200 p-5">Requests are not switched on yet. Publish the new Firestore rules (see the guide) and refresh this page.</p>';
+        }
+      });
     }
 
     function handleSyncError(err) {
@@ -1558,6 +1704,9 @@
       renderBookingsList();
       renderPackagesGrid();
       renderExpensesView();
+      renderPublicSettings();
+      renderRequests();
+      schedulePublish();
       lucide.createIcons();
     }
 
@@ -1829,6 +1978,14 @@
       const off = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200';
       document.getElementById('dash-seg-month').className = isAll ? off : on;
       document.getElementById('dash-seg-all').className = isAll ? on : off;
+
+      // New booking requests
+      const pendingReq = appState.requests.filter(r => r.status === 'pending').length;
+      const reqBanner = document.getElementById('req-banner');
+      if (reqBanner) {
+        document.getElementById('req-banner-text').textContent = pendingReq === 1 ? '1 new booking request is waiting for you' : `${pendingReq} new booking requests are waiting for you`;
+        reqBanner.classList.toggle('hidden', pendingReq === 0);
+      }
 
       // Backup reminder (every 14 days)
       const reminder = document.getElementById('backup-reminder');
@@ -2509,6 +2666,9 @@
         document.getElementById('pkg-name').value = p.name;
         document.getElementById('pkg-price').value = p.price;
         document.getElementById('pkg-desc').value = p.description || '';
+        document.getElementById('pkg-duration').value = p.durationMins || '';
+        document.getElementById('pkg-addon').checked = !!p.addon;
+        document.getElementById('pkg-hidden').checked = !!p.hidden;
       } else {
         document.getElementById('package-modal-title').textContent = 'Add Service Package';
         document.getElementById('package-form').reset();
@@ -2533,7 +2693,10 @@
         id,
         name: document.getElementById('pkg-name').value.trim(),
         price: Math.max(0, num(document.getElementById('pkg-price').value)),
-        description: document.getElementById('pkg-desc').value.trim()
+        description: document.getElementById('pkg-desc').value.trim(),
+        durationMins: Math.max(0, Math.min(900, parseInt(document.getElementById('pkg-duration').value, 10) || 0)),
+        addon: document.getElementById('pkg-addon').checked,
+        hidden: document.getElementById('pkg-hidden').checked
       };
       fireWrite(setDoc(userDoc('packages', id), payload), 'Could not save package.');
       showToast(existingId ? 'Package updated!' : 'New package added!');
@@ -2748,6 +2911,357 @@
     };
 
     // =========================================================================
+    // PUBLIC BOOKING PAGE: settings, publishing and requests inbox
+    // =========================================================================
+    function publicPageUrl() {
+      return location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '') + 'book.html';
+    }
+
+    window.copyPublicLink = function() {
+      copyTextToClipboard(publicPageUrl(), 'Booking page link copied!');
+    };
+
+    function renderPublicSettings() {
+      const s = appState.settings;
+      const form = document.getElementById('public-form');
+      if (form && !form.contains(document.activeElement)) {
+        document.getElementById('pub-buffer').value = s.bufferMins;
+        document.getElementById('pub-lead').value = s.minLeadDays;
+        document.getElementById('pub-deposit').value = s.depositText || '';
+        document.getElementById('pub-faq').value = s.publicFaq || '';
+        document.getElementById('pub-reviews').value = s.publicReviews || '';
+      }
+      const qr = document.getElementById('pub-qr-preview');
+      if (qr) {
+        qr.textContent = '';
+        if (s.duitnowQr && /^data:image\//.test(s.duitnowQr)) {
+          const img = document.createElement('img');
+          img.src = s.duitnowQr; img.alt = 'DuitNow QR'; img.className = 'w-full h-full object-contain';
+          qr.appendChild(img);
+        } else {
+          qr.textContent = 'No QR';
+        }
+      }
+      const list = document.getElementById('blocked-list');
+      if (list) {
+        const today = localDateStr();
+        const items = (s.blockedDates || []).filter(x => x && DATE_RE.test(String(x.date))).sort((a, b) => a.date.localeCompare(b.date));
+        list.innerHTML = items.length ? items.map(x => `
+          <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl ${x.date < today ? 'bg-slate-50 text-slate-400' : 'bg-blush-50 text-charcoal'} text-xs">
+            <span class="font-semibold">${esc(formatDisplayDate(x.date))}</span>
+            <span class="flex-1 truncate text-slate-500">${esc(x.note || '')}</span>
+            <button onclick="removeBlockedDate('${esc(x.date)}')" class="text-red-500 font-bold" aria-label="Unblock">✕</button>
+          </div>`).join('') : '<p class="text-[11px] text-slate-400">No blocked dates.</p>';
+      }
+    }
+
+    window.savePublicSettings = function(event) {
+      event.preventDefault();
+      if (!currentUser || !db) return;
+      const data = {
+        bufferMins: Math.max(0, Math.min(480, parseInt(document.getElementById('pub-buffer').value, 10) || 0)),
+        minLeadDays: Math.max(0, Math.min(60, parseInt(document.getElementById('pub-lead').value, 10) || 0)),
+        depositText: document.getElementById('pub-deposit').value.trim().slice(0, 600),
+        publicFaq: document.getElementById('pub-faq').value.trim().slice(0, 3000),
+        publicReviews: document.getElementById('pub-reviews').value.trim().slice(0, 3000),
+        updatedAt: serverTimestamp()
+      };
+      fireWrite(setDoc(userDoc('meta', 'profile'), data, { merge: true }), 'Could not save public page settings.');
+      document.activeElement && document.activeElement.blur();
+      showToast('Public page settings saved!');
+    };
+
+    window.handleQrUpload = function(event) {
+      const file = event.target.files[0];
+      event.target.value = '';
+      if (!file || !currentUser || !db) return;
+      if (!/^image\//.test(file.type)) { showToast('Please choose an image.', 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, 640 / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          let url = c.toDataURL('image/png');
+          if (url.length > 450000) url = c.toDataURL('image/jpeg', 0.85);
+          if (url.length > 600000) { showToast('That image is too large. Try a smaller screenshot.', 'error'); return; }
+          fireWrite(setDoc(userDoc('meta', 'profile'), { duitnowQr: url, updatedAt: serverTimestamp() }, { merge: true }), 'Could not save the QR.');
+          showToast('DuitNow QR saved!');
+        };
+        img.onerror = () => showToast('Could not read that image.', 'error');
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.removeQr = function() {
+      fireWrite(setDoc(userDoc('meta', 'profile'), { duitnowQr: '', updatedAt: serverTimestamp() }, { merge: true }));
+      showToast('QR removed.');
+    };
+
+    window.addBlockedDate = function() {
+      const date = document.getElementById('block-date').value;
+      const note = document.getElementById('block-note').value.trim().slice(0, 40);
+      if (!DATE_RE.test(date)) { showToast('Pick a date to block.', 'error'); return; }
+      const list = (appState.settings.blockedDates || []).filter(x => x.date !== date).concat([{ date, note }]);
+      appState.settings.blockedDates = list;
+      fireWrite(setDoc(userDoc('meta', 'profile'), { blockedDates: list, updatedAt: serverTimestamp() }, { merge: true }));
+      document.getElementById('block-date').value = '';
+      document.getElementById('block-note').value = '';
+      renderPublicSettings();
+      showToast('Date blocked on the public calendar.');
+    };
+
+    window.removeBlockedDate = function(date) {
+      const list = (appState.settings.blockedDates || []).filter(x => x.date !== date);
+      appState.settings.blockedDates = list;
+      fireWrite(setDoc(userDoc('meta', 'profile'), { blockedDates: list, updatedAt: serverTimestamp() }, { merge: true }));
+      renderPublicSettings();
+    };
+
+    // Copies only the safe, public information to the public area of the database
+    function schedulePublish() {
+      clearTimeout(publishTimer);
+      publishTimer = setTimeout(publishPublicData, 1500);
+    }
+
+    async function publishPublicData() {
+      if (!currentUser || !db || !bookingsLoaded) return;
+      const s = appState.settings;
+      const cfg = {
+        businessName: s.businessName, ownerName: s.ownerName || '', tagline: s.tagline || '',
+        whatsappNo: s.whatsappNo || '', igHandle: s.igHandle || '', terms: s.terms || '',
+        bufferMins: s.bufferMins, minLeadDays: s.minLeadDays,
+        depositText: s.depositText || '', faq: s.publicFaq || '', reviews: s.publicReviews || '',
+        duitnowQr: s.duitnowQr || '',
+        logo: s.logoBase64 && s.logoBase64.length < 150000 ? s.logoBase64 : '',
+        packages: appState.packages.filter(p => !p.hidden).map(p => ({
+          id: p.id, name: p.name, price: p.price, description: p.description || '',
+          durationMins: p.durationMins || 0, addon: !!p.addon
+        }))
+      };
+      const ops = [];
+      const hash = JSON.stringify(cfg);
+      if (hash !== lastPublicHash) {
+        ops.push({ ref: doc(db, 'public', 'config'), data: { ...cfg, updatedAt: serverTimestamp() } });
+      }
+
+      const today = localDateStr();
+      const map = {};
+      appState.bookings.forEach(b => {
+        if (b.eventDate < today) return;
+        let end = b.endTime;
+        if (end <= b.startTime) {
+          const m = Math.min(23 * 60 + 59, parseInt(b.startTime.slice(0, 2), 10) * 60 + parseInt(b.startTime.slice(3), 10) + 120);
+          end = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+        }
+        (map[b.eventDate] = map[b.eventDate] || []).push({ s: b.startTime, e: end });
+      });
+      (s.blockedDates || []).forEach(x => {
+        if (x && DATE_RE.test(String(x.date)) && x.date >= today) (map[x.date] = map[x.date] || []).push({ s: '00:00', e: '24:00' });
+      });
+      const newBusy = {};
+      Object.keys(map).forEach(date => {
+        const slots = map[date].sort((a, b) => a.s.localeCompare(b.s));
+        const str = JSON.stringify(slots);
+        newBusy[date] = str;
+        if (lastBusy[date] !== str) ops.push({ ref: doc(db, 'busy', date), data: { date, slots, updatedAt: serverTimestamp() } });
+      });
+      Object.keys(lastBusy).forEach(date => {
+        if (!(date in newBusy)) ops.push({ ref: doc(db, 'busy', date), delete: true });
+      });
+
+      if (!ops.length) return;
+      try {
+        await commitInChunks(ops);
+        lastPublicHash = hash;
+        lastBusy = newBusy;
+      } catch (err) {
+        console.warn('Could not update the public page data:', err);
+        if (err && err.code === 'permission-denied') {
+          showToast('Public page not updated: publish the new Firestore rules first.', 'error');
+        }
+      }
+    }
+
+    // ---- Requests inbox ----
+    function requestEndTime(r) {
+      const m = parseInt(r.startTime.slice(0, 2), 10) * 60 + parseInt(r.startTime.slice(3), 10) + Math.max(30, num(r.durationMins) || 120);
+      const c = Math.min(23 * 60 + 59, m);
+      return String(Math.floor(c / 60)).padStart(2, '0') + ':' + String(c % 60).padStart(2, '0');
+    }
+
+    function requestClash(r) {
+      const buf = num(appState.settings.bufferMins);
+      const tm = (t) => parseInt(t.slice(0, 2), 10) * 60 + parseInt(t.slice(3), 10);
+      const rs = tm(r.startTime), re = tm(requestEndTime(r));
+      const hit = appState.bookings.find(b => b.eventDate === r.eventDate && rs < tm(b.endTime) + buf && re + buf > tm(b.startTime));
+      if (hit) return `Clashes with ${hit.clientName} (${formatDisplayTime(hit.startTime)} to ${formatDisplayTime(hit.endTime)}).`;
+      if ((appState.settings.blockedDates || []).some(x => x.date === r.eventDate)) return 'This date is blocked.';
+      return '';
+    }
+
+    function requestWhatsApp(r, kind) {
+      const phone = formatMYWhatsAppNumber(r.phone);
+      if (!phone) { showToast('This request has no valid phone number.', 'error'); return; }
+      const s = appState.settings;
+      let msg;
+      if (kind === 'approve') {
+        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nTo confirm your date, please pay the deposit and send the receipt here. Thank you!`;
+      } else if (kind === 'decline') {
+        msg = `Hi ${r.clientName}, thank you for your request (${r.ref}). Unfortunately I am not available at that date and time. Would you like to look at another date? 💕`;
+      } else {
+        msg = `Hi ${r.clientName}! This is ${s.businessName} regarding your booking request (${r.ref}).`;
+      }
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    }
+
+    window.requestWA = function(id, kind) {
+      const r = appState.requests.find(x => x.id === id);
+      if (r) requestWhatsApp(r, kind);
+    };
+
+    function requestCardHTML(r) {
+      const id = esc(r.id);
+      const clash = requestClash(r);
+      const addons = Array.isArray(r.addons) ? r.addons : [];
+      const total = num(r.packagePrice) + addons.reduce((t, a) => t + num(a.price), 0);
+      const mapHref = r.mapLink && /^https?:\/\//.test(r.mapLink) ? r.mapLink : mapsUrl(r.venue || '');
+      const waze = 'https://waze.com/ul?q=' + encodeURIComponent(r.venue || '');
+      const mood = r.moodboardLink && /^https?:\/\//.test(r.moodboardLink)
+        ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blush-700 font-semibold underline"><i data-lucide="image" class="w-3.5 h-3.5"></i> View moodboard</a>` : '';
+      return `
+      <article class="bg-white rounded-3xl border border-blush-300 shadow-sm p-4 space-y-3">
+        <div class="flex gap-3">
+          ${dateBlockHTML(r.eventDate, false)}
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Pending</span>
+              <span class="text-[11px] font-semibold text-slate-400">${esc(r.ref)}</span>
+            </div>
+            <h4 class="font-serif font-bold text-base text-charcoal mt-1">${esc(r.clientName)}</h4>
+            <p class="text-xs font-semibold text-slate-700">${esc(formatDisplayTime(r.startTime))} – ${esc(formatDisplayTime(requestEndTime(r)))}${r.readyBy ? ` • ready by ${esc(formatDisplayTime(r.readyBy))}` : ''}</p>
+            <p class="text-xs text-slate-500 mt-0.5 break-words">${esc(r.venue)}</p>
+          </div>
+        </div>
+        ${clash ? `<p class="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">⚠ ${esc(clash)}</p>` : ''}
+        <div class="rounded-2xl bg-blush-50/70 px-3 py-2.5 text-xs space-y-1">
+          <p class="font-bold text-blush-900">${esc(r.packageName)} <span class="font-normal text-slate-500">• ${esc(r.pax)} pax</span></p>
+          ${addons.length ? `<p class="text-slate-600">Add-ons: ${esc(addons.map(a => a.name).join(', '))}</p>` : ''}
+          <p class="text-slate-600">Estimated total: <b>${esc(formatRM(total))}</b></p>
+          ${r.allergyStatus === 'yes' ? `<p class="text-red-700 font-semibold">Allergies: ${esc(r.allergies)}</p>` : '<p class="text-slate-500">No allergies reported</p>'}
+          ${r.notes ? `<p class="text-slate-600 italic">"${esc(r.notes)}"</p>` : ''}
+          <p class="text-slate-500">${esc(r.phone)} • ${esc(r.email)}</p>
+          ${mood ? `<p>${mood}</p>` : ''}
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="approveRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="check" class="w-3.5 h-3.5"></i> Approve</button>
+          <button onclick="declineRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="x" class="w-3.5 h-3.5"></i> Decline</button>
+          <button onclick="requestWA('${id}','chat')" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp</button>
+          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Maps</a>
+          <a href="${esc(waze)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="navigation" class="w-3.5 h-3.5"></i> Waze</a>
+        </div>
+      </article>`;
+    }
+
+    function renderRequests() {
+      const box = document.getElementById('requests-pending');
+      if (!box) return;
+      const all = appState.requests.filter(r => r && DATE_RE.test(String(r.eventDate || '')) && /^\d\d:\d\d$/.test(String(r.startTime || '')));
+      const pending = all.filter(r => r.status === 'pending').sort((a, b) => (a.eventDate + a.startTime).localeCompare(b.eventDate + b.startTime));
+      const handled = all.filter(r => r.status !== 'pending').sort((a, b) => b.eventDate.localeCompare(a.eventDate)).slice(0, 30);
+
+      ['req-badge', 'req-badge-m'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = pending.length;
+        el.classList.toggle('hidden', pending.length === 0);
+      });
+      const base = document.title.replace(/^\(\d+\)\s*/, '');
+      document.title = pending.length ? `(${pending.length}) ${base}` : base;
+
+      if (!box.dataset.denied || all.length) {
+        box.innerHTML = pending.length
+          ? pending.map(requestCardHTML).join('')
+          : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p></div>';
+      }
+      document.getElementById('req-handled-count').textContent = handled.length ? `(${handled.length})` : '';
+      document.getElementById('requests-handled').innerHTML = handled.length ? handled.map(r => `
+        <div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-blush-50/50 text-xs">
+          <div class="min-w-0"><p class="font-semibold text-charcoal truncate">${esc(r.clientName)} <span class="text-slate-400 font-normal">${esc(r.ref)}</span></p><p class="text-slate-500">${esc(formatDisplayDate(r.eventDate))}</p></div>
+          <span class="px-2 py-0.5 rounded-full font-bold ${r.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(r.status)}</span>
+        </div>`).join('') : '<p class="text-xs text-slate-400">Nothing yet.</p>';
+    }
+
+    window.approveRequest = function(id) {
+      const r = appState.requests.find(x => x.id === id);
+      if (!r || r.status !== 'pending') return;
+      const clash = requestClash(r);
+      openConfirmModal(
+        'Approve this request?',
+        (clash ? `Warning: ${clash} ` : '') + `This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)} and blocks that time on your public calendar.`,
+        async () => {
+          if (!currentUser || !db) return;
+          try {
+            const receiptNo = await allocateReceiptNo();
+            const bid = 'bk_' + Date.now();
+            const addons = Array.isArray(r.addons) ? r.addons : [];
+            const notes = [
+              `Request ${r.ref}`,
+              r.pax > 1 ? `${r.pax} pax` : '',
+              r.allergyStatus === 'yes' ? `ALLERGIES: ${r.allergies}` : '',
+              r.moodboardLink ? `Moodboard: ${r.moodboardLink}` : '',
+              r.mapLink ? `Map: ${r.mapLink}` : '',
+              r.readyBy ? `Ready by ${r.readyBy}` : '',
+              r.notes || ''
+            ].filter(Boolean).join(' | ');
+            const booking = normalizeBooking({
+              id: bid, receiptNo, issuedDate: localDateStr(),
+              clientName: r.clientName, clientPhone: r.phone,
+              eventDate: r.eventDate, startTime: r.startTime, endTime: requestEndTime(r),
+              venue: r.venue, packageId: r.packageId, packageName: r.packageName,
+              packagePrice: r.packagePrice, packageDesc: '',
+              addonFee: addons.reduce((t, a) => t + num(a.price), 0),
+              addonDesc: addons.map(a => a.name).join(', '),
+              depositPaid: 0, notes
+            });
+            if (!booking) throw new Error('bad request data');
+            const ops = [
+              { ref: userDoc('bookings', bid), data: { ...booking, createdAt: serverTimestamp() } },
+              { ref: doc(db, 'requests', r.id), data: { status: 'approved', bookingId: bid, handledAt: serverTimestamp() }, merge: true }
+            ];
+            await commitInChunks(ops);
+            showToast('Approved! Booking created. Send the client a WhatsApp next.');
+            requestWhatsApp(r, 'approve');
+          } catch (err) {
+            console.error(err);
+            showToast('Could not approve this request.', 'error');
+          }
+        },
+        'Approve'
+      );
+    };
+
+    window.declineRequest = function(id) {
+      const r = appState.requests.find(x => x.id === id);
+      if (!r || r.status !== 'pending') return;
+      openConfirmModal(
+        'Decline this request?',
+        `${r.clientName}'s request will be marked as declined. Nothing is blocked on your calendar.`,
+        () => {
+          fireWrite(setDoc(doc(db, 'requests', r.id), { status: 'declined', handledAt: serverTimestamp() }, { merge: true }), 'Could not decline this request.');
+          showToast('Request declined.');
+          requestWhatsApp(r, 'decline');
+        },
+        'Decline'
+      );
+    };
+
+    // =========================================================================
     // BACKUP & RESTORE (JSON)
     // =========================================================================
     window.exportJSON = function() {
@@ -2796,7 +3310,7 @@
           }));
         const packages = (Array.isArray(parsed.packages) ? parsed.packages : [])
           .filter(p => p && okId(p.id) && p.name)
-          .map(p => ({ id: String(p.id), name: String(p.name), price: Math.max(0, num(p.price)), description: String(p.description || '') }));
+          .map(p => ({ id: String(p.id), name: String(p.name), price: Math.max(0, num(p.price)), description: String(p.description || ''), durationMins: Math.max(0, num(p.durationMins)), addon: !!p.addon, hidden: !!p.hidden }));
 
         openConfirmModal(
           'Restore this backup?',
