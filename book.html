@@ -86,6 +86,8 @@
       <!-- STEP 2: date & time -->
       <section id="step-2" class="hidden space-y-4">
         <h2 class="font-serif text-xl font-bold">2. Pick a date &amp; time</h2>
+        <p class="text-xs text-slate-500">Dates show the number of sessions already booked. Client names and personal details are never shown.</p>
+        <p class="text-xs text-slate-500">Dates show how many sessions are already booked. Client names and details are never shown here.</p>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
           <div class="flex items-center justify-between mb-3">
             <button onclick="shiftMonth(-1)" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
@@ -98,7 +100,8 @@
           <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
           <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-[11px] text-slate-500">
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Available</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Booked / unavailable</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Has booking (number shown)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Full / unavailable</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
           </div>
           <p id="capacity-hint" class="text-[11px] text-slate-500 mt-2">Daily booking limit: 3 confirmed sessions.</p>
@@ -510,10 +513,13 @@
         const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
         const st = dayState(ds);
         const sel = ds === selDate;
+        const occupied = Number(busy[ds]?.bookingCount) || 0;
+        const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 50);
         if (st === 'open') {
-          html += `<button type="button" data-date="${ds}" class="day rounded-xl text-sm font-semibold border ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, available">${d}</button>`;
+          const availabilityLabel = occupied > 0 ? `${occupied}/${dailyCap} booked` : 'Available';
+          html += `<button type="button" data-date="${ds}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[7px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${occupied}/${dailyCap}</span>` : ''}</button>`;
         } else if (st === 'booked') {
-          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, unavailable"><span class="text-sm font-semibold">${d}</span><span class="text-[8px] uppercase mt-0.5">Full</span></div>`;
+          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, fully booked or unavailable"><span class="text-sm font-semibold">${d}</span><span class="text-[8px] uppercase mt-0.5">Full</span></div>`;
         } else {
           html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
         }
