@@ -101,6 +101,7 @@
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Booked / unavailable</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
           </div>
+          <p id="capacity-hint" class="text-[11px] text-slate-500 mt-2">Daily booking limit: 3 confirmed sessions.</p>
         </div>
 
         <div id="time-wrap" class="hidden space-y-3">
@@ -267,7 +268,7 @@
     // =========================================================================
     // SETTINGS YOU MAY CHANGE
     // =========================================================================
-    // After you create a reCAPTCHA v3 site key (see the guide), paste it between the quotes.
+    // After you create a reCAPTCHA Enterprise key (see the guide), paste it between the quotes.
     // Leave it empty until then. The page works without it.
     const RECAPTCHA_SITE_KEY = "";
 
@@ -285,7 +286,7 @@
     if (RECAPTCHA_SITE_KEY) {
       try {
         const m = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js");
-        m.initializeAppCheck(app, { provider: new m.ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
+        m.initializeAppCheck(app, { provider: new m.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
       } catch (e) { console.warn('App Check unavailable', e); }
     }
     const db = getFirestore(app);
@@ -315,7 +316,8 @@
 
     // ---------- state ----------
     let cfg = null;
-    const busy = {};                 // 'YYYY-MM-DD' -> [{s,e}]
+    const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
+    let availabilityReady = false;
     let step = 1;
     let selPkg = null;
     let selAddons = new Set();
@@ -323,17 +325,30 @@
     let viewMonth = new Date(); viewMonth.setDate(1);
     let submitting = false;
 
-    const BUFFER = () => Math.max(0, Math.min(480, parseInt(cfg.bufferMins, 10) || 90));
-    const LEAD = () => Math.max(0, Math.min(60, parseInt(cfg.minLeadDays, 10) || 1));
+    const settingInt = (value, fallback, min, max) => {
+      const n = Number.parseInt(value, 10);
+      return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+    };
+    const BUFFER = () => settingInt(cfg.bufferMins, 90, 0, 480);
+    const LEAD = () => settingInt(cfg.minLeadDays, 1, 0, 60);
+    const MAX_PER_DAY = () => settingInt(cfg.maxBookingsPerDay, 3, 1, 50);
     const DAY_START = 5 * 60, LAST_START = 19 * 60, STEP = 30;
 
     function mainPackages() { return (cfg.packages || []).filter(p => !p.addon); }
     function addonPackages() { return (cfg.packages || []).filter(p => p.addon); }
     function currentDuration() { return selPkg ? Math.max(30, selPkg.durationMins || 120) : 120; }
 
+    function capacityReached(date) {
+      const day = busy[date] || {};
+      const count = Number(day.bookingCount) || 0;
+      const cap = settingInt(day.maxBookingsPerDay, MAX_PER_DAY(), 1, 50);
+      return day.capacityReached === true || count >= cap;
+    }
+
     // Is a start time free for a job of `dur` minutes on `date`? Travel buffer is kept on both sides.
     function startIsFree(date, start, dur) {
-      const slots = busy[date] || [];
+      if (!availabilityReady || capacityReached(date)) return false;
+      const slots = Array.isArray(busy[date]?.slots) ? busy[date].slots : [];
       const end = start + dur;
       const buf = BUFFER();
       return slots.every(s => {
@@ -354,6 +369,7 @@
       const diff = Math.round((dt - today) / 86400000);
       if (diff < LEAD()) return 'past';
       if (diff > 540) return 'far';
+      if (!availabilityReady) return 'loading';
       return freeStarts(date, currentDuration()).length ? 'open' : 'booked';
     }
 
@@ -378,9 +394,21 @@
       renderCalendar();
       onSnapshot(collection(db, 'busy'), (snap) => {
         Object.keys(busy).forEach(k => delete busy[k]);
-        snap.forEach(d => { const v = d.data(); if (v && Array.isArray(v.slots)) busy[d.id] = v.slots; });
+        snap.forEach(d => {
+          const v = d.data();
+          if (v && Array.isArray(v.slots)) busy[d.id] = {
+            slots: v.slots,
+            bookingCount: Number(v.bookingCount) || 0,
+            maxBookingsPerDay: settingInt(v.maxBookingsPerDay, MAX_PER_DAY(), 1, 50),
+            capacityReached: v.capacityReached === true
+          };
+        });
+        availabilityReady = true;
         if (step === 2) { renderCalendar(); refreshTimes(); }
-      }, (err) => console.warn('availability unavailable', err));
+      }, (err) => {
+        console.warn('availability unavailable', err);
+        availabilityReady = false;
+      });
       lucide.createIcons();
     }
 
@@ -471,6 +499,7 @@
     function renderCalendar() {
       const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
       $('cal-title').textContent = viewMonth.toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
+      $('capacity-hint').textContent = `Daily booking limit: ${MAX_PER_DAY()} confirmed session${MAX_PER_DAY() === 1 ? '' : 's'}. Pending requests do not reserve a slot.`;
       const first = new Date(y, m, 1).getDay();
       const days = new Date(y, m + 1, 0).getDate();
       const now = new Date();
@@ -484,7 +513,7 @@
         if (st === 'open') {
           html += `<button type="button" data-date="${ds}" class="day rounded-xl text-sm font-semibold border ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, available">${d}</button>`;
         } else if (st === 'booked') {
-          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, booked"><span class="text-sm font-semibold">${d}</span><span class="text-[8px] uppercase mt-0.5">Booked</span></div>`;
+          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, unavailable"><span class="text-sm font-semibold">${d}</span><span class="text-[8px] uppercase mt-0.5">Full</span></div>`;
         } else {
           html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
         }
@@ -535,6 +564,7 @@
       return true;
     }
     function validateStep2() {
+      if (!availabilityReady) { showErr('e-date', 'Availability is still loading. Please wait a moment and try again.'); return false; }
       if (!selDate) { showErr('e-date', 'Please pick an available date.'); return false; }
       const t = $('f-time').value;
       if (!t) { showErr('e-date', 'Please choose a start time.'); return false; }
@@ -663,10 +693,10 @@
         ['Estimated total', fmtRM(d.packagePrice + d.addons.reduce((s, a) => s + a.price, 0))]
       ];
       $('conf-summary').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-28 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 font-medium break-words">${esc(v)}</span></div>`).join('');
-      if (cfg.depositText) { const p = $('conf-deposit'); p.textContent = cfg.depositText; p.classList.remove('hidden'); }
-      if (typeof cfg.duitnowQr === 'string' && /^data:image\/(png|jpeg|jpg|webp);base64,/.test(cfg.duitnowQr)) {
-        $('conf-qr').src = cfg.duitnowQr; $('conf-qr-dl').href = cfg.duitnowQr; $('conf-qr-wrap').classList.remove('hidden');
-      }
+      const depositNotice = $('conf-deposit');
+      depositNotice.textContent = 'Please do not pay a deposit yet. We will send the deposit instructions and DuitNow QR after your booking request has been approved.';
+      depositNotice.classList.remove('hidden');
+      $('conf-qr-wrap').classList.add('hidden');
       const msg = `Hi ${cfg.ownerName || cfg.businessName || ''}! I just sent a booking request.\n\n` +
         `Ref: ${d.ref}\nName: ${d.clientName}\nPackage: ${d.packageName}\nDate: ${fmtDate(d.eventDate)}\nStart: ${fmtTime(d.startTime)}\nLocation: ${d.venue}\n\nThank you!`;
       const wa = waNum(cfg.whatsappNo);
