@@ -620,6 +620,11 @@
                   </div>
                 </div>
                 <div>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Maximum bookings per day</label>
+                  <input type="number" id="pub-daily-cap" min="1" max="50" step="1" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                  <p class="text-[11px] text-slate-400 mt-1">Counts saved bookings and manually added jobs. Pending requests do not use a slot. Default: 3 per day.</p>
+                </div>
+                <div>
                   <label class="block text-xs font-semibold text-charcoal mb-1">Deposit instructions</label>
                   <textarea id="pub-deposit" rows="3" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
                 </div>
@@ -1109,7 +1114,7 @@
       document.getElementById('firebase-config-banner').classList.remove('hidden');
     }
 
-    // Paste your reCAPTCHA v3 SITE key here (same key as in book.html). Leave empty until the App Check guide step.
+    // Paste your reCAPTCHA Enterprise SITE key here (same key as in book.html). Leave empty until the App Check guide step.
     const RECAPTCHA_SITE_KEY = "";
 
     let app, auth, db;
@@ -1117,7 +1122,7 @@
       app = initializeApp(firebaseConfig);
       if (RECAPTCHA_SITE_KEY) {
         import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js")
-          .then(m => m.initializeAppCheck(app, { provider: new m.ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true }))
+          .then(m => m.initializeAppCheck(app, { provider: new m.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true }))
           .catch(e => console.warn('App Check unavailable', e));
       }
       auth = getAuth(app);
@@ -1153,6 +1158,7 @@
       lastBackup: '',
       bufferMins: 90,
       minLeadDays: 1,
+      maxBookingsPerDay: 3,
       depositText: 'To secure your date, please pay a deposit by DuitNow QR and send the receipt on WhatsApp. The balance is due before the event.',
       publicFaq: 'How do I confirm my date? | Your date is confirmed once your request is approved and the deposit is received.\nIs the deposit refundable? | The deposit is non-refundable but can be moved once with 7 days notice.\nDo you travel? | Yes. Outstation and venue travel fees may apply and are confirmed when we approve your request.',
       publicReviews: '',
@@ -1229,6 +1235,8 @@
     let publishTimer = null;
     let seededProfile = false;
     let bookingsLoaded = false;
+    let bookingsServerLoaded = false;
+    let bookingsHasPendingWrites = false;
     let savingBooking = false;
     let lastSyncErrorAt = 0;
 
@@ -1247,6 +1255,190 @@
 
     function userDoc(colName, id) {
       return doc(db, 'studios', currentUser.uid, colName, id);
+    }
+
+    // Daily capacity ledger. It stores only booking IDs and appointment times (no client details).
+    // The ledger is private under studios/{uid}/dailyCapacity/{YYYY-MM-DD} and is updated
+    // in the same Firestore transaction as each booking create/edit/delete/approval.
+    function maxBookingsPerDay(settings = appState.settings) {
+      const n = Number(settings && settings.maxBookingsPerDay);
+      return Number.isFinite(n) ? Math.max(1, Math.min(50, Math.floor(n))) : 3;
+    }
+
+    function cleanCapacityAppointment(item) {
+      if (!item || typeof item !== 'object') return null;
+      const bookingId = String(item.bookingId || '');
+      const startTime = String(item.startTime || '');
+      const endTime = String(item.endTime || '');
+      if (!bookingId || !TIME_RE.test(startTime) || !TIME_RE.test(endTime)) return null;
+      if (timeToMinutes(endTime) <= timeToMinutes(startTime)) return null;
+      return { bookingId, startTime, endTime };
+    }
+
+    function baselineCapacityAppointments(date) {
+      return appState.bookings
+        .filter(b => b && b.eventDate === date)
+        .map(b => cleanCapacityAppointment({ bookingId: b.id, startTime: b.startTime, endTime: b.endTime }))
+        .filter(Boolean);
+    }
+
+    function hasBufferedTimeConflict(a, b, bufferMins) {
+      const as = timeToMinutes(a.startTime);
+      const ae = timeToMinutes(a.endTime);
+      const bs = timeToMinutes(b.startTime);
+      const be = timeToMinutes(b.endTime);
+      return as < be + bufferMins && ae + bufferMins > bs;
+    }
+
+    function capacityErrorMessage(err) {
+      const code = err && err.message;
+      if (code === 'daily-capacity-reached') {
+        return `The daily booking limit (${maxBookingsPerDay()}) has been reached for that date. Choose another date or change the limit in Settings → Public Booking Page.`;
+      }
+      if (code === 'daily-time-conflict') return 'That time now overlaps another appointment or does not leave enough travel buffer. Refresh the calendar and choose another time.';
+      if (code === 'daily-date-blocked') return 'That date is blocked in Settings → Public Booking Page. Remove the block before approving this request.';
+      if (code === 'request-no-longer-pending') return 'This request has already been handled. Refresh the Requests page.';
+      if (code === 'booking-not-found') return 'This booking could not be found. Refresh the page and try again.';
+      if (code === 'bookings-not-ready') return 'Your bookings are still syncing. Wait until the sync indicator is online, then try again.';
+      if (code === 'offline') return 'You need an internet connection to safely check the daily limit and save this booking.';
+      return 'Could not save the booking. Please check your connection and try again.';
+    }
+
+    async function saveBookingWithCapacity(booking, options = {}) {
+      if (!currentUser || !db) throw new Error('not-signed-in');
+      if (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites) throw new Error('bookings-not-ready');
+      if (!navigator.onLine) throw new Error('offline');
+      if (!booking || !booking.id || !DATE_RE.test(String(booking.eventDate || ''))) throw new Error('invalid-booking');
+
+      const bookingRef = userDoc('bookings', booking.id);
+      const profileRef = userDoc('meta', 'profile');
+      const requestRef = options.requestId ? doc(db, 'requests', options.requestId) : null;
+
+      await runTransaction(db, async (tx) => {
+        // All reads happen before any writes so Firestore can retry safely on contention.
+        const profileSnap = await tx.get(profileRef);
+        const bookingSnap = await tx.get(bookingRef);
+        const requestSnap = requestRef ? await tx.get(requestRef) : null;
+        const oldData = bookingSnap.exists() ? bookingSnap.data() : null;
+
+        if (options.mustExist && !oldData) throw new Error('booking-not-found');
+        if (!options.allowOverwrite && !options.mustExist && oldData) throw new Error('booking-already-exists');
+        if (requestRef && (!requestSnap || !requestSnap.exists() || requestSnap.data().status !== 'pending')) {
+          throw new Error('request-no-longer-pending');
+        }
+
+        const oldDate = oldData && DATE_RE.test(String(oldData.eventDate || '')) ? oldData.eventDate : '';
+        const newDate = booking.eventDate;
+        const dateKeys = [...new Set([oldDate, newDate].filter(Boolean))].sort();
+        const ledgerSnaps = {};
+        for (const date of dateKeys) ledgerSnaps[date] = await tx.get(userDoc('dailyCapacity', date));
+
+        const profile = profileSnap.exists() ? profileSnap.data() : DEFAULT_SETTINGS;
+        const dailyLimit = maxBookingsPerDay(profile);
+        const rawBuffer = Number(profile.bufferMins);
+        const bufferMins = Number.isFinite(rawBuffer) ? Math.max(0, Math.min(480, rawBuffer)) : 90;
+        const blockedDates = Array.isArray(profile.blockedDates) ? profile.blockedDates : [];
+
+        const originalByDate = {};
+        const workingByDate = {};
+        for (const date of dateKeys) {
+          const snap = ledgerSnaps[date];
+          let appointments = snap && snap.exists() && Array.isArray(snap.data().appointments)
+            ? snap.data().appointments.map(cleanCapacityAppointment).filter(Boolean)
+            : baselineCapacityAppointments(date);
+
+          // Ensure the existing booking is represented when migrating an older account
+          // whose private daily-capacity ledger has not been created yet.
+          if (oldData && oldDate === date && !appointments.some(a => a.bookingId === booking.id)) {
+            const oldSlot = cleanCapacityAppointment({
+              bookingId: booking.id,
+              startTime: oldData.startTime,
+              endTime: oldData.endTime
+            });
+            if (oldSlot) appointments.push(oldSlot);
+          }
+          originalByDate[date] = appointments.slice();
+          workingByDate[date] = appointments.slice();
+        }
+
+        if (oldDate && workingByDate[oldDate]) {
+          workingByDate[oldDate] = workingByDate[oldDate].filter(a => a.bookingId !== booking.id);
+        }
+
+        if (options.enforceBlockedDate) {
+          const isBlocked = blockedDates.some(x => x && x.date === newDate);
+          if (isBlocked) throw new Error('daily-date-blocked');
+        }
+
+        const newSlot = cleanCapacityAppointment({
+          bookingId: booking.id,
+          startTime: booking.startTime,
+          endTime: booking.endTime
+        });
+        if (!newSlot) throw new Error('invalid-booking-time');
+
+        const targetAppointments = (workingByDate[newDate] || []).filter(a => a.bookingId !== booking.id);
+        if (options.enforceSlotConflict && targetAppointments.some(a => hasBufferedTimeConflict(newSlot, a, bufferMins))) {
+          throw new Error('daily-time-conflict');
+        }
+        targetAppointments.push(newSlot);
+        workingByDate[newDate] = targetAppointments;
+
+        const beforeTargetCount = (originalByDate[newDate] || []).length;
+        const afterTargetCount = targetAppointments.length;
+        const isFutureOrToday = newDate >= localDateStr();
+        if (options.enforceCapacity !== false && isFutureOrToday && afterTargetCount > beforeTargetCount && afterTargetCount > dailyLimit) {
+          throw new Error('daily-capacity-reached');
+        }
+
+        for (const date of dateKeys) {
+          const appointments = workingByDate[date] || [];
+          tx.set(userDoc('dailyCapacity', date), {
+            date,
+            count: appointments.length,
+            appointments,
+            updatedAt: serverTimestamp()
+          });
+        }
+
+        tx.set(bookingRef, { ...booking, updatedAt: serverTimestamp() }, { merge: !!oldData });
+        if (requestRef) {
+          tx.set(requestRef, {
+            status: 'approved',
+            bookingId: booking.id,
+            handledAt: serverTimestamp()
+          }, { merge: true });
+        }
+      });
+    }
+
+    async function deleteBookingWithCapacity(bookingId) {
+      if (!currentUser || !db) throw new Error('not-signed-in');
+      if (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites) throw new Error('bookings-not-ready');
+      if (!navigator.onLine) throw new Error('offline');
+      const bookingRef = userDoc('bookings', bookingId);
+      const profileRef = userDoc('meta', 'profile');
+
+      await runTransaction(db, async (tx) => {
+        await tx.get(profileRef);
+        const bookingSnap = await tx.get(bookingRef);
+        if (!bookingSnap.exists()) throw new Error('booking-not-found');
+        const oldData = bookingSnap.data();
+        const date = String(oldData.eventDate || '');
+        if (!DATE_RE.test(date)) throw new Error('invalid-booking-date');
+        const ledgerRef = userDoc('dailyCapacity', date);
+        const ledgerSnap = await tx.get(ledgerRef);
+        let appointments = ledgerSnap.exists() && Array.isArray(ledgerSnap.data().appointments)
+          ? ledgerSnap.data().appointments.map(cleanCapacityAppointment).filter(Boolean)
+          : baselineCapacityAppointments(date);
+        if (!appointments.some(a => a.bookingId === bookingId)) {
+          const oldSlot = cleanCapacityAppointment({ bookingId, startTime: oldData.startTime, endTime: oldData.endTime });
+          if (oldSlot) appointments.push(oldSlot);
+        }
+        appointments = appointments.filter(a => a.bookingId !== bookingId);
+        tx.set(ledgerRef, { date, count: appointments.length, appointments, updatedAt: serverTimestamp() });
+        tx.delete(bookingRef);
+      });
     }
 
     // Runs a Firestore write without freezing the screen when you are offline.
@@ -1268,6 +1460,9 @@
       appState.bookings = [];
       appState.expenses = [];
       appState.requests = [];
+      bookingsLoaded = false;
+      bookingsServerLoaded = false;
+      bookingsHasPendingWrites = false;
       lastPublicHash = '';
       lastBusy = {};
       selectedCalendarDate = null;
@@ -1443,12 +1638,17 @@
       });
       unsubBookings = unsubPackages = unsubExpenses = unsubMeta = unsubRequests = null;
       requestsLoaded = false;
+      bookingsLoaded = false;
+      bookingsServerLoaded = false;
+      bookingsHasPendingWrites = false;
     }
 
     function startCloudSync() {
       stopListeners();
       seededProfile = false;
       bookingsLoaded = false;
+      bookingsServerLoaded = false;
+      bookingsHasPendingWrites = false;
       setSyncIndicator('pending');
       startRequestsListener();
 
@@ -1491,6 +1691,8 @@
 
       unsubBookings = onSnapshot(userCol('bookings'), { includeMetadataChanges: true }, (snap) => {
         const md = snap.metadata;
+        bookingsServerLoaded = !md.fromCache;
+        bookingsHasPendingWrites = md.hasPendingWrites;
         setSyncIndicator(md.hasPendingWrites ? 'pending' : (md.fromCache && !navigator.onLine ? 'offline' : 'ok'));
         if (bookingsLoaded && snap.docChanges().length === 0) return;
         bookingsLoaded = true;
@@ -2555,7 +2757,6 @@
       const editId = document.getElementById('book-id').value;
       const pkgId = document.getElementById('book-package').value;
       const foundPkg = appState.packages.find(p => p.id === pkgId);
-
       const packagePrice = Math.max(0, num(document.getElementById('book-package-price').value));
       const addonFee = Math.max(0, num(document.getElementById('book-addon-fee').value));
       const subtotal = packagePrice + addonFee;
@@ -2593,12 +2794,12 @@
             id: editId,
             packageDesc: samePackage && old.packageDesc ? old.packageDesc : (foundPkg ? foundPkg.description : '')
           };
-          fireWrite(setDoc(userDoc('bookings', editId), fullBooking, { merge: true }), 'Could not save booking changes.');
+          await saveBookingWithCapacity(fullBooking, { mustExist: true, enforceCapacity: true });
           window.closeBookingModal();
           showToast('Booking updated!');
         } else {
           const receiptNo = await allocateReceiptNo();
-          const id = 'bk_' + Date.now();
+          const id = 'bk_' + Date.now() + '_' + Math.random().toString(16).slice(2, 8);
           const newBooking = {
             id,
             receiptNo,
@@ -2607,13 +2808,13 @@
             packageDesc: foundPkg ? foundPkg.description : '',
             createdAt: serverTimestamp()
           };
-          fireWrite(setDoc(userDoc('bookings', id), newBooking), 'Could not save booking.');
+          await saveBookingWithCapacity(newBooking, { enforceCapacity: true });
           window.closeBookingModal();
           showToast(`Booking ${receiptNo} saved!`);
         }
       } catch (err) {
         console.error(err);
-        showToast('Could not save booking.', 'error');
+        showToast(capacityErrorMessage(err), 'error');
       } finally {
         savingBooking = false;
       }
@@ -2622,13 +2823,14 @@
     window.confirmDeleteBooking = function(id) {
       openConfirmModal(
         'Delete Client Booking?',
-        'This will permanently remove this booking and its receipt record.',
+        'This will permanently remove this booking and its receipt record, and free one place in that day’s booking limit.',
         async () => {
           try {
-            await deleteDoc(userDoc('bookings', id));
+            await deleteBookingWithCapacity(id);
             showToast('Booking deleted.');
           } catch (err) {
-            showToast('Could not delete booking.', 'error');
+            console.error(err);
+            showToast(capacityErrorMessage(err), 'error');
           }
         }
       );
@@ -2935,6 +3137,7 @@
       if (form && !form.contains(document.activeElement)) {
         document.getElementById('pub-buffer').value = s.bufferMins;
         document.getElementById('pub-lead').value = s.minLeadDays;
+        document.getElementById('pub-daily-cap').value = maxBookingsPerDay(s);
         document.getElementById('pub-deposit').value = s.depositText || '';
         document.getElementById('pub-faq').value = s.publicFaq || '';
         document.getElementById('pub-reviews').value = s.publicReviews || '';
@@ -2969,6 +3172,7 @@
       const data = {
         bufferMins: Math.max(0, Math.min(480, parseInt(document.getElementById('pub-buffer').value, 10) || 0)),
         minLeadDays: Math.max(0, Math.min(60, parseInt(document.getElementById('pub-lead').value, 10) || 0)),
+        maxBookingsPerDay: Math.max(1, Math.min(50, Number.parseInt(document.getElementById('pub-daily-cap').value, 10) || 3)),
         depositText: document.getElementById('pub-deposit').value.trim().slice(0, 600),
         publicFaq: document.getElementById('pub-faq').value.trim().slice(0, 3000),
         publicReviews: document.getElementById('pub-reviews').value.trim().slice(0, 3000),
@@ -3044,6 +3248,7 @@
         businessName: s.businessName, ownerName: s.ownerName || '', tagline: s.tagline || '',
         whatsappNo: s.whatsappNo || '', igHandle: s.igHandle || '', terms: s.terms || '',
         bufferMins: s.bufferMins, minLeadDays: s.minLeadDays,
+        maxBookingsPerDay: maxBookingsPerDay(s),
         depositText: s.depositText || '', faq: s.publicFaq || '', reviews: s.publicReviews || '',
         duitnowQr: s.duitnowQr || '',
         logo: s.logoBase64 && s.logoBase64.length < 150000 ? s.logoBase64 : '',
@@ -3067,17 +3272,31 @@
           const m = Math.min(23 * 60 + 59, parseInt(b.startTime.slice(0, 2), 10) * 60 + parseInt(b.startTime.slice(3), 10) + 120);
           end = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
         }
-        (map[b.eventDate] = map[b.eventDate] || []).push({ s: b.startTime, e: end });
+        const day = map[b.eventDate] || (map[b.eventDate] = { slots: [], bookingCount: 0 });
+        day.slots.push({ s: b.startTime, e: end });
+        day.bookingCount += 1;
       });
       (s.blockedDates || []).forEach(x => {
-        if (x && DATE_RE.test(String(x.date)) && x.date >= today) (map[x.date] = map[x.date] || []).push({ s: '00:00', e: '24:00' });
+        if (x && DATE_RE.test(String(x.date)) && x.date >= today) {
+          const day = map[x.date] || (map[x.date] = { slots: [], bookingCount: 0 });
+          day.slots.push({ s: '00:00', e: '24:00' });
+        }
       });
+      const dailyLimit = maxBookingsPerDay(s);
       const newBusy = {};
       Object.keys(map).forEach(date => {
-        const slots = map[date].sort((a, b) => a.s.localeCompare(b.s));
-        const str = JSON.stringify(slots);
+        const slots = map[date].slots.sort((a, b) => a.s.localeCompare(b.s));
+        const bookingCount = map[date].bookingCount;
+        const publicDay = {
+          date,
+          slots,
+          bookingCount,
+          maxBookingsPerDay: dailyLimit,
+          capacityReached: bookingCount >= dailyLimit
+        };
+        const str = JSON.stringify(publicDay);
         newBusy[date] = str;
-        if (lastBusy[date] !== str) ops.push({ ref: doc(db, 'busy', date), data: { date, slots, updatedAt: serverTimestamp() } });
+        if (lastBusy[date] !== str) ops.push({ ref: doc(db, 'busy', date), data: { ...publicDay, updatedAt: serverTimestamp() } });
       });
       Object.keys(lastBusy).forEach(date => {
         if (!(date in newBusy)) ops.push({ ref: doc(db, 'busy', date), delete: true });
@@ -3110,6 +3329,8 @@
       const hit = appState.bookings.find(b => b.eventDate === r.eventDate && rs < tm(b.endTime) + buf && re + buf > tm(b.startTime));
       if (hit) return `Clashes with ${hit.clientName} (${formatDisplayTime(hit.startTime)} to ${formatDisplayTime(hit.endTime)}).`;
       if ((appState.settings.blockedDates || []).some(x => x.date === r.eventDate)) return 'This date is blocked.';
+      const dayCount = appState.bookings.filter(b => b.eventDate === r.eventDate).length;
+      if (dayCount >= maxBookingsPerDay()) return `Daily booking limit reached (${dayCount}/${maxBookingsPerDay()}).`;
       return '';
     }
 
@@ -3208,15 +3429,19 @@
     window.approveRequest = function(id) {
       const r = appState.requests.find(x => x.id === id);
       if (!r || r.status !== 'pending') return;
+      if (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites) {
+        showToast(capacityErrorMessage(new Error('bookings-not-ready')), 'error');
+        return;
+      }
       const clash = requestClash(r);
       openConfirmModal(
         'Approve this request?',
-        (clash ? `Warning: ${clash} ` : '') + `This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)} and blocks that time on your public calendar.`,
+        (clash ? `Current schedule check: ${clash} ` : '') + `The app will recheck the time conflict and your ${maxBookingsPerDay()}-booking daily limit before saving. This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)}.`,
         async () => {
           if (!currentUser || !db) return;
           try {
             const receiptNo = await allocateReceiptNo();
-            const bid = 'bk_' + Date.now();
+            const bid = 'bk_' + Date.now() + '_' + Math.random().toString(16).slice(2, 8);
             const addons = Array.isArray(r.addons) ? r.addons : [];
             const notes = [
               `Request ${r.ref}`,
@@ -3238,16 +3463,18 @@
               depositPaid: 0, notes
             });
             if (!booking) throw new Error('bad request data');
-            const ops = [
-              { ref: userDoc('bookings', bid), data: { ...booking, createdAt: serverTimestamp() } },
-              { ref: doc(db, 'requests', r.id), data: { status: 'approved', bookingId: bid, handledAt: serverTimestamp() }, merge: true }
-            ];
-            await commitInChunks(ops);
+            booking.createdAt = serverTimestamp();
+            await saveBookingWithCapacity(booking, {
+              requestId: r.id,
+              enforceCapacity: true,
+              enforceSlotConflict: true,
+              enforceBlockedDate: true
+            });
             showToast('Approved! Booking created. Send the client a WhatsApp next.');
             requestWhatsApp(r, 'approve');
           } catch (err) {
             console.error(err);
-            showToast('Could not approve this request.', 'error');
+            showToast(capacityErrorMessage(err), 'error');
           }
         },
         'Approve'
@@ -3326,7 +3553,6 @@
           async () => {
             if (!currentUser || !db) return;
             const ops = [];
-            bookings.forEach(b => ops.push({ ref: userDoc('bookings', b.id), data: b, merge: true }));
             expenses.forEach(x => ops.push({ ref: userDoc('expenses', x.id), data: x, merge: true }));
             packages.forEach(p => ops.push({ ref: userDoc('packages', p.id), data: p, merge: true }));
 
@@ -3337,9 +3563,14 @@
               if (m) maxNo = Math.max(maxNo, parseInt(m[1], 10));
             });
             const profile = { nextReceiptNo: Math.max(parseInt(appState.settings.nextReceiptNo, 10) || 1, parseInt(st.nextReceiptNo, 10) || 1, maxNo + 1) };
-            ['businessName', 'ownerName', 'tagline', 'ssmNo', 'igHandle', 'whatsappNo', 'terms'].forEach(k => {
-              if (typeof st[k] === 'string' && st[k]) profile[k] = st[k];
+            ['businessName', 'ownerName', 'tagline', 'ssmNo', 'igHandle', 'whatsappNo', 'terms', 'depositText', 'publicFaq', 'publicReviews'].forEach(k => {
+              if (typeof st[k] === 'string') profile[k] = st[k];
             });
+            if (Number.isFinite(Number(st.maxBookingsPerDay))) profile.maxBookingsPerDay = Math.max(1, Math.min(50, Math.floor(Number(st.maxBookingsPerDay))));
+            if (Number.isFinite(Number(st.bufferMins))) profile.bufferMins = Math.max(0, Math.min(480, Number(st.bufferMins)));
+            if (Number.isFinite(Number(st.minLeadDays))) profile.minLeadDays = Math.max(0, Math.min(60, Number(st.minLeadDays)));
+            if (Array.isArray(st.blockedDates)) profile.blockedDates = st.blockedDates;
+            if (typeof st.duitnowQr === 'string' && st.duitnowQr.length <= 600000) profile.duitnowQr = st.duitnowQr;
             if (typeof st.logoBase64 === 'string' && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(st.logoBase64)) {
               profile.logoBase64 = st.logoBase64;
             }
@@ -3347,13 +3578,16 @@
             ops.push({ ref: userDoc('meta', 'profile'), data: profile, merge: true });
 
             try {
-              const result = await Promise.race([commitInChunks(ops), sleep(20000).then(() => 'timeout')]);
-              showToast(result === 'timeout'
-                ? 'Backup is saved on this device and will finish uploading when you are online.'
-                : 'Backup restored successfully!');
+              let restoredBookings = 0;
+              for (const b of bookings) {
+                await saveBookingWithCapacity(b, { allowOverwrite: true, enforceCapacity: false });
+                restoredBookings += 1;
+              }
+              await commitInChunks(ops);
+              showToast(`Backup restored: ${restoredBookings} bookings, ${expenses.length} expenses and ${packages.length} packages.`);
             } catch (err) {
               console.error(err);
-              showToast('Could not restore the backup.', 'error');
+              showToast(`Restore stopped after a partial save. ${capacityErrorMessage(err)}`, 'error');
             }
           },
           'Restore'
@@ -3706,12 +3940,13 @@
       btn.textContent = 'Importing...';
 
       let added = 0;
+      let skipped = 0;
       try {
         const firstNo = await allocateReceiptNos(chosen.length);
-        const ops = [];
-        chosen.forEach((ev, i) => {
+        for (let i = 0; i < chosen.length; i++) {
+          const ev = chosen[i];
           const receiptNo = 'R-' + String(firstNo + i).padStart(4, '0');
-          const id = 'bk_' + Date.now() + '_' + i;
+          const id = 'bk_' + Date.now() + '_' + i + '_' + Math.random().toString(16).slice(2, 6);
           const booking = normalizeBooking({
             id,
             receiptNo,
@@ -3731,19 +3966,20 @@
             depositPaid: 0,
             notes: ev.description
           });
-          if (booking) {
-            ops.push({ ref: userDoc('bookings', id), data: { ...booking, createdAt: serverTimestamp() } });
+          if (!booking) { skipped += 1; continue; }
+          try {
+            await saveBookingWithCapacity({ ...booking, createdAt: serverTimestamp() }, { enforceCapacity: false });
             added += 1;
+          } catch (err) {
+            console.warn('Skipped imported calendar item:', err);
+            skipped += 1;
           }
-        });
-        const result = await Promise.race([commitInChunks(ops), sleep(20000).then(() => 'timeout')]);
+        }
         window.closeImportModal();
-        showToast(result === 'timeout'
-          ? `${added} bookings are saved on this device and will finish uploading when you are online.`
-          : `${added} booking${added === 1 ? '' : 's'} imported! Add prices and deposits next.`);
+        showToast(`${added} booking${added === 1 ? '' : 's'} imported${skipped ? `; ${skipped} skipped` : ''}. Check any dates that now exceed your daily limit.`);
       } catch (err) {
         console.error(err);
-        showToast('Error importing bookings.', 'error');
+        showToast(`Import stopped. ${capacityErrorMessage(err)}`, 'error');
         updateImportCount();
       }
     };
@@ -3801,8 +4037,11 @@
         async () => {
           if (!currentUser || !db) return;
           try {
-            const [bSnap, eSnap] = await Promise.all([getDocs(userCol('bookings')), getDocs(userCol('expenses'))]);
+            const [bSnap, eSnap, capSnap] = await Promise.all([getDocs(userCol('bookings')), getDocs(userCol('expenses')), getDocs(userCol('dailyCapacity'))]);
             const ops = [...bSnap.docs, ...eSnap.docs].map(d => ({ ref: d.ref, delete: true }));
+            const capDates = new Set(capSnap.docs.map(d => d.id));
+            bSnap.docs.forEach(d => { const date = d.data().eventDate; if (DATE_RE.test(String(date || ''))) capDates.add(date); });
+            capDates.forEach(date => ops.push({ ref: userDoc('dailyCapacity', date), data: { date, count: 0, appointments: [], updatedAt: serverTimestamp() } }));
             await commitInChunks(ops);
             showToast('Bookings & expenses cleared.');
           } catch (err) {
