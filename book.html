@@ -143,8 +143,8 @@
               <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
             <div>
-              <label class="block text-xs font-semibold mb-1" for="f-email">Email *</label>
-              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120">
+              <label class="block text-xs font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
+              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120" placeholder="Optional">
               <p id="e-email" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
           </div>
@@ -582,7 +582,8 @@
       const bad = (id, msg) => { showErr(id, msg); ok = false; };
       if ($('f-name').value.trim().length < 2) bad('e-name', 'Please enter your full name.');
       if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 012-345 6789.');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('f-email').value.trim())) bad('e-email', 'Please enter a valid email address.');
+      const emailVal = $('f-email').value.trim();
+      if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)) bad('e-email', 'Please enter a valid email address.');
       const pax = parseInt($('f-pax').value, 10);
       if (!(pax >= 1 && pax <= 50)) bad('e-pax', 'Enter a number between 1 and 50.');
       if ($('f-venue').value.trim().length < 3) bad('e-venue', 'Please tell us where the makeup will be done.');
@@ -599,10 +600,27 @@
     });
 
     function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
-    function estimate() { return num(selPkg.price) + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0); }
+    function getPaxCount() {
+      const n = parseInt($('f-pax')?.value, 10);
+      return Number.isFinite(n) && n >= 1 ? Math.min(50, n) : 1;
+    }
+    function extraPaxAddon() {
+      return addonPackages().find(p => /pax|person|people|bridesmaid|extra\s*pax/i.test(p.name)) || null;
+    }
+    function extraPaxSubtotal() {
+      const pax = getPaxCount();
+      const extraCount = Math.max(0, pax - 1);
+      const perExtra = extraPaxAddon() ? num(extraPaxAddon().price) : 0;
+      return { pax, extraCount, perExtra, total: extraCount * perExtra };
+    }
+    function estimate() {
+      return num(selPkg.price) + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0) + extraPaxSubtotal().total;
+    }
 
     function renderReview() {
       const al = document.querySelector('input[name=allergy]:checked').value;
+      const paxInfo = extraPaxSubtotal();
+      const emailVal = $('f-email').value.trim();
       const rows = [
         ['Package', `${selPkg.name} (${fmtRM(selPkg.price)})`],
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
@@ -611,8 +629,9 @@
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
         ['Name', $('f-name').value.trim()],
         ['Phone', $('f-phone').value.trim()],
-        ['Email', $('f-email').value.trim()],
+        ...(emailVal ? [['Email', emailVal]] : []),
         ['People', $('f-pax').value],
+        ...(paxInfo.extraCount > 0 && paxInfo.perExtra > 0 ? [['Extra pax', `${paxInfo.extraCount} × ${fmtRM(paxInfo.perExtra)} (${fmtRM(paxInfo.total)})`]] : []),
         ['Location', $('f-venue').value.trim()],
         ['Allergies', al === 'yes' ? $('f-allergies').value.trim() : 'None'],
         ...($('f-mood').value.trim() ? [['Moodboard', $('f-mood').value.trim()]] : []),
@@ -646,7 +665,14 @@
       const btn = $('submit-btn'); btn.disabled = true; btn.textContent = 'Sending…';
       const al = document.querySelector('input[name=allergy]:checked').value;
       const ref = makeRef();
+      const paxInfo = extraPaxSubtotal();
       const addons = selectedAddonObjs().map(a => ({ name: String(a.name).slice(0, 80), price: num(a.price) }));
+      if (paxInfo.extraCount > 0 && paxInfo.perExtra > 0) {
+        addons.push({
+          name: `${paxInfo.extraCount}× ${extraPaxAddon()?.name || 'Additional Pax'}`.slice(0, 80),
+          price: num(paxInfo.perExtra) * paxInfo.extraCount
+        });
+      }
       const data = {
         ref, status: 'pending',
         clientName: $('f-name').value.trim(),
