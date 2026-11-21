@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Book Your Makeup Session</title>
   <meta name="description" content="Request a makeup session: choose a package, pick an available date and send your booking request." />
+  <meta property="og:title" content="Book your makeup session" />
+  <meta property="og:description" content="Choose a package, pick an available date and send your request." />
+  <meta name="theme-color" content="#b81d55" />
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <script>
     tailwind.config = {
@@ -22,7 +25,7 @@
   <script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; background: #fff5f8; color: #231F20; -webkit-tap-highlight-color: transparent; }
-    .field { width: 100%; padding: .7rem .9rem; font-size: .9rem; background: #fff; border: 1px solid #fed0df; border-radius: .9rem; }
+    .field { width: 100%; padding: .7rem .9rem; font-size: 1rem; background: #fff; border: 1px solid #fed0df; border-radius: .9rem; }
     .field:focus { outline: none; border-color: #ec4c85; box-shadow: 0 0 0 3px rgba(236,76,133,.15); }
     .field.err { border-color: #dc2626; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -66,6 +69,7 @@
         <p class="text-[11px] tracking-[0.2em] uppercase text-blush-700 font-semibold">Request a booking</p>
         <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Your best look,<br class="sm:hidden"> on your big day</h1>
         <p class="text-sm text-slate-600 max-w-md mx-auto">Choose your package, pick an available date and send your request. You will be asked to pay a deposit once it is approved.</p>
+        <a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline pt-1"><i data-lucide="instagram" class="w-4 h-4"></i> See my work on Instagram</a>
       </section>
 
       <!-- Progress -->
@@ -86,8 +90,6 @@
       <!-- STEP 2: date & time -->
       <section id="step-2" class="hidden space-y-4">
         <h2 class="font-serif text-xl font-bold">2. Pick a date &amp; time</h2>
-        <p class="text-xs text-slate-500">Dates show the number of sessions already booked. Client names and personal details are never shown.</p>
-        <p class="text-xs text-slate-500">Dates show how many sessions are already booked. Client names and details are never shown here.</p>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
           <div class="flex items-center justify-between mb-3">
             <button onclick="shiftMonth(-1)" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
@@ -95,28 +97,26 @@
             <button onclick="shiftMonth(1)" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Next month"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
           </div>
           <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase mb-1">
-            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
           </div>
           <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
-          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-[11px] text-slate-500">
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Available</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Has booking (number shown)</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Full / unavailable</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Booked / unavailable</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
           </div>
-          <p id="capacity-hint" class="text-[11px] text-slate-500 mt-2">Daily booking limit: 3 confirmed sessions.</p>
         </div>
 
         <div id="time-wrap" class="hidden space-y-3">
           <div>
-            <label class="block text-xs font-semibold mb-1">Makeup start time *</label>
+            <label class="block text-sm font-semibold mb-1">Makeup start time *</label>
             <select id="f-time" class="field"></select>
-            <p id="time-hint" class="text-[11px] text-slate-500 mt-1"></p>
+            <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1">Event / ready-by time <span class="font-normal text-slate-500">(optional)</span></label>
+            <label class="block text-sm font-semibold mb-1">Event / ready-by time <span class="font-normal text-slate-500">(optional)</span></label>
             <input type="time" id="f-ready" class="field">
-            <p class="text-[11px] text-slate-500 mt-1">When must you be fully ready? We will plan the start time around this.</p>
+            <p class="text-xs text-slate-500 mt-1">When must you be fully ready? We will plan the start time around this.</p>
           </div>
         </div>
         <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
@@ -132,46 +132,46 @@
         <h2 class="font-serif text-xl font-bold">3. Your details</h2>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
           <div>
-            <label class="block text-xs font-semibold mb-1" for="f-name">Full name *</label>
+            <label class="block text-sm font-semibold mb-1" for="f-name">Full name *</label>
             <input id="f-name" class="field" autocomplete="name" maxlength="80">
             <p id="e-name" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold mb-1" for="f-phone">Phone / WhatsApp *</label>
+              <label class="block text-sm font-semibold mb-1" for="f-phone">Phone / WhatsApp *</label>
               <input id="f-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="012-345 6789" maxlength="20">
               <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
             <div>
-              <label class="block text-xs font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
-              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120" placeholder="Optional">
+              <label class="block text-sm font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
+              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120">
               <p id="e-email" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
           </div>
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold mb-1" for="f-pax">Number of people to be made up *</label>
+              <label class="block text-sm font-semibold mb-1" for="f-pax">Number of people to be made up *</label>
               <input id="f-pax" class="field" type="number" min="1" max="50" value="1" inputmode="numeric">
-              <p class="text-[11px] text-slate-500 mt-1">Including the main client.</p>
+              <p class="text-xs text-slate-500 mt-1">Including the main client.</p>
               <p id="e-pax" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1" for="f-venue">Event / makeup location *</label>
+            <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
             <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
             <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
+            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
-            <p class="text-[11px] text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
+            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
             <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
         </div>
 
         <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
           <div>
-            <p class="text-xs font-semibold mb-2">Do you have any allergies or sensitive skin? *</p>
+            <p class="text-sm font-semibold mb-2">Do you have any allergies or sensitive skin? *</p>
             <div class="grid grid-cols-2 gap-2">
               <label class="flex items-center gap-2 p-3 rounded-xl border border-blush-200 cursor-pointer has-[:checked]:bg-blush-50 has-[:checked]:border-blush-500 text-sm"><input type="radio" name="allergy" value="none" class="accent-pink-600"> No allergies</label>
               <label class="flex items-center gap-2 p-3 rounded-xl border border-blush-200 cursor-pointer has-[:checked]:bg-blush-50 has-[:checked]:border-blush-500 text-sm"><input type="radio" name="allergy" value="yes" class="accent-pink-600"> Yes, I do</label>
@@ -182,13 +182,13 @@
             <p id="e-allergy" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
+            <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
-            <p class="text-[11px] text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
+            <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
             <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
+            <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
             <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
           </div>
         </div>
@@ -319,8 +319,7 @@
 
     // ---------- state ----------
     let cfg = null;
-    const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
-    let availabilityReady = false;
+    const busy = {};                 // 'YYYY-MM-DD' -> [{s,e}]
     let step = 1;
     let selPkg = null;
     let selAddons = new Set();
@@ -328,30 +327,17 @@
     let viewMonth = new Date(); viewMonth.setDate(1);
     let submitting = false;
 
-    const settingInt = (value, fallback, min, max) => {
-      const n = Number.parseInt(value, 10);
-      return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
-    };
-    const BUFFER = () => settingInt(cfg.bufferMins, 90, 0, 480);
-    const LEAD = () => settingInt(cfg.minLeadDays, 1, 0, 60);
-    const MAX_PER_DAY = () => settingInt(cfg.maxBookingsPerDay, 3, 1, 50);
+    const BUFFER = () => Math.max(0, Math.min(480, parseInt(cfg.bufferMins, 10) || 90));
+    const LEAD = () => Math.max(0, Math.min(60, parseInt(cfg.minLeadDays, 10) || 1));
     const DAY_START = 5 * 60, LAST_START = 19 * 60, STEP = 30;
 
     function mainPackages() { return (cfg.packages || []).filter(p => !p.addon); }
     function addonPackages() { return (cfg.packages || []).filter(p => p.addon); }
     function currentDuration() { return selPkg ? Math.max(30, selPkg.durationMins || 120) : 120; }
 
-    function capacityReached(date) {
-      const day = busy[date] || {};
-      const count = Number(day.bookingCount) || 0;
-      const cap = settingInt(day.maxBookingsPerDay, MAX_PER_DAY(), 1, 50);
-      return day.capacityReached === true || count >= cap;
-    }
-
     // Is a start time free for a job of `dur` minutes on `date`? Travel buffer is kept on both sides.
     function startIsFree(date, start, dur) {
-      if (!availabilityReady || capacityReached(date)) return false;
-      const slots = Array.isArray(busy[date]?.slots) ? busy[date].slots : [];
+      const slots = busy[date] || [];
       const end = start + dur;
       const buf = BUFFER();
       return slots.every(s => {
@@ -372,7 +358,6 @@
       const diff = Math.round((dt - today) / 86400000);
       if (diff < LEAD()) return 'past';
       if (diff > 540) return 'far';
-      if (!availabilityReady) return 'loading';
       return freeStarts(date, currentDuration()).length ? 'open' : 'booked';
     }
 
@@ -397,21 +382,9 @@
       renderCalendar();
       onSnapshot(collection(db, 'busy'), (snap) => {
         Object.keys(busy).forEach(k => delete busy[k]);
-        snap.forEach(d => {
-          const v = d.data();
-          if (v && Array.isArray(v.slots)) busy[d.id] = {
-            slots: v.slots,
-            bookingCount: Number(v.bookingCount) || 0,
-            maxBookingsPerDay: settingInt(v.maxBookingsPerDay, MAX_PER_DAY(), 1, 50),
-            capacityReached: v.capacityReached === true
-          };
-        });
-        availabilityReady = true;
+        snap.forEach(d => { const v = d.data(); if (v && Array.isArray(v.slots)) busy[d.id] = v.slots; });
         if (step === 2) { renderCalendar(); refreshTimes(); }
-      }, (err) => {
-        console.warn('availability unavailable', err);
-        availabilityReady = false;
-      });
+      }, (err) => console.warn('availability unavailable', err));
       lucide.createIcons();
     }
 
@@ -429,6 +402,8 @@
         const a = $('top-whatsapp'); a.href = `https://wa.me/${wa}`; a.classList.remove('hidden'); a.classList.add('inline-flex');
       }
       $('terms-text').textContent = cfg.terms || '';
+      const ig = String(cfg.igHandle || '').replace(/^.*instagram\.com\//i, '').replace(/[^A-Za-z0-9._]/g, '');
+      if (ig) { const l = $('ig-link'); l.href = `https://instagram.com/${ig}`; l.classList.remove('hidden'); }
     }
 
     function renderProgress() {
@@ -502,8 +477,7 @@
     function renderCalendar() {
       const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
       $('cal-title').textContent = viewMonth.toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
-      $('capacity-hint').textContent = `Daily booking limit: ${MAX_PER_DAY()} confirmed session${MAX_PER_DAY() === 1 ? '' : 's'}. Pending requests do not reserve a slot.`;
-      const first = (new Date(y, m, 1).getDay() + 6) % 7;
+      const first = new Date(y, m, 1).getDay();
       const days = new Date(y, m + 1, 0).getDate();
       const now = new Date();
       $('cal-prev').classList.toggle('invisible', y === now.getFullYear() && m <= now.getMonth());
@@ -513,13 +487,10 @@
         const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
         const st = dayState(ds);
         const sel = ds === selDate;
-        const occupied = Number(busy[ds]?.bookingCount) || 0;
-        const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 50);
         if (st === 'open') {
-          const availabilityLabel = occupied > 0 ? `${occupied}/${dailyCap} booked` : 'Available';
-          html += `<button type="button" data-date="${ds}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[7px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${occupied}/${dailyCap}</span>` : ''}</button>`;
+          html += `<button type="button" data-date="${ds}" class="day rounded-xl text-sm font-semibold border ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, available">${d}</button>`;
         } else if (st === 'booked') {
-          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, fully booked or unavailable"><span class="text-sm font-semibold">${d}</span><span class="text-[8px] uppercase mt-0.5">Full</span></div>`;
+          html += `<div class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, booked"><span class="text-sm font-semibold line-through">${d}</span></div>`;
         } else {
           html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
         }
@@ -570,7 +541,6 @@
       return true;
     }
     function validateStep2() {
-      if (!availabilityReady) { showErr('e-date', 'Availability is still loading. Please wait a moment and try again.'); return false; }
       if (!selDate) { showErr('e-date', 'Please pick an available date.'); return false; }
       const t = $('f-time').value;
       if (!t) { showErr('e-date', 'Please choose a start time.'); return false; }
@@ -582,8 +552,7 @@
       const bad = (id, msg) => { showErr(id, msg); ok = false; };
       if ($('f-name').value.trim().length < 2) bad('e-name', 'Please enter your full name.');
       if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 012-345 6789.');
-      const emailVal = $('f-email').value.trim();
-      if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)) bad('e-email', 'Please enter a valid email address.');
+      const em = $('f-email').value.trim(); if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) bad('e-email', 'That email address does not look right.');
       const pax = parseInt($('f-pax').value, 10);
       if (!(pax >= 1 && pax <= 50)) bad('e-pax', 'Enter a number between 1 and 50.');
       if ($('f-venue').value.trim().length < 3) bad('e-venue', 'Please tell us where the makeup will be done.');
@@ -600,27 +569,10 @@
     });
 
     function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
-    function getPaxCount() {
-      const n = parseInt($('f-pax')?.value, 10);
-      return Number.isFinite(n) && n >= 1 ? Math.min(50, n) : 1;
-    }
-    function extraPaxAddon() {
-      return addonPackages().find(p => /pax|person|people|bridesmaid|extra\s*pax/i.test(p.name)) || null;
-    }
-    function extraPaxSubtotal() {
-      const pax = getPaxCount();
-      const extraCount = Math.max(0, pax - 1);
-      const perExtra = extraPaxAddon() ? num(extraPaxAddon().price) : 0;
-      return { pax, extraCount, perExtra, total: extraCount * perExtra };
-    }
-    function estimate() {
-      return num(selPkg.price) + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0) + extraPaxSubtotal().total;
-    }
+    function estimate() { return num(selPkg.price) + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0); }
 
     function renderReview() {
       const al = document.querySelector('input[name=allergy]:checked').value;
-      const paxInfo = extraPaxSubtotal();
-      const emailVal = $('f-email').value.trim();
       const rows = [
         ['Package', `${selPkg.name} (${fmtRM(selPkg.price)})`],
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
@@ -629,9 +581,8 @@
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
         ['Name', $('f-name').value.trim()],
         ['Phone', $('f-phone').value.trim()],
-        ...(emailVal ? [['Email', emailVal]] : []),
+        ...($('f-email').value.trim() ? [['Email', $('f-email').value.trim()]] : []),
         ['People', $('f-pax').value],
-        ...(paxInfo.extraCount > 0 && paxInfo.perExtra > 0 ? [['Extra pax', `${paxInfo.extraCount} × ${fmtRM(paxInfo.perExtra)} (${fmtRM(paxInfo.total)})`]] : []),
         ['Location', $('f-venue').value.trim()],
         ['Allergies', al === 'yes' ? $('f-allergies').value.trim() : 'None'],
         ...($('f-mood').value.trim() ? [['Moodboard', $('f-mood').value.trim()]] : []),
@@ -665,14 +616,7 @@
       const btn = $('submit-btn'); btn.disabled = true; btn.textContent = 'Sending…';
       const al = document.querySelector('input[name=allergy]:checked').value;
       const ref = makeRef();
-      const paxInfo = extraPaxSubtotal();
       const addons = selectedAddonObjs().map(a => ({ name: String(a.name).slice(0, 80), price: num(a.price) }));
-      if (paxInfo.extraCount > 0 && paxInfo.perExtra > 0) {
-        addons.push({
-          name: `${paxInfo.extraCount}× ${extraPaxAddon()?.name || 'Additional Pax'}`.slice(0, 80),
-          price: num(paxInfo.perExtra) * paxInfo.extraCount
-        });
-      }
       const data = {
         ref, status: 'pending',
         clientName: $('f-name').value.trim(),
@@ -725,10 +669,10 @@
         ['Estimated total', fmtRM(d.packagePrice + d.addons.reduce((s, a) => s + a.price, 0))]
       ];
       $('conf-summary').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-28 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 font-medium break-words">${esc(v)}</span></div>`).join('');
-      const depositNotice = $('conf-deposit');
-      depositNotice.textContent = 'Please do not pay a deposit yet. We will send the deposit instructions and DuitNow QR after your booking request has been approved.';
-      depositNotice.classList.remove('hidden');
-      $('conf-qr-wrap').classList.add('hidden');
+      if (cfg.depositText) { const p = $('conf-deposit'); p.textContent = cfg.depositText; p.classList.remove('hidden'); }
+      if (typeof cfg.duitnowQr === 'string' && /^data:image\/(png|jpeg|jpg|webp);base64,/.test(cfg.duitnowQr)) {
+        $('conf-qr').src = cfg.duitnowQr; $('conf-qr-dl').href = cfg.duitnowQr; $('conf-qr-wrap').classList.remove('hidden');
+      }
       const msg = `Hi ${cfg.ownerName || cfg.businessName || ''}! I just sent a booking request.\n\n` +
         `Ref: ${d.ref}\nName: ${d.clientName}\nPackage: ${d.packageName}\nDate: ${fmtDate(d.eventDate)}\nStart: ${fmtTime(d.startTime)}\nLocation: ${d.venue}\n\nThank you!`;
       const wa = waNum(cfg.whatsappNo);
