@@ -607,6 +607,10 @@
               <button type="button" onclick="copyPublicLink()" class="w-full p-3 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-900 text-xs font-semibold flex items-center justify-center gap-2 transition">
                 <i data-lucide="link" class="w-4 h-4"></i> Copy booking page link
               </button>
+              <button type="button" id="publish-availability-btn" onclick="publishAvailabilityNow()" class="w-full p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-center gap-2 transition">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync admin bookings to customer calendar
+              </button>
+              <p id="publish-availability-status" class="text-[11px] text-slate-500 text-center" aria-live="polite">Availability syncs automatically when bookings change. Use this button to refresh it now.</p>
               <form id="public-form" onsubmit="savePublicSettings(event)" class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                   <div>
@@ -1084,6 +1088,7 @@
       setDoc,
       deleteDoc,
       getDocs,
+      getDocsFromServer,
       onSnapshot,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -1694,7 +1699,7 @@
         bookingsServerLoaded = !md.fromCache;
         bookingsHasPendingWrites = md.hasPendingWrites;
         setSyncIndicator(md.hasPendingWrites ? 'pending' : (md.fromCache && !navigator.onLine ? 'offline' : 'ok'));
-        if (bookingsLoaded && snap.docChanges().length === 0) return;
+        // Do not skip metadata-only snapshots: the cache-to-server transition must trigger publishing.
         bookingsLoaded = true;
         appState.bookings = snap.docs
           .map(d => normalizeBooking({ id: d.id, ...d.data() }))
@@ -3238,12 +3243,27 @@
     // Copies only the safe, public information to the public area of the database
     function schedulePublish() {
       clearTimeout(publishTimer);
-      publishTimer = setTimeout(publishPublicData, 1500);
+      publishTimer = setTimeout(async () => {
+        try {
+          await publishPublicData(false);
+        } catch (err) {
+          console.warn('Could not update public availability:', err);
+          const status = document.getElementById('publish-availability-status');
+          if (status) status.textContent = err && err.code === 'permission-denied'
+            ? 'Availability could not be published: Firestore Rules denied the write. Check the admin UID and /busy permissions.'
+            : 'Availability sync failed. Open Settings and use the manual sync button to see the exact result.';
+        }
+      }, 1500);
     }
 
-    async function publishPublicData() {
-      if (!currentUser || !db || !bookingsLoaded) return;
+    async function publishPublicData(forceServerRefresh = false) {
+      if (!currentUser || !db || (!forceServerRefresh && (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites))) return;
       const s = appState.settings;
+      const sourceBookings = forceServerRefresh
+        ? (await getDocsFromServer(userCol('bookings'))).docs
+            .map(d => normalizeBooking({ id: d.id, ...d.data() })).filter(Boolean)
+        : appState.bookings;
+
       const cfg = {
         businessName: s.businessName, ownerName: s.ownerName || '', tagline: s.tagline || '',
         whatsappNo: s.whatsappNo || '', igHandle: s.igHandle || '', terms: s.terms || '',
@@ -3259,21 +3279,23 @@
       };
       const ops = [];
       const hash = JSON.stringify(cfg);
-      if (hash !== lastPublicHash) {
+      if (forceServerRefresh || hash !== lastPublicHash) {
         ops.push({ ref: doc(db, 'public', 'config'), data: { ...cfg, updatedAt: serverTimestamp() } });
       }
 
       const today = localDateStr();
       const map = {};
-      appState.bookings.forEach(b => {
-        if (b.eventDate < today) return;
-        let end = b.endTime;
-        if (end <= b.startTime) {
-          const m = Math.min(23 * 60 + 59, parseInt(b.startTime.slice(0, 2), 10) * 60 + parseInt(b.startTime.slice(3), 10) + 120);
-          end = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+      sourceBookings.forEach(b => {
+        if (!b || !DATE_RE.test(String(b.eventDate || '')) || b.eventDate < today) return;
+        const start = String(b.startTime || '');
+        let end = String(b.endTime || '');
+        if (!TIME_RE.test(start)) return;
+        if (!TIME_RE.test(end) || timeToMinutes(end) <= timeToMinutes(start)) {
+          const finish = Math.min(24 * 60, timeToMinutes(start) + 120);
+          end = finish === 1440 ? '24:00' : `${String(Math.floor(finish / 60)).padStart(2, '0')}:${String(finish % 60).padStart(2, '0')}`;
         }
         const day = map[b.eventDate] || (map[b.eventDate] = { slots: [], bookingCount: 0 });
-        day.slots.push({ s: b.startTime, e: end });
+        day.slots.push({ s: start, e: end });
         day.bookingCount += 1;
       });
       (s.blockedDates || []).forEach(x => {
@@ -3282,6 +3304,7 @@
           day.slots.push({ s: '00:00', e: '24:00' });
         }
       });
+
       const dailyLimit = maxBookingsPerDay(s);
       const newBusy = {};
       Object.keys(map).forEach(date => {
@@ -3296,24 +3319,68 @@
         };
         const str = JSON.stringify(publicDay);
         newBusy[date] = str;
-        if (lastBusy[date] !== str) ops.push({ ref: doc(db, 'busy', date), data: { ...publicDay, updatedAt: serverTimestamp() } });
-      });
-      Object.keys(lastBusy).forEach(date => {
-        if (!(date in newBusy)) ops.push({ ref: doc(db, 'busy', date), delete: true });
+        if (forceServerRefresh || lastBusy[date] !== str) {
+          ops.push({ ref: doc(db, 'busy', date), data: { ...publicDay, updatedAt: serverTimestamp() } });
+        }
       });
 
-      if (!ops.length) return;
+      if (forceServerRefresh) {
+        // The server collection is the source of truth for stale date cleanup.
+        const existingBusy = await getDocsFromServer(collection(db, 'busy'));
+        existingBusy.docs.forEach(d => {
+          if (!(d.id in newBusy)) ops.push({ ref: d.ref, delete: true });
+        });
+      } else {
+        Object.keys(lastBusy).forEach(date => {
+          if (!(date in newBusy)) ops.push({ ref: doc(db, 'busy', date), delete: true });
+        });
+      }
+
+      if (!ops.length) return { bookingCount: sourceBookings.filter(b => b.eventDate >= today).length, dayCount: Object.keys(newBusy).length };
+      await commitInChunks(ops);
+      lastPublicHash = hash;
+      lastBusy = newBusy;
+      return {
+        bookingCount: sourceBookings.filter(b => b.eventDate >= today).length,
+        dayCount: Object.keys(newBusy).length
+      };
+    }
+
+    window.publishAvailabilityNow = async function() {
+      const btn = document.getElementById('publish-availability-btn');
+      const status = document.getElementById('publish-availability-status');
+      if (!currentUser || !db) {
+        showToast('Please sign in before syncing availability.', 'error');
+        return;
+      }
+      if (!navigator.onLine) {
+        showToast('Connect to the internet before syncing availability.', 'error');
+        return;
+      }
+      if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); btn.innerHTML = '<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Syncing…'; }
+      if (status) status.textContent = 'Reading your saved bookings directly from Firebase…';
       try {
-        await commitInChunks(ops);
-        lastPublicHash = hash;
-        lastBusy = newBusy;
+        const result = await publishPublicData(true);
+        const message = result.bookingCount === 0
+          ? `Synced. Firebase contains no upcoming saved bookings; ${result.dayCount} date(s) including blocked dates were published.`
+          : `Synced ${result.bookingCount} upcoming booking(s) across ${result.dayCount} date(s) to the customer calendar.`;
+        if (status) status.textContent = message;
+        showToast(message, 'success');
       } catch (err) {
-        console.warn('Could not update the public page data:', err);
-        if (err && err.code === 'permission-denied') {
-          showToast('Public page not updated: publish the new Firestore rules first.', 'error');
+        console.error('Manual availability sync failed:', err);
+        const code = err && err.code ? ` (${err.code})` : '';
+        const message = `Could not sync availability${code}. Check Firestore Rules and your internet connection.`;
+        if (status) status.textContent = message;
+        showToast(message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-60');
+          btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync admin bookings to customer calendar';
+          if (window.lucide) lucide.createIcons();
         }
       }
-    }
+    };
 
     // ---- Requests inbox ----
     function requestEndTime(r) {
