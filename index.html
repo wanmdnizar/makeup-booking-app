@@ -3451,7 +3451,7 @@
           <p class="text-slate-600">Estimated total: <b>${esc(formatRM(total))}</b></p>
           ${r.allergyStatus === 'yes' ? `<p class="text-red-700 font-semibold">Allergies: ${esc(r.allergies)}</p>` : '<p class="text-slate-500">No allergies reported</p>'}
           ${r.notes ? `<p class="text-slate-600 italic">"${esc(r.notes)}"</p>` : ''}
-          <p class="text-slate-500">${esc(r.phone)} • ${esc(r.email)}</p>
+          <p class="text-slate-500">${esc(r.phone)}${r.email ? ' • ' + esc(r.email) : ''}</p>
           ${mood ? `<p>${mood}</p>` : ''}
         </div>
         <div class="flex flex-wrap items-center gap-2">
