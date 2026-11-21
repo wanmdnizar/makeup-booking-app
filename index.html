@@ -62,10 +62,46 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     #receipt-printable-area { background: #ffffff; color: #231F20; }
+
+    @media screen {
+      body { background: #f6f5f3; color:#242026; }
+      :is(header,.glass-header) { background:rgba(255,255,255,.94); border-color:#dad6d8; }
+      :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid #904465; outline-offset:3px; }
+      .tab-content .rounded-3xl.bg-white, #flow .bg-white.rounded-3xl, #confirmation > .bg-white, #client-panel {
+        border-radius:1.1rem; border-color:#dedadc; box-shadow:0 2px 7px #21162008;
+      }
+      :is(h1,h2,h3).font-serif { font-family:'Inter',system-ui,sans-serif; letter-spacing:-.035em; }
+      .field { border-color:#d6d1d4; border-radius:.7rem; }
+    }
+
+    @media screen {
+      #auth-screen { background:radial-gradient(ellipse at top right,#e9dbe3,transparent 55%),#f5f4f2; }
+      #auth-screen > div { box-shadow:0 12px 40px #35243210; border-color:#dcd5d9; }
+      #app-shell nav .nav-btn { border-radius:.55rem; }
+      #tab-dashboard > .bg-gradient-to-br { background:linear-gradient(110deg,#2e2630,#493341); box-shadow:0 4px 16px #2d203013; }
+      #app-shell .nav-btn { min-height:2.25rem; }
+      #app-shell .bg-gradient-to-r.text-white { background-image:none; background-color:#803456; }
+      #tab-requests .rounded-3xl { border-radius:1rem; }
+      #app-shell .tab-content h2 { letter-spacing:-.04em; }
+      #tab-requests article { border-color:#d8d3d7; }
+    }
+    #request-editor { width:min(32rem,calc(100% - 2rem)); margin:auto; padding:1.4rem; max-height:85vh; border:1px solid #dedadc; border-radius:1rem; color:#242026; }
+    #request-editor::backdrop { background:#241b235c; }
+    #request-editor label { display:grid; gap:.25rem; font-size:.82rem; font-weight:600; margin-top:.7rem; }
+    #request-editor input,#request-editor textarea { border:1px solid #ccc5c9; border-radius:.65rem; padding:.6rem; font:inherit; width:100%; }
+    #request-editor .editor-actions { display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; }
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
 
+  <dialog id="request-editor" aria-labelledby="edit-request-title">
+    <form id="request-edit-form">
+      <h2 id="edit-request-title" class="font-bold text-xl">Edit pending request</h2>
+      <div id="request-edit-fields"></div>
+      <p id="request-edit-error" role="alert" class="text-sm text-red-700 mt-2"></p>
+      <div class="editor-actions"><button type="button" onclick="document.getElementById('request-editor').close()">Cancel</button><button class="rounded-xl bg-blush-700 text-white px-4 py-2" type="submit">Save changes</button></div>
+    </form>
+  </dialog>
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
@@ -207,9 +243,7 @@
         <div class="bg-gradient-to-br from-blush-800 via-blush-700 to-blush-600 rounded-3xl p-5 sm:p-6 text-white shadow-lg shadow-blush-200/80 relative overflow-hidden">
           <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span class="inline-block px-3 py-0.5 rounded-full bg-white/15 text-blush-100 text-xs font-medium mb-2">Studio Overview</span>
               <h2 id="welcome-title" class="font-serif text-2xl sm:text-3xl font-bold">Welcome back!</h2>
-              <p class="text-blush-100 text-xs sm:text-sm mt-1">Manage your bridal &amp; glam schedule, deposits, and receipts effortlessly.</p>
             </div>
             <div class="flex flex-wrap gap-2">
               <button onclick="switchTab('calendar')" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-xs font-semibold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 transition">
@@ -220,8 +254,6 @@
               </button>
             </div>
           </div>
-          <div class="w-44 h-44 rounded-full bg-white/10 absolute -right-12 -bottom-14 pointer-events-none"></div>
-          <div class="w-28 h-28 rounded-full bg-blush-300/20 absolute right-28 -top-10 pointer-events-none"></div>
         </div>
 
         <!-- Period selector -->
@@ -499,7 +531,6 @@
             <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Boutique Profile &amp; Receipt Branding</h2>
             <p class="text-xs text-slate-500 mb-5">Synced to Firestore and applied automatically to your receipts and header.</p>
 
-            <button type="button" onclick="openMyBookings()" class="mb-5 px-4 py-2 rounded-xl bg-blush-50 text-blush-800 text-sm font-semibold">My Bookings</button>
             <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4">
               <div class="flex items-center gap-4 p-4 rounded-2xl bg-blush-50/80 border border-blush-200/70">
                 <div id="settings-logo-preview" class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blush-700 to-blush-500 text-white flex items-center justify-center font-serif font-bold text-2xl shadow-sm overflow-hidden shrink-0">MN</div>
@@ -1199,6 +1230,7 @@
       const depositPaid = Math.max(0, num(b.depositPaid));
       return {
         id: String(b.id),
+        ...(b.trackingId ? {trackingId:String(b.trackingId)} : {}),
         receiptNo: String(b.receiptNo || ''),
         issuedDate: DATE_RE.test(String(b.issuedDate || '')) ? b.issuedDate : '',
         clientName: String(b.clientName || 'Unnamed client'),
@@ -1303,11 +1335,22 @@
       }
       if (code === 'daily-time-conflict') return 'That time now overlaps another appointment or does not leave enough travel buffer. Refresh the calendar and choose another time.';
       if (code === 'daily-date-blocked') return 'That date is blocked in Settings → Public Booking Page. Remove the block before approving this request.';
+      if (code === 'request-changed') return 'This request changed. Review the latest details and approve again.';
       if (code === 'request-no-longer-pending') return 'This request has already been handled. Refresh the Requests page.';
       if (code === 'booking-not-found') return 'This booking could not be found. Refresh the page and try again.';
       if (code === 'bookings-not-ready') return 'Your bookings are still syncing. Wait until the sync indicator is online, then try again.';
       if (code === 'offline') return 'You need an internet connection to safely check the daily limit and save this booking.';
       return 'Could not save the booking. Please check your connection and try again.';
+    }
+
+    function trackingId(booking) {
+      return booking.trackingId || appState.requests.find(r=>r.bookingId === booking.id && (r.guest || r.clientUid))?.id || '';
+    }
+
+    function ticketBookingFields(booking) {
+      return { clientName:booking.clientName, phone:booking.clientPhone, eventDate:booking.eventDate,
+        startTime:booking.startTime, endTime:booking.endTime, venue:booking.venue, packageName:booking.packageName,
+        finalTotal:booking.subtotal, depositPaid:booking.depositPaid };
     }
 
     async function saveBookingWithCapacity(booking, options = {}) {
@@ -1332,6 +1375,8 @@
         if (requestRef && (!requestSnap || !requestSnap.exists() || requestSnap.data().status !== 'pending')) {
           throw new Error('request-no-longer-pending');
         }
+
+        if (requestRef && (requestSnap.data().revision || 0) !== options.revision) throw new Error('request-changed');
 
         const oldDate = oldData && DATE_RE.test(String(oldData.eventDate || '')) ? oldData.eventDate : '';
         const newDate = booking.eventDate;
@@ -1407,8 +1452,17 @@
           });
         }
 
-        tx.set(bookingRef, { ...booking, updatedAt: serverTimestamp() }, { merge: !!oldData });
+        const linkedId = (requestRef && (requestSnap.data().guest || requestSnap.data().clientUid)) ? options.requestId : trackingId(oldData ? {...oldData,id:booking.id} : booking);
+        if (!requestRef && linkedId) tx.set(doc(db,'clientApprovals',linkedId), ticketBookingFields(booking), {merge:true});
+        tx.set(bookingRef, { ...booking, ...(linkedId ? {trackingId:linkedId} : {}), updatedAt: serverTimestamp() }, { merge: !!oldData });
         if (requestRef) {
+          const request = requestSnap.data();
+          if (request.clientUid || request.guest === true) {
+            tx.set(doc(db,'clientApprovals',options.requestId), {
+              ...request, ...ticketBookingFields(booking), status:'approved',
+              travelFee:options.travelFee, approvedAt:serverTimestamp()
+            });
+          }
           tx.set(requestRef, {
             status: 'approved',
             bookingId: booking.id,
@@ -1443,6 +1497,8 @@
         }
         appointments = appointments.filter(a => a.bookingId !== bookingId);
         tx.set(ledgerRef, { date, count: appointments.length, appointments, updatedAt: serverTimestamp() });
+        const linkedId = trackingId({...oldData,id:bookingId});
+        if (linkedId) tx.set(doc(db,'clientApprovals',linkedId), {status:'cancelled'}, {merge:true});
         tx.delete(bookingRef);
       });
     }
@@ -2046,14 +2102,6 @@
       renderDashboard();
     };
 
-    window.openMyBookings = function() {
-      switchTab('calendar');
-      document.getElementById('booking-search-input').value = '';
-      clearDateFilter();
-      setBookingFilter('all');
-      document.getElementById('bookings-list-title').scrollIntoView({block: 'center'});
-    };
-
     window.reviewNeedsPrice = function() {
       switchTab('calendar');
       setBookingFilter('noprice');
@@ -2151,11 +2199,19 @@
       openConfirmModal(
         'Mark as fully paid?',
         `${b.clientName}: record the remaining ${formatRM(b.balanceDue)} as received, so this booking shows Fully Paid.`,
-        () => {
-          fireWrite(setDoc(userDoc('bookings', b.id), {
-            depositPaid: b.subtotal, balanceDue: 0, status: 'Fully Paid', updatedAt: serverTimestamp()
-          }, { merge: true }), 'Could not update payment.');
-          showToast('Marked as fully paid.');
+        async () => {
+          try {
+            await runTransaction(db,async tx=>{
+              const ref = userDoc('bookings',b.id), snap = await tx.get(ref);
+              if (!snap.exists()) throw new Error('Booking removed');
+              const current = normalizeBooking({...snap.data(),id:b.id});
+              if (!current || current.subtotal !== b.subtotal) throw new Error('Price changed');
+              const linkedId = trackingId(current);
+              tx.update(ref,{depositPaid:current.subtotal,balanceDue:0,status:'Fully Paid',updatedAt:serverTimestamp()});
+              if (linkedId) tx.set(doc(db,'clientApprovals',linkedId),{depositPaid:current.subtotal},{merge:true});
+            });
+            showToast('Marked as fully paid.');
+          } catch { showToast('Payment was not saved. Refresh the booking and try again.','error'); }
         },
         'Mark paid'
       );
@@ -3141,6 +3197,18 @@
       return location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '') + 'book.html';
     }
 
+    window.replaceGuestLink = function(id) {
+      const r = appState.requests.find(row=>row.id===id && row.guest===true);
+      if (!r) return;
+      openConfirmModal('Issue a replacement link?', 'The previous link will stop working. Share the replacement privately with the client after checking their identity.', async ()=>{
+        const secret = Array.from(crypto.getRandomValues(new Uint8Array(32)), n=>n.toString(16).padStart(2,'0')).join('');
+        try {
+          await setDoc(doc(db,'guestKeys',id),{secret, creator:currentUser.uid});
+          window.prompt('Copy this private booking link for the client.', publicPageUrl()+'#manage='+id+'.'+secret);
+        } catch { showToast('Could not replace the link. Please try again.','error'); }
+      },'Replace link');
+    };
+
     window.copyPublicLink = function() {
       copyTextToClipboard(publicPageUrl(), 'Booking page link copied!');
     };
@@ -3434,6 +3502,47 @@
       return /\b(transport|mileage|travel|petrol|parking|toll)\b/i.test(addon.name);
     }
 
+    const requestFields = [
+      ['clientName','Client name','text',80],['phone','Phone','tel',16],['email','Email','email',120],
+      ['eventDate','Date','date'],['startTime','Start time','time'],['readyBy','Ready by','time'],
+      ['venue','Venue','text',300],['mapLink','Map link','url',500],['moodboardLink','Moodboard','url',500],
+      ['allergies','Allergies','text',500],['notes','Client notes','text',1000]
+    ];
+    let editedRequest;
+    window.editPendingRequest = id=>{
+      const r = appState.requests.find(entry=>entry.id === id && entry.status === 'pending');
+      if (!r) return;
+      editedRequest = r;
+      document.getElementById('request-edit-fields').innerHTML = requestFields.map(([key,label,type,max])=>
+        '<label>'+label+'<input name="'+key+'" type="'+type+'" value="'+esc(r[key] || '')+'"'+(max?' maxlength="'+max+'"':'')+
+        (['clientName','phone','venue','eventDate','startTime'].includes(key)?' required':'')+'></label>').join('');
+      document.getElementById('request-edit-error').textContent = '';
+      document.getElementById('request-editor').showModal();
+    };
+    document.getElementById('request-edit-form').onsubmit = async event=>{
+      event.preventDefault();
+      const form = event.currentTarget, target = editedRequest;
+      const fields = Object.fromEntries(Array.from(new FormData(form),([key,v])=>[key,v.trim()]));
+      const error = document.getElementById('request-edit-error');
+      const end = timeToMinutes(fields.startTime) + num(target.durationMins);
+      if (end >= 1440 || (fields.readyBy && timeToMinutes(fields.readyBy)<end)) {
+        error.textContent='Choose a start time that fits the session and ready-by time.'; return;
+      }
+      if (fields.clientName.length < 2 || fields.venue.length < 3 || fields.phone.replace(/\D/g,'').length < 9) {
+        error.textContent='Check the client name, phone and venue.'; return;
+      }
+      const btn = form.querySelector('[type=submit]'); btn.disabled = true;
+      try {
+        await runTransaction(db,async tx=>{
+          const ref=doc(db,'requests',target.id), snap=await tx.get(ref);
+          if (!snap.exists() || snap.data().status!=='pending' || (snap.data().revision||0)!==(target.revision||0)) throw new Error('stale');
+          tx.update(ref,{...fields, allergyStatus:fields.allergies?'yes':'none', revision:(target.revision||0)+1});
+        });
+        document.getElementById('request-editor').close(); showToast('Request updated.');
+      } catch { error.textContent='Could not save. Check your connection and reopen the latest request.'; }
+      finally { btn.disabled = false; }
+    };
+
     function requestCardHTML(r) {
       const id = esc(r.id);
       const clash = requestClash(r);
@@ -3468,6 +3577,8 @@
           ${mood ? `<p>${mood}</p>` : ''}
         </div>
         <div class="flex flex-wrap items-center gap-2">
+          ${r.guest === true ? `<button onclick="replaceGuestLink('${id}')" class="text-xs underline">Replace private link</button>` : ''}
+          <button type="button" onclick="editPendingRequest('${id}')" class="px-3 py-2 rounded-xl border border-blush-200 font-semibold text-xs">Edit request</button>
           <label class="text-xs font-semibold">Final travel fee (RM)
             <input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2)}" class="w-24 ml-1 border border-blush-200 rounded-lg p-2">
           </label>
@@ -3511,6 +3622,7 @@
           <div class="min-w-0"><p class="font-semibold text-charcoal truncate">${esc(r.clientName)} <span class="text-slate-400 font-normal">${esc(r.ref)}</span></p><p class="text-slate-500">${esc(formatDisplayDate(r.eventDate))}</p></div>
           <div class="flex items-center gap-2 shrink-0">
             <span class="px-2 py-0.5 rounded-full font-bold ${label === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(label)}</span>
+          ${r.guest === true ? `<button onclick="replaceGuestLink('${esc(r.id)}')" class="text-xs underline">Replace private link</button>` : ''}
             ${label === 'declined' ? `<button onclick="restoreRequest('${esc(r.id)}')" class="font-semibold text-blush-700 underline">Restore</button>` : ''}
             <button onclick="deleteRequest('${esc(r.id)}')" class="p-1 text-red-500 font-bold" aria-label="Delete request" title="Delete">✕</button>
           </div>
@@ -3529,9 +3641,18 @@
       );
     };
 
-    window.restoreRequest = function(id) {
-      fireWrite(setDoc(doc(db, 'requests', id), { status: 'pending', handledAt: serverTimestamp() }, { merge: true }), 'Could not restore the request.');
-      showToast('Moved back to pending.');
+    async function changeRequestStatus(id,from,to) {
+      const ref = doc(db,'requests',id);
+      await runTransaction(db,async tx=>{
+        const snap = await tx.get(ref);
+        if (!snap.exists() || snap.data().status !== from) throw new Error('Request already changed');
+        tx.update(ref,{status:to,revision:(snap.data().revision||0)+1,handledAt:serverTimestamp()});
+      });
+    }
+
+    window.restoreRequest = async function(id) {
+      try { await changeRequestStatus(id,'declined','pending'); showToast('Moved back to pending.'); }
+      catch { showToast('Could not restore this request. Refresh and try again.','error'); }
     };
 
     window.clearHandledRequests = function() {
@@ -3598,7 +3719,7 @@
             if (!booking) throw new Error('bad request data');
             booking.createdAt = serverTimestamp();
             await saveBookingWithCapacity(booking, {
-              requestId: r.id,
+              requestId: r.id, revision:r.revision || 0, travelFee:travel,
               enforceCapacity: true,
               enforceSlotConflict: true,
               enforceBlockedDate: true
@@ -3620,10 +3741,11 @@
       openConfirmModal(
         'Decline this request?',
         `${r.clientName}'s request will be marked as declined. Nothing is blocked on your calendar.`,
-        () => {
-          fireWrite(setDoc(doc(db, 'requests', r.id), { status: 'declined', handledAt: serverTimestamp() }, { merge: true }), 'Could not decline this request.');
-          showToast('Request declined.');
-          requestWhatsApp(r, 'decline');
+        async () => {
+          try {
+            await changeRequestStatus(r.id,'pending','declined');
+            showToast('Request declined.'); requestWhatsApp(r, 'decline');
+          } catch { showToast('Request status changed or the connection failed. Refresh and try again.','error'); }
         },
         'Decline'
       );
@@ -4172,6 +4294,10 @@
           try {
             const [bSnap, eSnap, capSnap] = await Promise.all([getDocs(userCol('bookings')), getDocs(userCol('expenses')), getDocs(userCol('dailyCapacity'))]);
             const ops = [...bSnap.docs, ...eSnap.docs].map(d => ({ ref: d.ref, delete: true }));
+            bSnap.docs.forEach(d=>{
+              const linkedId = trackingId({...d.data(),id:d.id});
+              if (linkedId) ops.push({ref:doc(db,'clientApprovals',linkedId),data:{status:'cancelled'},merge:true});
+            });
             const capDates = new Set(capSnap.docs.map(d => d.id));
             bSnap.docs.forEach(d => { const date = d.data().eventDate; if (DATE_RE.test(String(date || ''))) capDates.add(date); });
             capDates.forEach(date => ops.push({ ref: userDoc('dailyCapacity', date), data: { date, count: 0, appointments: [], updatedAt: serverTimestamp() } }));
