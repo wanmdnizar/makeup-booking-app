@@ -123,7 +123,7 @@
     .pill.bad { background:var(--bad-bg); color:var(--bad); }
     .pill.info { background:var(--info-bg); color:var(--info); }
     .pill.muted { background:#F4EAEF; color:var(--muted); }
-    .ticket-top .pill { background:rgba(255,255,255,.22); color:#fff; }
+
 
     /* to-do banners on Today */
     .todo-stack { display:grid; gap:.6rem; }
@@ -134,29 +134,19 @@
     .todo.peach { background:var(--peach); color:#7A3512; }
     .todo p { margin:0; line-height:1.45; }
 
-    /* ---------- ticket (hero + detail) ---------- */
-    .ticket { position:relative; background:#fff; border-radius:28px; overflow:hidden; border:1px solid var(--rule); box-shadow:var(--shadow); }
-    .ticket-top { position:relative; padding:1.3rem 1.4rem 1.7rem; color:#fff; background:var(--grad); overflow:hidden; }
-    .ticket-top::before { content:""; position:absolute; right:-3.5rem; top:-3.5rem; width:11rem; height:11rem; border-radius:50%; background:rgba(255,255,255,.12); }
-    .ticket-top::after { content:""; position:absolute; right:2.5rem; bottom:-4.5rem; width:9rem; height:9rem; border-radius:50%; background:rgba(255,255,255,.08); }
-    .ticket-top > * { position:relative; z-index:1; }
-    .ticket-top h1, .ticket-top h2 { font:800 clamp(1.4rem,4vw,2rem)/1.15 Inter,system-ui,sans-serif; letter-spacing:-.04em; margin:.9rem 0 .2rem; overflow-wrap:anywhere; }
-    .ticket-top p { color:#FFE3EE; font-size:.88rem; margin:.15rem 0; overflow-wrap:anywhere; }
-    .eyebrow-l { font-size:.7rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#FFD3E3; }
-    .route { display:flex; align-items:center; gap:.8rem; margin-top:1rem; }
-    .route time { display:block; font:800 clamp(1.3rem,5vw,1.9rem)/1 Inter,system-ui,sans-serif; letter-spacing:-.04em; }
-    .route small { display:block; margin-top:.25rem; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:#FFD3E3; }
-    .route-line { flex:1; position:relative; display:flex; justify-content:center; align-items:center; height:1.4rem; min-width:3rem; }
-    .route-line::before { content:""; position:absolute; left:0; right:0; top:50%; border-top:2px dashed rgba(255,255,255,.6); }
-    .route-line::after { content:""; position:absolute; inset:50% 0 auto 0; height:0; }
-    .route-line span { position:relative; z-index:1; background:#C3226B; padding:.12rem .6rem; border-radius:999px; font-size:.72rem; font-weight:700; }
-    .perf { position:relative; height:0; margin:0 1.4rem; border-top:2px dashed #F2C2D6; }
-    .perf::before, .perf::after { content:""; position:absolute; top:-14px; width:26px; height:26px; border-radius:50%; background:var(--bg); border:1px solid var(--rule); }
-    .perf::before { left:calc(-1.4rem - 13px); clip-path:inset(0 0 0 50%); }
-    .perf::after { right:calc(-1.4rem - 13px); clip-path:inset(0 50% 0 0); }
-    .ticket-body { padding:1.2rem 1.4rem 1.4rem; }
-    .ticket-pills { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.9rem; }
-
+    /* Appointment overview */
+    .appointment-card {background:white;border:1px solid var(--rule);border-radius:14px;overflow:hidden;}
+    .appointment-head,.ticket-body {padding:clamp(1rem,3vw,1.45rem);}
+    .appointment-head {border-top:3px solid var(--rose);}
+    .appointment-head h1,.appointment-head h2 {font:700 clamp(1.4rem,4vw,1.85rem)/1.18 Inter,system-ui;letter-spacing:-.035em;margin:.5rem 0 .2rem;overflow-wrap:anywhere;}
+    .appointment-head p {font-size:.88rem;color:var(--muted);overflow-wrap:anywhere;}
+    .appointment-meta {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;font-size:.84rem;}
+    .eyebrow-l {font-size:.82rem;font-weight:600;color:var(--muted);}
+    .route {display:flex;align-items:baseline;flex-wrap:wrap;gap:.45rem;margin-top:.9rem;}
+    .route time {font-size:clamp(1.05rem,4vw,1.35rem);font-weight:650;font-variant-numeric:tabular-nums;}
+    .route .duration {font-size:.8rem;color:var(--muted);margin-left:.35rem;}
+    .ticket-body {border-top:1px solid var(--rule);}
+    .ticket-pills {display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem;}
     /* booking detail */
     .mini-rows { margin:0; }
     .mini-rows > div { display:grid; grid-template-columns:6.5rem minmax(0,1fr); gap:.7rem; padding:.6rem 0; border-bottom:1px solid #FBE6EE; font-size:.88rem; }
@@ -304,6 +294,36 @@
 
     #app-shell :is(h1,h2,h3,h4).font-serif:not(#header-brand-name) { font-family:Inter,system-ui,sans-serif; letter-spacing:-.025em; }
     #app-shell input[type=text], #app-shell input[type=number], #app-shell input[type=date], #app-shell input[type=time], #app-shell input[type=tel], #app-shell input[type=email], #app-shell select, #app-shell textarea { border-radius:12px; }
+    @media screen {
+      :root {--bg:#f8f7f6;--paper:#fbfaf9;--rule:#e6dfe2;--ink:#292328;--muted:#695f65;--shadow-sm:none;--grad:#a91d59;}
+      body {background:var(--bg);}
+      .desk-card,.req-card,.kpi,.money-strip {border-radius:14px;box-shadow:none;}
+      .kpi.hero {background:white;border:1px solid var(--rule);border-left:3px solid var(--rose);color:var(--ink);box-shadow:none;}
+      .kpi.hero small,.kpi.hero p {color:var(--muted);}
+      .jobline {border:0;border-bottom:1px solid var(--rule);border-radius:0;padding-inline:0;}
+      .jobline time {background:transparent;color:var(--ink);}
+      .jobline:hover {transform:none;box-shadow:none;background:var(--paper);}
+      .tool-row {display:flex;flex-wrap:wrap;border-top:1px solid var(--rule);}
+      .tool-row .desk-btn {border-color:transparent;border-radius:8px;}
+      .approval {background:var(--paper);border-top:1px solid var(--rule);}
+      .approval summary {cursor:pointer;color:var(--rose-deep);font-weight:650;}
+      .approval[open] .approval-grid {margin-top:.9rem;}
+      .approval-grid label,.approval-grid input {min-width:0;max-width:100%;box-sizing:border-box;}
+      .req-tools {background:white;}
+      .dateblock {background:var(--petal);color:var(--rose-deep);box-shadow:none;border-radius:10px;}
+      #mobile-nav {left:0;right:0;bottom:0;border-radius:0;border-width:1px 0 0;box-shadow:none;background:white;padding-bottom:max(.4rem,env(safe-area-inset-bottom));}
+      .mobile-nav-btn {color:var(--muted);}
+      .mobile-nav-btn.is-active {background:#f8e9ef;color:var(--rose-deep);border-radius:9px;box-shadow:none;}
+      @media(max-width:767px){
+        #app-shell main {padding-bottom:calc(6rem + env(safe-area-inset-bottom));}
+        .page-head {align-items:flex-start;} .page-head .seg{max-width:100%;overflow-x:auto;}
+        #tab-studio .page-head {display:grid;}
+        .kpi-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+        .kpi-grid>.hero {grid-column:1/-1;}
+        .booking-top-new span {display:none;}
+        .booking-top-new {min-width:44px;min-height:44px;justify-content:center;}
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
@@ -405,7 +425,7 @@
 
         <!-- Primary & Sign-Out Actions -->
         <div class="flex items-center gap-2 shrink-0">
-          <button onclick="openBookingModal()" class="bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-full shadow-md shadow-blush-200 flex items-center gap-1.5 transition-all">
+          <button onclick="openBookingModal()" aria-label="New booking" class="booking-top-new bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-full shadow-md shadow-blush-200 flex items-center gap-1.5 transition-all">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>New Booking</span>
           </button>
@@ -477,15 +497,14 @@
       <!-- ==================== BOOKING DETAIL ==================== -->
       <section id="tab-appointment" class="tab-content hidden space-y-4" style="max-width:44rem">
         <button class="desk-btn" id="back-to-schedule">← Back</button>
-        <article class="ticket">
-          <header class="ticket-top">
-            <span class="pill" id="ap-pill"></span>
+        <article class="appointment-card">
+          <header class="appointment-head">
+            <div class="appointment-meta"><p id="ap-date"></p><span class="pill" id="ap-pill"></span></div>
             <h1 id="appointment-name"></h1>
             <p id="appointment-package"></p>
             <div class="route" id="ap-route"></div>
-            <p id="ap-date" style="margin-top:.9rem"></p>
           </header>
-          <div class="perf"></div>
+          
           <div class="ticket-body">
             <dl class="mini-rows" id="appointment-summary"></dl>
             <div class="money-strip" id="ap-money"></div>
@@ -597,8 +616,8 @@
           </div>
         </div>
         <div id="studio-profile" class="studio-stack"><div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
-            <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Boutique Profile &amp; Receipt Branding</h2>
-            <p class="text-xs text-slate-500 mb-5">Synced to Firestore and applied automatically to your receipts and header.</p>
+            <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Studio profile</h2>
+            <p class="text-xs text-slate-500 mb-5">Used on your receipts and booking page.</p>
 
             <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4">
               <div class="flex items-center gap-4 p-4 rounded-2xl bg-blush-50/80 border border-blush-200/70">
@@ -677,7 +696,7 @@
                 <i data-lucide="link" class="w-4 h-4"></i> Copy booking page link
               </button>
               <button type="button" id="publish-availability-btn" onclick="publishAvailabilityNow()" class="w-full p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-center gap-2 transition">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync admin bookings to customer calendar
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh booking availability
               </button>
               <p id="publish-availability-status" class="text-[11px] text-slate-500 text-center" aria-live="polite">Availability syncs automatically when bookings change. Use this button to refresh it now.</p>
               <form id="public-form" onsubmit="savePublicSettings(event)" class="space-y-4">
@@ -1440,6 +1459,9 @@
     }
     function payPill(b) { return '<span class="pill '+payKind(b)+'">'+esc(payLabel(b))+'</span>'; }
     function durLabel(a,b) { const m=Math.max(0,minutes(b)-minutes(a)); return m>=60?Math.floor(m/60)+'h'+(m%60?' '+(m%60)+'m':''):m+'m'; }
+    function sessionHours(b) {
+      return '<time>'+esc(formatDisplayTime(b.startTime))+'</time> – <time>'+esc(formatDisplayTime(b.endTime))+'</time><span class="duration">'+esc(durLabel(b.startTime,b.endTime))+'</span>';
+    }
     function compactJob(b) {
       return '<button class="jobline" data-operation="details" data-key="'+esc(b.id)+'"><time>'+esc(formatDisplayTime(b.startTime))+'</time><span><strong>'+esc(b.clientName)+'</strong><small>'+esc(b.packageName)+(b.venue?' · '+esc(b.venue):'')+'</small></span>'+payPill(b)+'</button>';
     }
@@ -1448,8 +1470,8 @@
       const jobs=dayJobs(today), next=jobs.find(b=>minutes(b.endTime)>now.getHours()*60+now.getMinutes());
       byId('desk-date').textContent=formatDisplayDate(today);
       byId('next-visit').innerHTML=next?
-        '<div class="ticket"><div class="ticket-top"><span class="eyebrow-l">Next appointment</span><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+(next.venue?' · '+esc(next.venue):'')+'</p><div class="route"><div><time>'+esc(formatDisplayTime(next.startTime))+'</time><small>Start</small></div><div class="route-line"><span>'+esc(durLabel(next.startTime,next.endTime))+'</span></div><div><time>'+esc(formatDisplayTime(next.endTime))+'</time><small>Finish</small></div></div></div><div class="perf"></div><div class="ticket-body"><div class="ticket-pills">'+payPill(next)+(next.readyBy?'<span class="pill muted">Ready by '+esc(formatDisplayTime(next.readyBy))+'</span>':'')+'</div><div class="desk-actions">'+(next.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>':'')+taskButton('WhatsApp','wa',next.id)+taskButton('Details','details',next.id,'primary')+'</div></div></div>':
-        '<div class="ticket"><div class="ticket-top"><span class="eyebrow-l">Next appointment</span><h2>No more appointments today</h2><p>Your next booked day is in Schedule.</p></div></div>';
+        '<div class="appointment-card"><div class="appointment-head"><span class="eyebrow-l">Next appointment</span><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+(next.venue?' · '+esc(next.venue):'')+'</p><div class="route">'+sessionHours(next)+'</div></div><div class="ticket-body"><div class="ticket-pills">'+payPill(next)+(next.readyBy?'<span class="pill muted">Ready by '+esc(formatDisplayTime(next.readyBy))+'</span>':'')+'</div><div class="desk-actions">'+(next.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>':'')+taskButton('WhatsApp','wa',next.id)+taskButton('Details','details',next.id,'primary')+'</div></div></div>':
+        '<div class="appointment-card"><div class="appointment-head"><span class="eyebrow-l">Next appointment</span><h2>No more appointments today</h2><p>Your next booked day is in Schedule.</p></div></div>';
       byId('today-list').innerHTML=jobs.map(compactJob).join('')||'<p class="quiet">No appointments booked for today.</p>';
       byId('tomorrow-list').innerHTML=dayJobs(offsetDate(today,1)).map(b=>'<div class="remind-row">'+compactJob(b)+'<div class="desk-actions">'+taskButton('Open reminder','remind',b.id)+taskButton(b.remindedFor===reminderKey(b)?'Sent · undo':'Mark sent','sent',b.id)+'</div></div>').join('')||'<p class="quiet">No appointments tomorrow.</p>';
     }
@@ -1494,6 +1516,7 @@
     let paymentBaseline = null;
     function openAppointment(b) {
       appointmentOrigin = document.querySelector('.tab-content:not(.hidden)').id.slice(4);
+      byId('back-to-schedule').textContent = appointmentOrigin==='dashboard'?'← Today':'← Schedule';
       activeAppointment = b.id;
       byId('payment-entry').hidden = true;
       switchTab('appointment');
@@ -1508,21 +1531,24 @@
         byId('payment-entry').hidden = true;
         return;
       }
-      const pill = byId('ap-pill'); pill.textContent = payLabel(b);
+      const pill = byId('ap-pill'); pill.textContent = payLabel(b); pill.className='pill '+payKind(b);
       byId('appointment-package').textContent = b.packageName + (b.receiptNo ? ' · ' + b.receiptNo : '');
       byId('ap-date').textContent = formatDisplayDate(b.eventDate);
-      byId('ap-route').innerHTML = '<div><time>'+esc(formatDisplayTime(b.startTime))+'</time><small>Start</small></div><div class="route-line"><span>'+esc(durLabel(b.startTime,b.endTime))+'</span></div><div><time>'+esc(formatDisplayTime(b.endTime))+'</time><small>Finish</small></div>';
+      byId('ap-route').innerHTML = sessionHours(b);
       const rows = [['Venue', b.venue], ['WhatsApp', b.clientPhone], ['Ready by', b.readyBy ? formatDisplayTime(b.readyBy) : ''],
         ['Deposit', b.depositRequired!=null ? formatRM(b.depositRequired)+(b.depositDue && !depositMet(b) ? ' · due '+formatDisplayDate(b.depositDue) : '') : ''],
         ['Notes', b.notes]];
       byId('appointment-summary').innerHTML = rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('');
       const pct = b.subtotal>0 ? Math.min(100, Math.round(b.depositPaid/b.subtotal*100)) : 0;
-      byId('ap-money').innerHTML = '<div class="nums"><div><small>Total</small><b>'+esc(formatRM(b.subtotal))+'</b></div><div><small>Received</small><b style="color:var(--ok)">'+esc(formatRM(b.depositPaid))+'</b></div><div class="bal"><small>Balance</small><b>'+esc(formatRM(b.balanceDue))+'</b></div></div><div class="bar" aria-hidden="true"><i style="width:'+pct+'%"></i></div>';
-      byId('appointment-primary').innerHTML = (b.balanceDue>0?taskButton('Record payment','deposit',b.id,'primary','wallet'):'')+
+      byId('ap-money').innerHTML = !b.subtotal
+        ? '<p>Price hasn’t been set.</p>'+(b.depositPaid>0?'<p>Already received: '+esc(formatRM(b.depositPaid))+'</p>':'')
+        : '<div class="nums"><div><small>Total</small><b>'+esc(formatRM(b.subtotal))+'</b></div><div><small>Received</small><b style="color:var(--ok)">'+esc(formatRM(b.depositPaid))+'</b></div><div class="bal"><small>Balance</small><b>'+esc(formatRM(b.balanceDue))+'</b></div></div><div class="bar" aria-hidden="true"><i style="width:'+pct+'%"></i></div>';
+      byId('appointment-primary').innerHTML = (!b.subtotal?taskButton('Set quote','quote',b.id,'primary','pencil'):'')+
+        (b.balanceDue>0?taskButton('Record payment','deposit',b.id,'primary','wallet'):'')+
         (b.balanceDue>0 && b.subtotal>0?taskButton('Paid in full','paid',b.id,'','check'):'')+
         (b.clientPhone?taskButton('WhatsApp','wa',b.id,'','message-circle'):'')+
-        (b.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b.venue))+'"><i data-lucide="map-pin"></i>Maps</a>':'');
-      byId('appointment-more').innerHTML = taskButton('Edit booking','edit',b.id,'','pencil')+taskButton('Receipt & calendar','receipt',b.id,'','file-text')+
+        (b.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b.venue))+'"><i data-lucide="map-pin"></i>Directions</a>':'');
+      byId('appointment-more').innerHTML = (b.subtotal?taskButton('Edit booking','edit',b.id,'','pencil'):'')+taskButton('Receipt & calendar','receipt',b.id,'','file-text')+
         taskButton('Copy reminder','copy',b.id,'','copy')+taskButton('Delete','delete',b.id,'danger','trash-2');
     }
     byId('back-to-schedule').onclick = () => switchTab(appointmentOrigin);
@@ -1560,6 +1586,12 @@
       finally {button.disabled=false;}
     };
     const jobActions={
+      quote:b=>{
+        openBookingModal(null,b.id);
+        const price=byId('book-package-price');
+        price.focus();
+        price.select();
+      },
       details:b=>openAppointment(b),deposit:b=>openPayment(b),wa:b=>quickWhatsAppClient(b.id),edit:b=>openBookingModal(null,b.id),
       receipt:b=>openReceiptModal(b.id),copy:b=>copyReminder(b.id),google:b=>openGoogleCalendar(b.id),
       ics:b=>downloadBookingICS(b.id),paid:b=>markFullyPaid(b.id),delete:b=>confirmDeleteBooking(b.id),
@@ -3696,7 +3728,7 @@
         if (btn) {
           btn.disabled = false;
           btn.classList.remove('opacity-60');
-          btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync admin bookings to customer calendar';
+          btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh booking availability';
           if (window.lucide) lucide.createIcons();
         }
       }
@@ -3839,8 +3871,7 @@
           <div class="request-context"><b>Already booked on this date</b>${dayJobs(r.eventDate).map(b => '<p>' + esc(formatDisplayTime(b.startTime) + ' – ' + formatDisplayTime(b.endTime) + ' · ' + b.clientName) + '</p>').join('') || '<p>No confirmed appointments.</p>'}</div>
           ${r.guest === true ? `<p style="margin:.7rem 0 .2rem"><button type="button" onclick="replaceGuestLink('${id}')" class="link-btn">Client lost their tracking link? Send a new one</button></p>` : ''}
         </details>
-        <div class="approval">
-          <p class="approval-title">Approve this booking</p>
+        <details class="approval" id="review-approval-${id}"><summary>Review quote and deposit</summary>
           <div class="approval-grid">
             <label class="desk-field">Travel fee (RM)<input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${travelDefault}"></label>
             <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
@@ -3856,7 +3887,7 @@
             <button id="approve-${id}" data-service="${preview ? preview.serviceTotal : 'NaN'}" onclick="approveRequest('${id}')" class="desk-btn primary"><i data-lucide="check"></i> Approve</button>
             <button onclick="declineRequest('${id}')" class="desk-btn danger"><i data-lucide="x"></i> Decline</button>
           </div>
-        </div>
+        </details>
         <footer class="req-tools">
           <button type="button" onclick="editPendingRequest('${id}')" class="desk-btn"><i data-lucide="pencil"></i> Edit</button>
           <button onclick="requestWA('${id}','chat')" class="desk-btn"><i data-lucide="message-circle"></i> WhatsApp</button>
@@ -3896,12 +3927,12 @@
       if (!box.dataset.denied || all.length) {
         const drafts=Array.from(box.querySelectorAll('input[id]'),el=>[el.id,el.value]);
         const focused=box.contains(document.activeElement)?document.activeElement.id:null;
-        const openIds=Array.from(box.querySelectorAll('details.req-more[open]'),d=>d.closest('article').id);
+        const openPanels=Array.from(box.querySelectorAll('details[open]'),d=>[d.closest('article').id,d.className]);
         box.innerHTML = pending.length
           ? pending.map(requestCardHTML).join('')
           : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p><button onclick="copyPublicLink()" class="desk-btn primary mt-3">Copy booking page link</button></div>';
         for(const [id,value] of drafts){const el=byId(id);if(el)el.value=value;}
-        openIds.forEach(i=>{const d=byId(i)?.querySelector('details.req-more');if(d)d.open=true;});
+        openPanels.forEach(([id,cls])=>{const panel=byId(id)?.querySelector('details.'+cls);if(panel)panel.open=true;});
         pending.forEach(r=>refreshApprovalPrice(r.id));
         if(focused)byId(focused)?.focus({preventScroll:true});
       }
