@@ -74,7 +74,8 @@
       #package-list .rounded-3xl {border-radius:1rem;transition:border-color .15s,background-color .15s;}
       #package-list label:has(:checked)>div {background:#f7f0f5;border-color:#803456;}
     }
-    .bridal-deadline{border-left:3px solid #853656;padding:.5rem .85rem;background:#faf4f6;border-radius:.4rem}
+    .booking-fields {display:grid;gap:1rem;}
+    .booking-fields fieldset {min-width:0;border:0;padding:0;margin:0;}
     .availability-notes {display:grid;gap:.4rem;line-height:1.5;}
     .availability-notes ul {list-style:disc;padding-left:1.35rem;}
     .availability-notes strong {font-weight:650;}
@@ -164,6 +165,7 @@
         </div>
 
         <div id="busy-windows" class="text-sm text-slate-600" aria-live="polite"></div>
+        <div class="booking-fields">
         <div id="time-wrap" class="hidden space-y-3">
           <div>
             <label for="f-time" class="block text-sm font-semibold mb-1">Makeup start time *</label>
@@ -176,7 +178,6 @@
             <p class="text-xs text-slate-500 mt-1">Your selected session must finish by this time on the same day.</p>
           </div>
         </div>
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
           <div>
             <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
             <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
@@ -200,47 +201,35 @@
       <!-- STEP 3: details -->
       <section id="step-3" class="hidden space-y-4">
         <h2 class="font-serif text-xl font-bold">3. Contact &amp; makeup preferences</h2>
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div>
+        <div class="booking-fields">
+<div>
             <label class="block text-sm font-semibold mb-1" for="f-name">Full name *</label>
             <input id="f-name" class="field" autocomplete="name" maxlength="80">
             <p id="e-name" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div>
+<div>
               <label class="block text-sm font-semibold mb-1" for="f-phone">Phone / WhatsApp *</label>
               <input id="f-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="012-345 6789" maxlength="20">
               <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
-
-          </div>
-
-        </div>
-
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div>
-            <p class="text-sm font-semibold mb-2">Do you have any allergies or sensitive skin? *</p>
-            <div class="grid grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 p-3 rounded-xl border border-blush-200 cursor-pointer has-[:checked]:bg-blush-50 has-[:checked]:border-blush-500 text-sm"><input type="radio" name="allergy" value="none" class="accent-pink-600"> No allergies</label>
-              <label class="flex items-center gap-2 p-3 rounded-xl border border-blush-200 cursor-pointer has-[:checked]:bg-blush-50 has-[:checked]:border-blush-500 text-sm"><input type="radio" name="allergy" value="yes" class="accent-pink-600"> Yes, I do</label>
+<fieldset>
+            <legend class="text-sm font-semibold mb-2">Do you have any allergies or sensitive skin? *</legend>
+            <div class="flex flex-wrap gap-x-5">
+              <label class="inline-flex items-center gap-2 min-h-11 cursor-pointer text-sm"><input type="radio" name="allergy" value="none" class="accent-pink-600"> No allergies</label>
+              <label class="inline-flex items-center gap-2 min-h-11 cursor-pointer text-sm"><input type="radio" name="allergy" value="yes" class="accent-pink-600"> Yes, I do</label>
             </div>
             <div id="allergy-detail" class="hidden mt-2">
-              <textarea id="f-allergies" rows="2" class="field" maxlength="500" placeholder="E.g. latex, fragrance, lash glue, eczema…"></textarea>
+              <label for="f-allergies" class="block text-sm font-semibold mb-1">Please describe your allergies or sensitivities *</label><textarea id="f-allergies" rows="2" class="field" maxlength="500" placeholder="E.g. latex, fragrance, lash glue, eczema…"></textarea>
             </div>
             <p id="e-allergy" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-
-
-        </div>
-
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div>
+          </fieldset>
+<div>
             <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
             <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
             <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-          <div>
+<div>
             <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
             <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
           </div>
@@ -682,7 +671,7 @@
     function showStep(n) {
       step = n;
       for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
-      if (n === 2) { $('f-ready').closest('div').classList.toggle('bridal-deadline',/bridal|akad|sanding|nikah/i.test(selPkg?.name||'')); renderCalendar(); refreshTimes(); }
+      if (n === 2) { renderCalendar(); refreshTimes(); }
       if (n === 4) renderReview();
       renderProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
