@@ -156,6 +156,12 @@
     .review-details dd {font-weight:400}
     .review-total {display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
     .review-total strong {font-size:1.2rem;color:var(--rose-deep)}
+    #brand-name, #brand-tagline {overflow-wrap:anywhere;white-space:normal}
+    @media(max-width:480px) {
+      #top-whatsapp {width:44px;height:44px;padding:0;justify-content:center}
+      #top-whatsapp span {display:none}
+      #top-whatsapp svg {width:20px;height:20px}
+    }
   </style>
 </head>
 <body class="min-h-screen">
@@ -166,14 +172,13 @@
       <div class="flex items-center gap-3 min-w-0">
         <div id="brand-logo" class="w-10 h-10 rounded-2xl bg-blush-700 text-white flex items-center justify-center font-serif font-bold overflow-hidden shrink-0">M</div>
         <div class="min-w-0">
-          <p id="brand-name" class="font-serif font-bold text-lg leading-tight truncate">Makeup by Nureen</p>
-          <p id="brand-tagline" class="text-[10px] tracking-[0.18em] uppercase text-blush-700 font-semibold truncate">ART • BEAUTY • BRIDAL</p>
+          <p id="brand-name" class="font-serif font-bold text-lg leading-tight">Makeup by Nureen</p>
+          <p id="brand-tagline" class="text-[10px] tracking-[0.18em] uppercase text-blush-700 font-semibold">ART • BEAUTY • BRIDAL</p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
-      <button id="refresh-page" type="button" onclick="location.reload()" class="save-wa text-xs">Refresh</button>
-      <a id="top-whatsapp" href="#" target="_blank" rel="noopener" class="hidden shrink-0 px-3.5 py-2 rounded-full bg-blush-50 text-blush-700 border border-blush-200 text-xs font-semibold items-center gap-1.5">
-        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+      <a aria-label="Contact the studio on WhatsApp" id="top-whatsapp" href="#" target="_blank" rel="noopener" class="hidden shrink-0 px-3.5 py-2 rounded-full bg-blush-50 text-blush-700 border border-blush-200 text-xs font-semibold items-center gap-1.5">
+        <i data-lucide="message-circle" class="w-4 h-4"></i> <span>WhatsApp</span>
       </a>
       </div>
     </div>
@@ -450,17 +455,6 @@
     let selDate = '';
     let viewMonth = new Date(); viewMonth.setDate(1);
     let submitting = false;
-    let draftStarted = false;
-    $('flow').addEventListener('input', () => { draftStarted = true; });
-    $('refresh-page').onclick = () => {
-      const tracking = $('manage-link').getAttribute('href');
-      if (tracking) {
-        $('manage-link').click();
-        return;
-      }
-      if (submitting) return;
-      if (!draftStarted || window.confirm('Refresh this page and clear your unfinished booking?')) location.reload();
-    };
 
     const settingInt = (value, fallback, min, max) => {
       const n = Number.parseInt(value, 10);
@@ -816,6 +810,10 @@
         const missing=p.name.trim().length<2?'name':!service(p)?'packageId':!p.allergyChoice?'allergyChoice':!p.allergies.trim()?'allergies':'';
         if(missing) { showErr('e-package','Complete the highlighted field for person '+(i+1)+'.'); $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus(); return false; }
       }
+      if (people.some(p => typeof p.packageId !== 'string' || p.packageId.length > 60 || !service(p)?.name?.trim())) {
+        showErr('e-package','This service has an invalid catalogue entry. Please contact the studio to book it.');
+        return false;
+      }
       const ci = contactIndex(), c = contact();
       if (ci === -1 && c.name.length < 2) { showErr('e-package','Enter the contact person’s full name.'); $('f-name').focus(); return false; }
       if (!validMyPhone(c.phone)) {
@@ -825,7 +823,7 @@
       for (const [i,p] of people.entries()) if (i !== ci && p.phone.trim() && !validMyPhone(p.phone)) {
         showErr('e-package','Check the WhatsApp number for person '+(i+1)+', or leave it empty.'); $('people-list').children[i].querySelector('[data-key="phone"]')?.focus(); return false;
       }
-      if(currentDuration()>900 || packageTotal()>100000) {showErr('e-package','This group exceeds the online booking limit. Contact the studio to arrange a session.');return false;}
+      if(currentDuration()>900 || packageTotal()<0 || packageTotal()>100000) {showErr('e-package','This group exceeds the online booking limit. Contact the studio to arrange a session.');return false;}
       return true;
     }
     function validateReadyBy(requireValue = true) {
@@ -966,7 +964,7 @@
       if ($('f-website').value) return;  // bot trap
       for (const [page, validate] of [[1, validateStep1], [2, validateStep2], [3, validateStep3]]) {
         if (validate()) continue;
-        if (page !== step) showStep(page);
+        if (page !== step) goStep(page);
         const error = $(`step-${page}`).querySelector('[id^="e-"]:not(.hidden)');
         if (error) {
           error.tabIndex = -1;
@@ -988,7 +986,6 @@
       } catch {}
 
       submitting = true;
-      $('refresh-page').disabled = true;
       const btn = $('submit-btn'); btn.disabled = true; btn.textContent = 'Sending…';
       let stage = 'prepare';
       let slowTimer;
@@ -1013,7 +1010,7 @@
           startTime: $('f-time').value,
           readyBy: $('f-ready').value || '',
           pax: people.length,
-          people: people.map((p,i)=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name,look:'',allergies:p.allergies.trim(),
+          people: people.map((p,i)=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name.slice(0,120),look:'',allergies:p.allergies.trim(),
             // The contact person's number is already saved as the booking phone; only other people's numbers are added here.
             ...(i!==contactIndex() && p.phone.trim() ? {phone:p.phone.replace(/[^\d+]/g,'').slice(0,16)} : {})})),
           venue: $('f-venue').value.trim(),
@@ -1047,7 +1044,6 @@
           showErr('e-submit', submissionError(err, stage));
           btn.disabled = false; btn.textContent = 'Send booking request';
           submitting = false;
-          $('refresh-page').disabled = false;
           return;
         }
       } finally { clearTimeout(slowTimer); }
@@ -1056,7 +1052,6 @@
       try { localStorage.setItem('lastRequestAt', String(Date.now())); } catch {}
       try {
         $('manage-link').href = trackingUrl.href;
-        $('refresh-page').disabled = false;
         showConfirmation(data);
       } catch {
         location.assign(trackingUrl.href);
