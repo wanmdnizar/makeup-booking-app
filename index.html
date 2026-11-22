@@ -183,6 +183,10 @@
       }
       @media(max-width:390px){.work-scroll .grid-cols-3 {grid-template-columns:1fr;}}
     }
+    .appointment-row {display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.6rem;overflow-wrap:anywhere;}
+    .agenda-day + .agenda-day {border-top:1px solid var(--rule);margin-top:1rem;padding-top:1rem;}
+    .agenda-day h3 {font-weight:700;}
+    @media(max-width:767px){#week-scroll{overflow:visible;max-height:none;} #tab-calendar .desk-top{flex-wrap:wrap;} #mobile-nav .mobile-nav-btn{min-width:0;padding-inline:.2rem;}}
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
@@ -299,7 +303,9 @@
         <nav aria-label="Studio navigation" id="studio-rail" class="hidden md:flex items-center gap-1 bg-blush-100/90 p-1 rounded-full border border-blush-200/70">
           <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm"><i aria-hidden="true" data-lucide="sun"></i>Today</button>
           <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="inbox"></i>Requests <span id="req-badge" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blush-700 text-white text-[10px] font-bold">0</span></button>
-          <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="calendar-days"></i>Calendar &amp; Jobs</button>
+          <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="calendar-days"></i>Calendar</button>
+          <button onclick="switchTab('bookings')" data-tab="bookings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="book-open"></i>Bookings</button>
+          <button onclick="switchTab('reports')" data-tab="reports" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="bar-chart-2"></i>Reports</button>
           <button onclick="switchTab('packages')" data-tab="packages" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="sparkles"></i>Packages</button>
           <button onclick="switchTab('expenses')" data-tab="expenses" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="receipt"></i>Expenses</button>
           <button onclick="switchTab('settings')" data-tab="settings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="settings"></i>Settings</button>
@@ -314,7 +320,7 @@
         <div class="desk-layout"><div class="visit"><h3>Next appointment</h3><div id="next-visit"></div></div>
         <section class="desk-card"><h2>Today’s agenda</h2><div id="today-list"></div></section></div>
         <section class="desk-card"><h2>Tomorrow’s reminders</h2><div id="tomorrow-list"></div></section>
-        <details class="desk-card"><summary>Studio reports &amp; overview</summary><div class="space-y-6 mt-4">
+        </section><section id="tab-reports" class="tab-content hidden"><h1 class="font-serif text-2xl font-bold">Studio reports</h1><div class="space-y-6 mt-4">
 
         <!-- New booking requests -->
         <div id="req-banner" class="hidden p-3.5 rounded-2xl bg-blush-700 text-white text-sm flex items-center justify-between gap-3 shadow-sm">
@@ -439,7 +445,7 @@
                   <h3 class="font-serif font-bold text-charcoal text-lg">Balances to Collect</h3>
                   <p id="dashboard-balances-total" class="text-xs text-slate-500">Nothing outstanding</p>
                 </div>
-                <button onclick="switchTab('calendar'); setBookingFilter('deposit')" class="text-xs font-semibold text-blush-700 hover:text-blush-900">See all</button>
+                <button onclick="switchTab('bookings'); setBookingFilter('awaitdeposit')" class="text-xs font-semibold text-blush-700 hover:text-blush-900">See all</button>
               </div>
               <div id="dashboard-balances-list" class="space-y-2.5"></div>
             </div>
@@ -448,7 +454,7 @@
             </button>
           </div>
         </div>
-      </div></details></section>
+      </div></section>
 
       <!-- ==================== TAB 2: CALENDAR & JOBS ==================== -->
       <!-- ==================== TAB: BOOKING REQUESTS ==================== -->
@@ -471,9 +477,7 @@
 
       <section id="tab-calendar" class="tab-content hidden space-y-6">
         <section class="desk-card"><div class="desk-top"><div><h1>Calendar</h1><p id="range-heading"></p></div><div class="desk-actions"><button class="desk-btn" aria-label="Previous period" onclick="moveRange(-1)">‹</button><button class="desk-btn" onclick="moveRange(0)">Today</button><button class="desk-btn" aria-label="Next period" onclick="moveRange(1)">›</button><select class="desk-btn" id="range-mode" aria-label="Calendar view" onchange="setRange(this.value)"><option value="day">Day</option><option value="week">Week</option></select></div></div><div id="week-scroll"></div></section>
-        <details class="desk-card" id="month-archive"><summary>Month calendar &amp; searchable bookings</summary>
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
+        <details class="desk-card"><summary>Month calendar</summary>
           <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm self-start">
             <div class="flex items-center justify-between mb-4">
               <h3 id="calendar-month-year" class="font-serif font-bold text-lg text-charcoal">November 2026</h3>
@@ -502,7 +506,24 @@
             </div>
           </div>
 
-          <div class="lg:col-span-7 space-y-4">
+        </details>
+      </section>
+      <section id="tab-appointment" class="tab-content hidden space-y-4">
+        <button class="desk-btn" id="back-to-schedule">Back</button>
+        <article class="desk-card"><h1 class="font-serif text-2xl font-bold" id="appointment-name"></h1>
+          <div id="appointment-summary" class="space-y-2 my-4"></div>
+          <div id="appointment-primary" class="desk-actions"></div>
+          <form id="payment-entry" hidden class="mt-4">
+            <label class="desk-field">Total received to date (RM)<input name="received" type="number" min="0.01" step="0.01" required></label>
+            <button class="desk-btn primary mt-2">Save payment</button>
+          </form>
+          <details class="mt-4"><summary class="cursor-pointer font-semibold">More actions</summary>
+            <div class="desk-actions mt-3" id="appointment-more"></div>
+          </details>
+        </article>
+      </section>
+      <section id="tab-bookings" class="tab-content hidden space-y-4">
+          <div class="space-y-4">
             <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-sm space-y-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
@@ -540,10 +561,10 @@
               </div>
             </div>
 
+            <button id="list-clear-date" class="desk-btn hidden" onclick="clearDateFilter()">Show all dates</button>
             <div id="bookings-cards-container" class="space-y-3"></div>
           </div>
-        </div>
-      </details></section>
+      </section>
 
       <!-- ==================== TAB 3: PACKAGES & ADD-ONS ==================== -->
       <section id="tab-packages" class="tab-content hidden space-y-6">
@@ -625,7 +646,7 @@
       </section>
 
       <!-- ==================== TAB 5: SETTINGS & REPORTS ==================== -->
-      <section class="tab-content hidden desk-card" id="tab-more"><h2>More</h2><div class="desk-actions"><button class="desk-btn" onclick="switchTab('packages')">Packages</button><button class="desk-btn" onclick="switchTab('expenses')">Expenses</button><button class="desk-btn" onclick="switchTab('settings')">Settings</button></div></section>
+      <section class="tab-content hidden desk-card" id="tab-more"><h2>More</h2><div class="desk-actions"><button class="desk-btn" onclick="switchTab('reports')">Reports</button><button class="desk-btn" onclick="switchTab('packages')">Packages</button><button class="desk-btn" onclick="switchTab('expenses')">Expenses</button><button class="desk-btn" onclick="switchTab('settings')">Settings</button></div></section>
       <section id="tab-settings" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -830,6 +851,7 @@
     <button onclick="switchTab('calendar')" data-tab="calendar" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
       <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Calendar</span>
     </button>
+    <button onclick="switchTab('bookings')" data-tab="bookings" class="mobile-nav-btn flex flex-col items-center py-1 px-2"><i data-lucide="book-open"></i><span class="text-[10px]">Bookings</span></button>
     <button onclick="switchTab('more')" data-tab="more" class="mobile-nav-btn flex flex-col items-center py-1 px-2"><i data-lucide="more-horizontal"></i><span class="text-[10px]">More</span></button>
   </nav>
 
@@ -847,7 +869,7 @@
       </div>
 
       <form id="booking-form" onsubmit="handleSaveBooking(event)" class="work-form"><div class="work-scroll p-6 space-y-4">
-        <input type="hidden" id="book-id"><details id="booking-actions" hidden><summary>More booking actions</summary><div class="desk-actions" id="booking-action-list"></div></details>
+        <input type="hidden" id="book-id">
 
         <div id="conflict-alert-box" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5">
           <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
@@ -1511,8 +1533,75 @@
       document.body.classList.remove('editing-page');
       workTrigger?.focus({preventScroll:true});window.scrollTo({top:workScroll,behavior:'instant'});
     };
+    let activeAppointment = null;
+    let appointmentOrigin = 'dashboard';
+    let paymentBaseline = null;
+    function openAppointment(b) {
+      appointmentOrigin = document.querySelector('.tab-content:not(.hidden)').id.slice(4);
+      activeAppointment = b.id;
+      byId('payment-entry').hidden = true;
+      byId('tab-appointment').querySelector('details').open = false;
+      switchTab('appointment');
+    }
+    function renderAppointment() {
+      if (!activeAppointment || byId('tab-appointment').classList.contains('hidden')) return;
+      const b = appState.bookings.find(row => row.id === activeAppointment);
+      byId('appointment-name').textContent = b?.clientName || 'Booking unavailable';
+      if (!b) {
+        for (const id of ['appointment-summary','appointment-primary','appointment-more']) byId(id).replaceChildren();
+        byId('payment-entry').hidden = true;
+        return;
+      }
+      const rows = [['Session', b.packageName], ['Date', formatDisplayDate(b.eventDate)],
+        ['Time', formatDisplayTime(b.startTime)+' – '+formatDisplayTime(b.endTime)], ['Venue',b.venue],
+        ['WhatsApp',b.clientPhone],['Total received',formatRM(b.depositPaid)],['Balance',formatRM(b.balanceDue)]];
+      byId('appointment-summary').innerHTML = rows.filter(([,v])=>v).map(([k,v])=>
+        '<p class="appointment-row"><strong>'+esc(k)+'</strong><span>'+esc(v)+'</span></p>').join('');
+      byId('appointment-primary').innerHTML = (b.balanceDue>0?taskButton('Record deposit','deposit',b.id):'')+
+        (b.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b.venue))+'">Open Maps ↗</a>':'')+
+        (b.clientPhone?taskButton('WhatsApp','wa',b.id):'');
+      const actions = [['Edit booking','edit'],['Copy reminder','copy'],['Google Calendar','google'],
+        ['Download calendar file','ics'],['Receipt / PDF','receipt']];
+      if (b.balanceDue>0) actions.push(['Mark fully paid','paid']);
+      actions.push(['Delete booking','delete']);
+      byId('appointment-more').innerHTML = actions.map(([label,action])=>taskButton(label,action,b.id)).join('');
+    }
+    byId('back-to-schedule').onclick = () => switchTab(appointmentOrigin);
+    function openPayment(b) {
+      const form = byId('payment-entry');
+      paymentBaseline = {id:b.id,paid:b.depositPaid,subtotal:b.subtotal};
+      form.hidden=false;
+      const field=form.elements.received;
+      field.min=(b.depositPaid+0.01).toFixed(2);
+      field.max=b.subtotal.toFixed(2);
+      field.value='';
+      field.focus();
+    }
+    byId('payment-entry').onsubmit=async event=>{
+      event.preventDefault();
+      const form=event.currentTarget, button=form.querySelector('button');
+      if(button.disabled || !paymentBaseline) return;
+      const expected=paymentBaseline, total=Number(form.elements.received.value);
+      button.disabled=true;
+      try {
+        await runTransaction(db,async tx=>{
+          const ref=userDoc('bookings',expected.id), snap=await tx.get(ref);
+          const current=snap.exists() && normalizeBooking({...snap.data(),id:expected.id});
+          if(!current || current.depositPaid!==expected.paid || current.subtotal!==expected.subtotal ||
+             !Number.isFinite(total) || total<=current.depositPaid || total>current.subtotal)
+            throw new Error('Payment changed');
+          tx.update(ref,{depositPaid:total,balanceDue:Number((current.subtotal-total).toFixed(2)),
+            status:computeStatus(current.subtotal,total),updatedAt:serverTimestamp()});
+          const linked=trackingId(current);
+          if(linked) tx.set(doc(db,'clientApprovals',linked),{depositPaid:total},{merge:true});
+        });
+        if(paymentBaseline===expected) form.hidden=true;
+        showToast('Payment recorded.');
+      } catch { showToast('Payment was not saved. Reopen Record deposit to check the current balance.','error'); }
+      finally {button.disabled=false;}
+    };
     const jobActions={
-      details:b=>openBookingModal(null,b.id),wa:b=>quickWhatsAppClient(b.id),edit:b=>openBookingModal(null,b.id),
+      details:b=>openAppointment(b),deposit:b=>openPayment(b),wa:b=>quickWhatsAppClient(b.id),edit:b=>openBookingModal(null,b.id),
       receipt:b=>openReceiptModal(b.id),copy:b=>copyReminder(b.id),google:b=>openGoogleCalendar(b.id),
       ics:b=>downloadBookingICS(b.id),paid:b=>markFullyPaid(b.id),delete:b=>confirmDeleteBooking(b.id),
       remind:b=>quickReminderWhatsApp(b.id),
@@ -1530,10 +1619,10 @@
       const b=appState.bookings.find(row=>row.id===button.dataset.key);
       if (!b) return;
 
-      if(button.closest('#booking-actions') && ['receipt','delete','paid'].includes(button.dataset.operation)) closeBookingModal();
       try { await jobActions[button.dataset.operation](b); }
       catch { showToast('Action could not be completed. Refresh and try again.','error'); }
     });
+    matchMedia('(max-width: 767px)').addEventListener('change',()=>drawSchedule());
     window.moveRange=n=>{deskDate=n===0?localDateStr():offsetDate(deskDate,n*(rangeMode==='day'?1:7)); drawSchedule();};
     window.setRange=mode=>{rangeMode=mode;drawSchedule();};
     function drawSchedule() {
@@ -1542,21 +1631,24 @@
       byId('range-mode').value=rangeMode;
       const entries=days.flatMap(date=>dayJobs(date));
       const pending=appState.requests.filter(r=>r.status==='pending' && days.includes(r.eventDate));
-      if(rangeMode==='day'){
+      if(rangeMode==='day' || matchMedia('(max-width: 767px)').matches){
+        byId('week-scroll').innerHTML=days.map(date=>{
         const entriesForDay=[];
         const add=(t,html)=>entriesForDay.push({t,html});
-        for(const b of entries){
+        for(const b of dayJobs(date)){
           add(minutes(b.startTime),compactJob(b));
           const gap=Number(appState.settings.bufferMins)||0;
           if(gap>0)add(minutes(b.endTime),'<p class="agenda-gap">'+esc(b.endTime)+'–'+clock(Math.min(1440,minutes(b.endTime)+gap))+' · Travel buffer</p>');
         }
-        for(const r of pending)add(minutes(r.startTime),'<button class="desk-btn pending-line" data-pending="'+esc(r.id)+'">'+esc(r.startTime+' · Pending · '+r.clientName)+'</button>');
-        for(const b of appState.settings.timeBlocks||[])if(b.date===deskDate)add(minutes(b.start),'<p class="agenda-note">'+esc(b.start+'–'+b.end)+' · Blocked</p>');
-        const work=appState.settings.workingHours?.[new Date(deskDate+'T12:00:00').getDay()];
-        const closed=work?.closed || (appState.settings.blockedDates||[]).some(b=>b.date===deskDate);
-        byId('week-scroll').innerHTML=(closed?'<p class="agenda-note">Closed for online bookings</p>':work?'<p class="quiet">Working hours · '+esc(work.start+'–'+work.end)+'</p>':'')+
+        for(const r of pending.filter(r=>r.eventDate===date))add(minutes(r.startTime),'<button class="desk-btn pending-line" data-pending="'+esc(r.id)+'">'+esc(r.startTime+' · Pending · '+r.clientName)+'</button>');
+        for(const b of appState.settings.timeBlocks||[])if(b.date===date)add(minutes(b.start),'<p class="agenda-note">'+esc(b.start+'–'+b.end)+' · Blocked</p>');
+        const work=appState.settings.workingHours?.[new Date(date+'T12:00:00').getDay()];
+        const closed=work?.closed || (appState.settings.blockedDates||[]).some(b=>b.date===date);
+        return '<section class="agenda-day">'+(days.length>1?'<h3>'+esc(formatDisplayDate(date))+'</h3>':'')+(closed?'<p class="agenda-note">Closed for online bookings</p>':work?'<p class="quiet">Working hours · '+esc(work.start+'–'+work.end)+'</p>':'')+
           (entriesForDay.sort((a,b)=>a.t-b.t).map(x=>x.html).join('')||'<p class="quiet">No sessions scheduled.</p>')+
-          '<button type="button" class="desk-btn" id="agenda-new">Add appointment</button>';return;
+          '<button type="button" class="desk-btn" data-agenda-new="'+esc(date)+'">Add appointment</button></section>';
+        }).join('');
+        return;
       }
       const buffer=Number(appState.settings.bufferMins)||0;
       const blocks=(appState.settings.timeBlocks||[]).filter(b=>days.includes(b.date));
@@ -1598,7 +1690,7 @@
       byId('week-scroll').innerHTML='<div class="week-grid" style="--cols:'+days.length+';--height:'+ticks.length*58+'px"><div></div>'+days.map(d=>'<div class="day-cap">'+esc(new Date(d+'T12:00:00').toLocaleDateString('en-MY',{weekday:'short',day:'numeric'}))+'</div>').join('')+'<div>'+ticks.map(t=>'<time>'+clock(t)+'</time>').join('')+'</div>'+days.map(d=>'<div class="day-track" data-day="'+d+'" data-start="'+start+'">'+events(d)+'</div>').join('')+'</div>';
     }
     byId('week-scroll').onclick=e=>{
-      if(e.target.id==='agenda-new'){openBookingModal(deskDate);return;}
+      if(e.target.dataset.agendaNew){openBookingModal(e.target.dataset.agendaNew);return;}
       const pending=e.target.closest('[data-pending]');
       if(pending){switchTab('requests');byId('request-'+pending.dataset.pending)?.scrollIntoView({block:'center'});return;}
       const col=e.target.closest('.day-track');if(!col || e.target!==col)return;
@@ -2230,14 +2322,14 @@
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
 
       document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.className = btn.dataset.tab === tabName
+        btn.className = (btn.dataset.tab === tabName || (tabName==='appointment' && btn.dataset.tab===appointmentOrigin))
           ? 'nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm'
           : 'nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all';
       });
 
       document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
         btn.setAttribute('aria-current',btn.dataset.tab===tabName?'page':'false');
-        if (btn.dataset.tab === tabName || (btn.dataset.tab==='more' && ['settings','expenses','packages'].includes(tabName))) {
+        if (btn.dataset.tab === tabName || (tabName==='appointment' && btn.dataset.tab===appointmentOrigin) || (btn.dataset.tab==='more' && ['settings','expenses','packages','reports'].includes(tabName))) {
           btn.classList.remove('text-slate-400');
           btn.classList.add('text-blush-700');
         } else {
@@ -2384,7 +2476,7 @@
     };
 
     window.reviewNeedsPrice = function() {
-      switchTab('calendar');
+      switchTab('bookings');
       setBookingFilter('noprice');
     };
 
@@ -2509,7 +2601,7 @@
     // DASHBOARD & KPIs
     // =========================================================================
     function renderDashboard() {
-      drawToday(); drawSchedule();
+      drawToday(); drawSchedule(); renderAppointment();
       const todayStr = localDateStr();
       const inPeriod = (ds) => dashPeriod === 'all' || ds.startsWith(dashPeriod);
       const jobs = appState.bookings.filter(b => inPeriod(b.eventDate));
@@ -2710,6 +2802,7 @@
         return;
       }
       selectedCalendarDate = dateStr;
+      switchTab('bookings');
       document.getElementById('clear-date-filter-btn').classList.remove('hidden');
       renderCalendar();
       renderBookingsList();
@@ -2723,7 +2816,7 @@
     };
 
     window.setBookingFilter = function(filter) {
-      byId('month-archive').open=true;
+
       activeBookingFilter = filter;
       document.querySelectorAll('.filter-pill').forEach(btn => {
         btn.className = btn.dataset.filter === filter
@@ -2735,6 +2828,7 @@
 
     function bookingCardHTML(b) { return compactJob(b); }
     function renderBookingsList() {
+      byId('list-clear-date').classList.toggle('hidden',!selectedCalendarDate);
       const search = (document.getElementById('booking-search-input').value || '').toLowerCase();
       const todayStr = localDateStr();
       const weekEndDate = new Date();
@@ -2955,14 +3049,6 @@
         }
       }
 
-      const tools = byId('booking-actions');
-      tools.hidden = !editBookingId;
-      tools.open=false;
-      if(editBookingId) {
-        const booking=appState.bookings.find(b=>b.id===editBookingId);
-        byId('booking-action-list').innerHTML='<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(booking.venue))+'">Open Maps ↗</a>'+
-          [['WhatsApp','wa'],['Receipt / PDF','receipt'],['Copy reminder','copy'],['Google Calendar','google'],['Download calendar file','ics'],['Mark fully paid','paid'],['Delete booking','delete']].map(([label,action])=>taskButton(label,action,booking.id)).join('');
-      }
       recalculateBookingTotals();
       checkBookingConflicts();
       openWorkPage('booking-modal');
