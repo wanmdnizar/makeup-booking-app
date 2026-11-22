@@ -712,9 +712,9 @@
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Maximum bookings per day</label>
-                  <input type="number" id="pub-daily-cap" min="1" max="50" step="1" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
-                  <p class="text-[11px] text-slate-400 mt-1">Counts saved bookings and manually added jobs. Pending requests do not use a slot. Default: 3 per day.</p>
+                  <label class="block text-xs font-semibold text-charcoal mb-1">Maximum people per day</label>
+                  <input type="number" id="pub-daily-cap" min="1" max="3" step="1" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
+                  <p class="text-[11px] text-slate-400 mt-1">Each person uses one place. Pending requests use none. Maximum: 3 people per day.</p>
                 </div>
                 <div>
                   <label class="block text-xs font-semibold text-charcoal mb-1">Deposit instructions</label>
@@ -853,6 +853,8 @@
             <label class="block text-xs font-semibold text-charcoal mb-1">Client Full Name *</label>
             <input type="text" id="book-client-name" required placeholder="e.g., Cik Aisyah Humaira" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
+          <div><label for="book-pax" class="block text-xs font-semibold mb-1">Number of people</label>
+            <input type="number" id="book-pax" min="1" max="3" step="1" required value="1" class="w-full px-3.5 py-2.5 text-sm border rounded-xl"></div>
           <div>
             <label class="block text-xs font-semibold text-charcoal mb-1">WhatsApp Phone (MY)</label>
             <input type="tel" id="book-client-phone" placeholder="e.g., 012-3456789" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
@@ -1312,6 +1314,18 @@
       return 'Deposit Paid';
     }
 
+    function bookingPax(b) {
+      if (Number.isInteger(b.pax) && b.pax > 0) return b.pax;
+      if (Array.isArray(b.people) && b.people.length) return b.people.length;
+      const group = /^Group makeup · (\d+) people$/.exec(b.packageName || '');
+      const approval = /^Request /.test(b.notes || '') && /(?:^| \| )(\d+) pax(?: \||$)/.exec(b.notes);
+      return Number(group?.[1] || approval?.[1]) || 1;
+    }
+
+    function countPeople(entries) {
+      return entries.reduce((sum, entry) => sum + bookingPax(entry), 0);
+    }
+
     function normalizeBooking(b) {
       if (!b || typeof b !== 'object' || !b.id || !DATE_RE.test(String(b.eventDate || ''))) return null;
       const packagePrice = Math.max(0, num(b.packagePrice));
@@ -1319,7 +1333,7 @@
       const subtotal = packagePrice + addonFee;
       const depositPaid = Math.max(0, num(b.depositPaid));
       return {
-        id: String(b.id),
+        id: String(b.id), pax: bookingPax(b),
         ...(b.trackingId ? {trackingId:String(b.trackingId)} : {}),
         readyBy:String(b.readyBy||''), remindedFor:String(b.remindedFor||''),
         depositRequired:b.depositRequired==null?null:Math.max(0,num(b.depositRequired)), depositDue:String(b.depositDue||''),
@@ -1392,7 +1406,7 @@
     // in the same Firestore transaction as each booking create/edit/delete/approval.
     function maxBookingsPerDay(settings = appState.settings) {
       const n = Number(settings && settings.maxBookingsPerDay);
-      return Number.isFinite(n) ? Math.max(1, Math.min(50, Math.floor(n))) : 3;
+      return Number.isFinite(n) ? Math.max(1, Math.min(3, Math.floor(n))) : 3;
     }
 
     function cleanCapacityAppointment(item) {
@@ -1402,14 +1416,29 @@
       const endTime = String(item.endTime || '');
       if (!bookingId || !TIME_RE.test(startTime) || !TIME_RE.test(endTime)) return null;
       if (timeToMinutes(endTime) <= timeToMinutes(startTime)) return null;
-      return { bookingId, startTime, endTime };
+      return { bookingId, startTime, endTime, pax: bookingPax(item) };
     }
 
     function baselineCapacityAppointments(date) {
       return appState.bookings
         .filter(b => b && b.eventDate === date)
-        .map(b => cleanCapacityAppointment({ bookingId: b.id, startTime: b.startTime, endTime: b.endTime }))
+        .map(b => cleanCapacityAppointment({ bookingId: b.id, pax: bookingPax(b), startTime: b.startTime, endTime: b.endTime }))
         .filter(Boolean);
+    }
+
+    async function ledgerAppointments(tx, snap, date) {
+      if (!snap.exists() || !Array.isArray(snap.data().appointments)) return baselineCapacityAppointments(date);
+      const result = [];
+      for (const item of snap.data().appointments) {
+        const slot = cleanCapacityAppointment(item);
+        if (!slot) continue;
+        if (!Number.isInteger(item.pax) || item.pax < 1) {
+          const booking = await tx.get(userDoc('bookings', slot.bookingId));
+          if (booking.exists()) slot.pax = bookingPax(booking.data());
+        }
+        result.push(slot);
+      }
+      return result;
     }
 
     function hasBufferedTimeConflict(a, b, bufferMins) {
@@ -1423,7 +1452,7 @@
     function capacityErrorMessage(err) {
       const code = err && err.message;
       if (code === 'daily-capacity-reached') {
-        return `The daily booking limit (${maxBookingsPerDay()}) has been reached for that date. Choose another date or change the limit in Settings → Public Booking Page.`;
+        return `This booking would exceed the daily limit of ${maxBookingsPerDay()} people. Choose another date.`;
       }
       if (code === 'daily-time-conflict') return 'That time now overlaps another appointment or does not leave enough travel buffer. Refresh the calendar and choose another time.';
       if (code === 'daily-date-blocked') return 'This appointment falls outside working hours or overlaps blocked time. Review the schedule before approval.';
@@ -1777,15 +1806,13 @@
         const workingByDate = {};
         for (const date of dateKeys) {
           const snap = ledgerSnaps[date];
-          let appointments = snap && snap.exists() && Array.isArray(snap.data().appointments)
-            ? snap.data().appointments.map(cleanCapacityAppointment).filter(Boolean)
-            : baselineCapacityAppointments(date);
+          let appointments = await ledgerAppointments(tx, snap, date);
 
           // Ensure the existing booking is represented when migrating an older account
           // whose private daily-capacity ledger has not been created yet.
           if (oldData && oldDate === date && !appointments.some(a => a.bookingId === booking.id)) {
             const oldSlot = cleanCapacityAppointment({
-              bookingId: booking.id,
+              bookingId: booking.id, pax: bookingPax(oldData),
               startTime: oldData.startTime,
               endTime: oldData.endTime
             });
@@ -1806,7 +1833,7 @@
         }
 
         const newSlot = cleanCapacityAppointment({
-          bookingId: booking.id,
+          bookingId: booking.id, pax: bookingPax(booking),
           startTime: booking.startTime,
           endTime: booking.endTime
         });
@@ -1819,10 +1846,10 @@
         targetAppointments.push(newSlot);
         workingByDate[newDate] = targetAppointments;
 
-        const beforeTargetCount = (originalByDate[newDate] || []).length;
-        const afterTargetCount = targetAppointments.length;
+        const beforeTargetCount = countPeople(originalByDate[newDate] || []);
+        const afterTargetCount = countPeople(targetAppointments);
         const isFutureOrToday = newDate >= localDateStr();
-        if (options.enforceCapacity !== false && isFutureOrToday && afterTargetCount > beforeTargetCount && afterTargetCount > dailyLimit) {
+        if (isFutureOrToday && afterTargetCount > beforeTargetCount && afterTargetCount > dailyLimit) {
           throw new Error('daily-capacity-reached');
         }
 
@@ -1830,7 +1857,7 @@
           const appointments = workingByDate[date] || [];
           tx.set(userDoc('dailyCapacity', date), {
             date,
-            count: appointments.length,
+            count: appointments.length, paxCount: countPeople(appointments),
             appointments,
             updatedAt: serverTimestamp()
           });
@@ -1873,15 +1900,13 @@
         if (!DATE_RE.test(date)) throw new Error('invalid-booking-date');
         const ledgerRef = userDoc('dailyCapacity', date);
         const ledgerSnap = await tx.get(ledgerRef);
-        let appointments = ledgerSnap.exists() && Array.isArray(ledgerSnap.data().appointments)
-          ? ledgerSnap.data().appointments.map(cleanCapacityAppointment).filter(Boolean)
-          : baselineCapacityAppointments(date);
+        let appointments = await ledgerAppointments(tx, ledgerSnap, date);
         if (!appointments.some(a => a.bookingId === bookingId)) {
           const oldSlot = cleanCapacityAppointment({ bookingId, startTime: oldData.startTime, endTime: oldData.endTime });
           if (oldSlot) appointments.push(oldSlot);
         }
         appointments = appointments.filter(a => a.bookingId !== bookingId);
-        tx.set(ledgerRef, { date, count: appointments.length, appointments, updatedAt: serverTimestamp() });
+        tx.set(ledgerRef, { date, count: appointments.length, paxCount: countPeople(appointments), appointments, updatedAt: serverTimestamp() });
         const linkedId = trackingId({...oldData,id:bookingId});
         if (linkedId) tx.set(doc(db,'clientApprovals',linkedId), {status:'cancelled'}, {merge:true});
         tx.delete(bookingRef);
@@ -2948,6 +2973,8 @@
         if (!b) return;
         document.getElementById('booking-modal-title').textContent = `Edit Booking (${b.receiptNo})`;
         document.getElementById('book-id').value = b.id;
+        byId('book-pax').value = bookingPax(b);
+        byId('book-pax').disabled = Boolean(b.trackingId) || bookingPax(b)>3;
         document.getElementById('book-client-name').value = b.clientName;
         document.getElementById('book-client-phone').value = b.clientPhone;
         document.getElementById('book-date').value = b.eventDate;
@@ -2963,7 +2990,7 @@
         document.getElementById('book-notes').value = b.notes || '';
       } else {
         document.getElementById('booking-modal-title').textContent = 'New Client Booking';
-        document.getElementById('booking-form').reset();
+        document.getElementById('booking-form').reset(); byId('book-pax').disabled = false;
         document.getElementById('book-id').value = '';
         document.getElementById('book-date').value = preselectedDate || localDateStr();
         document.getElementById('book-start-time').value = '08:00';
@@ -3078,6 +3105,7 @@
       if(byId('book-due').value && byId('book-due').value>byId('book-date').value){showToast('Choose a deposit due date on or before the appointment.','error');return;}
       const fields = {
         readyBy:byId('book-ready').value, depositRequired:required,depositDue:byId('book-due').value,
+        pax: byId('book-pax').valueAsNumber,
         clientName: document.getElementById('book-client-name').value.trim(),
         clientPhone: document.getElementById('book-client-phone').value.trim(),
         eventDate: document.getElementById('book-date').value,
@@ -3527,7 +3555,7 @@
       const data = {workingHours,
         bufferMins: Math.max(0, Math.min(480, parseInt(document.getElementById('pub-buffer').value, 10) || 0)),
         minLeadDays: Math.max(0, Math.min(60, parseInt(document.getElementById('pub-lead').value, 10) || 0)),
-        maxBookingsPerDay: Math.max(1, Math.min(50, Number.parseInt(document.getElementById('pub-daily-cap').value, 10) || 3)),
+        maxBookingsPerDay: Math.max(1, Math.min(3, Number.parseInt(document.getElementById('pub-daily-cap').value, 10) || 3)),
         depositText: document.getElementById('pub-deposit').value.trim().slice(0, 600),
         publicFaq: document.getElementById('pub-faq').value.trim().slice(0, 3000),
         publicReviews: document.getElementById('pub-reviews').value.trim().slice(0, 3000),
@@ -3646,13 +3674,14 @@
           const finish = Math.min(24 * 60, timeToMinutes(start) + 120);
           end = finish === 1440 ? '24:00' : `${String(Math.floor(finish / 60)).padStart(2, '0')}:${String(finish % 60).padStart(2, '0')}`;
         }
-        const day = map[b.eventDate] || (map[b.eventDate] = { slots: [], bookingCount: 0 });
+        const day = map[b.eventDate] || (map[b.eventDate] = { slots: [], bookingCount: 0, paxCount: 0 });
         day.slots.push({ s: start, e: end });
         day.bookingCount += 1;
+        day.paxCount += bookingPax(b);
       });
       (s.blockedDates || []).forEach(x => {
         if (x && DATE_RE.test(String(x.date)) && x.date >= today) {
-          const day = map[x.date] || (map[x.date] = { slots: [], bookingCount: 0 });
+          const day = map[x.date] || (map[x.date] = { slots: [], bookingCount: 0, paxCount: 0 });
           day.slots.push({ s: '00:00', e: '24:00' });
         }
       });
@@ -3667,7 +3696,8 @@
           slots,
           bookingCount,
           maxBookingsPerDay: dailyLimit,
-          capacityReached: bookingCount >= dailyLimit
+          paxCount: map[date].paxCount,
+          capacityReached: map[date].paxCount >= dailyLimit
         };
         const str = JSON.stringify(publicDay);
         newBusy[date] = str;
@@ -3748,9 +3778,9 @@
       const hit = appState.bookings.find(b => b.eventDate === r.eventDate && rs < tm(b.endTime) + buf && re + buf > tm(b.startTime));
       if (hit) return `Clashes with ${hit.clientName} (${formatDisplayTime(hit.startTime)} to ${formatDisplayTime(hit.endTime)}).`;
       if ((appState.settings.blockedDates || []).some(x => x.date === r.eventDate)) return 'This date is blocked.';
-      const dayCount = appState.bookings.filter(b => b.eventDate === r.eventDate).length;
+      const dayCount = countPeople(appState.bookings.filter(b => b.eventDate === r.eventDate));
       if(!fitsHours(appState.settings,r.eventDate,rs,re))return 'Outside public hours or overlaps a blocked period.';
-      if (dayCount >= maxBookingsPerDay()) return `Daily booking limit reached (${dayCount}/${maxBookingsPerDay()}).`;
+      if (dayCount + bookingPax(r) > maxBookingsPerDay()) return `This party exceeds the daily limit. ${dayCount} already booked; ${maxBookingsPerDay()} people allowed.`;
       return '';
     }
 
@@ -3778,6 +3808,23 @@
       return /\b(transport|mileage|travel|petrol|parking|toll)\b/i.test(addon.name);
     }
 
+    function requestQuote(r, catalogue) {
+      if (!r.people) return catalogueQuote(r,catalogue);
+      if (!Array.isArray(r.people) || r.people.length!==r.pax || !r.pax || r.pax>8)
+        throw new Error('Check the guest list before approval.');
+      const services=r.people.map(p=>catalogueQuote({packageId:p.packageId},catalogue).base);
+      const first=catalogueQuote({packageId:services[0].id,addons:r.addons},catalogue);
+      const other=services.slice(1);
+      const price=services.reduce((sum,p)=>sum+cents(p.price),0)/100;
+      const name=services.length===1?services[0].name:'Group makeup · '+services.length+' people';
+      return {...first,base:{...first.base,id:services.length===1?first.base.id:'custom',name,price},
+        serviceTotal:(cents(first.serviceTotal)+other.reduce((sum,p)=>sum+cents(p.price),0))/100,
+        duration:first.duration+other.reduce((sum,p)=>sum+Math.max(30,Number(p.durationMins)||120),0),
+        items:[...new Map([...services,...first.addons].map(p=>[p.id,p])).values()]};
+    }
+    function rosterText(people=[]) {
+      return people.map(p=>[p.name,p.packageName,p.look,'Allergies: '+p.allergies].filter(Boolean).join(' · ')).join(' | ');
+    }
     const requestFields = [
       ['clientName','Client name','text',80],['phone','Phone','tel',16],['email','Email','email',120],
       ['eventDate','Date','date'],['startTime','Start time','time'],['readyBy','Ready by','time'],
@@ -3789,12 +3836,21 @@
       const r = appState.requests.find(entry=>entry.id === id && entry.status === 'pending');
       if (!r) return;
       editedRequest = r;
-      document.getElementById('request-edit-fields').innerHTML = requestFields.map(([key,label,type,max])=>
+      document.getElementById('request-edit-fields').innerHTML = requestFields.filter(([k])=>!(r.people && k==='allergies')).map(([key,label,type,max])=>
         '<label>'+label+'<input name="'+key+'" type="'+type+'" value="'+esc(r[key] || '')+'"'+(max?' maxlength="'+max+'"':'')+
         (['clientName','phone','venue','eventDate','startTime'].includes(key)?' required':'')+'></label>').join('');
       const extras=appState.packages.filter(p=>p.addon && !isTravelCharge(p));
       const services=appState.packages.filter(p=>!p.addon);
       byId('request-edit-fields').insertAdjacentHTML('beforeend','<details><summary>Change quoted services</summary><label><input type="checkbox" name="replaceServices"> Replace services using the current catalogue</label><label>Package<select name="selectedBase">'+services.map(p=>'<option value="'+esc(p.id)+'" '+(p.id===r.packageId?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label>'+extras.map(p=>'<label><input type="checkbox" name="selectedExtras" value="'+esc(p.id)+'" '+((r.addons||[]).some(a=>a.id===p.id || a.name===p.name)?'checked':'')+'>'+esc(p.name)+'</label>').join('')+'</details>');
+      if(r.people) {
+        const root=byId('request-edit-fields');
+        root.querySelector('[name="selectedBase"]').closest('label').hidden=true;
+        root.insertAdjacentHTML('beforeend',r.people.map((p,i)=>`<fieldset data-guest><legend>Person ${i+1}</legend>
+          <label>First name<input data-field="name" required maxlength="60" value="${esc(p.name)}"></label>
+          <label>Package<select data-field="packageId" required>${services.some(x=>x.id===p.packageId)?'':'<option value="">Choose a current package</option>'}${services.map(x=>`<option value="${esc(x.id)}" ${x.id===p.packageId?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+          <label>Makeup look<input data-field="look" maxlength="120" value="${esc(p.look)}"></label>
+          <label>Allergies<input data-field="allergies" required maxlength="100" value="${esc(p.allergies)}"></label></fieldset>`).join(''));
+      }
       document.getElementById('request-edit-error').textContent = '';
       openWorkPage('request-editor');
     };
@@ -3805,7 +3861,23 @@
       const error = document.getElementById('request-edit-error');
       const data=new FormData(form);
       delete fields.selectedExtras;delete fields.selectedBase;delete fields.replaceServices;
-      if(data.has('replaceServices')){
+      if(target.people) {
+        try {
+          fields.people=Array.from(form.querySelectorAll('[data-guest]'),row=>{
+            const p=Object.fromEntries([...row.querySelectorAll('[data-field]')].map(el=>[el.dataset.field,el.value.trim()]));
+            const item=appState.packages.find(x=>x.id===p.packageId && !x.addon);
+            if(!item || !p.name || !p.allergies) throw new Error('Complete each guest’s service and details.');
+            return {...p,packageName:item.name};
+          });
+          const extras=data.has('replaceServices')?data.getAll('selectedExtras').map(id=>({id})):target.addons;
+          const quote=requestQuote({...target,people:fields.people,addons:extras},appState.packages);
+          if(quote.duration>900)throw new Error('The group exceeds the online session limit.');
+          const allergies=fields.people.filter(p=>!/^none$/i.test(p.allergies)).map(p=>p.name+': '+p.allergies).join('; ');
+          Object.assign(fields,{allergies, packageId:fields.people[0].packageId,packagePrice:quote.base.price,packageName:quote.base.name,
+            originalEstimate:target.originalEstimate??(num(target.packagePrice)+(target.addons||[]).reduce((n,a)=>n+num(a.price),0)),
+            durationMins:quote.duration,addons:quote.addons.map(a=>({id:a.id,name:a.name,price:a.price}))});
+        } catch(err){error.textContent=err.message;return;}
+      } else if(data.has('replaceServices')){
         try{
           const quote=catalogueQuote({packageId:data.get('selectedBase'),addons:data.getAll('selectedExtras').map(id=>({id}))},appState.packages);
           Object.assign(fields,{originalEstimate:target.originalEstimate??(num(target.packagePrice)+(target.addons||[]).reduce((n,a)=>n+num(a.price),0)),
@@ -3835,7 +3907,7 @@
     function requestCardHTML(r) {
       const id = esc(r.id);
       let preview;
-      try { preview = catalogueQuote(r, appState.packages); } catch {}
+      try { preview = requestQuote(r, appState.packages); } catch {}
       const previewRequest = preview ? { ...r, durationMins: preview.duration } : r;
       const clash = requestClash(previewRequest);
       const addons = Array.isArray(r.addons) ? r.addons : [];
@@ -3845,7 +3917,7 @@
       const mood = r.moodboardLink && /^https?:\/\//.test(r.moodboardLink)
         ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="link-btn">Open moodboard ↗</a>` : '';
       const travelDefault = addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2);
-      const details = [['Phone', r.phone], ['Email', r.email], ['Notes', r.notes], ['Check', preview ? 'Catalogue price ' + formatRM(preview.serviceTotal) + ' · ' + preview.duration + ' min' : 'Review services in Edit before approving']]
+      const details = [['Guests',rosterText(r.people)], ['Phone', r.phone], ['Email', r.email], ['Notes', r.notes], ['Check', preview ? 'Catalogue price ' + formatRM(preview.serviceTotal) + ' · ' + preview.duration + ' min' : 'Review services in Edit before approving']]
         .filter(([, v]) => v).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
       return `
       <article id="request-${id}" class="req-card">
@@ -4023,7 +4095,7 @@
       }
       const travel = input.valueAsNumber;
       let quote;
-      try { quote=catalogueQuote(r,appState.packages); } catch(err){showToast(err.message,'error');return;}
+      try { quote=requestQuote(r,appState.packages); } catch(err){showToast(err.message,'error');return;}
       const addons=quote.addons.map(a=>({name:a.name,price:a.price}));
       if(travel>0)addons.push({name:'Travel fee',price:travel});
       const finalTotal=(cents(quote.serviceTotal)+cents(travel))/100;
@@ -4043,6 +4115,7 @@
             const bid = 'bk_' + Date.now() + '_' + Math.random().toString(16).slice(2, 8);
             const notes = [
               `Request ${r.ref}`,
+              rosterText(r.people),
               r.pax > 1 ? `${r.pax} pax` : '',
               r.allergyStatus === 'yes' ? `ALLERGIES: ${r.allergies}` : '',
               r.moodboardLink ? `Moodboard: ${r.moodboardLink}` : '',
@@ -4051,7 +4124,7 @@
               r.notes || ''
             ].filter(Boolean).join(' | ');
             const booking = normalizeBooking({
-              id: bid, receiptNo, issuedDate: localDateStr(),
+              id: bid, pax: bookingPax(r), receiptNo, issuedDate: localDateStr(),
               clientName: r.clientName, clientPhone: r.phone,
               eventDate: r.eventDate, startTime: r.startTime, endTime: requestEndTime(revised), readyBy:r.readyBy,depositRequired,depositDue,
               venue: r.venue, packageId: quote.base.id, packageName: quote.base.name,
@@ -4063,7 +4136,7 @@
             if (!booking) throw new Error('bad request data');
             booking.createdAt = serverTimestamp();
             await saveBookingWithCapacity(booking, {
-              requestId: r.id, revision:r.revision || 0, travelFee:travel, catalogueItems:[quote.base,...quote.addons],
+              requestId: r.id, revision:r.revision || 0, travelFee:travel, catalogueItems:quote.items || [quote.base,...quote.addons],
               enforceCapacity: true,
               enforceSlotConflict: true,
               enforceBlockedDate: true
@@ -4162,7 +4235,7 @@
             ['businessName', 'ownerName', 'tagline', 'ssmNo', 'igHandle', 'whatsappNo', 'terms', 'depositText', 'publicFaq', 'publicReviews'].forEach(k => {
               if (typeof st[k] === 'string') profile[k] = st[k];
             });
-            if (Number.isFinite(Number(st.maxBookingsPerDay))) profile.maxBookingsPerDay = Math.max(1, Math.min(50, Math.floor(Number(st.maxBookingsPerDay))));
+            if (Number.isFinite(Number(st.maxBookingsPerDay))) profile.maxBookingsPerDay = Math.max(1, Math.min(3, Math.floor(Number(st.maxBookingsPerDay))));
             if (Number.isFinite(Number(st.bufferMins))) profile.bufferMins = Math.max(0, Math.min(480, Number(st.bufferMins)));
             if (Number.isFinite(Number(st.minLeadDays))) profile.minLeadDays = Math.max(0, Math.min(60, Number(st.minLeadDays)));
             if(Array.isArray(st.workingHours) && st.workingHours.length===7 && st.workingHours.every(h=>h && TIME_RE.test(h.start) && TIME_RE.test(h.end))) profile.workingHours=st.workingHours;
