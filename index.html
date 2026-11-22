@@ -337,6 +337,25 @@
         .booking-top-new {min-width:44px;min-height:44px;justify-content:center;}
       }
     }
+    #tab-studio {width:100%;max-width:52rem;min-width:0}
+    #tab-studio .page-head {display:grid;gap:.8rem}
+    #studio-seg {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+    #studio-seg button {padding:.5rem .12rem;white-space:normal}
+    .studio-stack {grid-template-columns:minmax(0,1fr)}
+    #studio-page :is(form,fieldset,label,.grid>div) {min-width:0}
+    #studio-page :is(input:not([type=checkbox]),textarea) {box-sizing:border-box;min-width:0;max-width:100%}
+    .schedule-blocks legend {font-size:.9rem;font-weight:650;margin-bottom:.45rem}
+    .block-fields {display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:.6rem;align-items:end}
+    .block-fields.whole-day {grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto}
+    .block-fields label {display:grid;gap:.3rem;font-size:.8rem;font-weight:600}
+    .block-fields :is(input,button) {min-height:44px}
+    .block-entry {display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.5rem .75rem;border-radius:.75rem;background:var(--petal);font-size:.8rem}
+    .block-entry + .block-entry {margin-top:.4rem}
+    @media(max-width:600px){
+      .block-fields,.block-fields.whole-day {grid-template-columns:repeat(2,minmax(0,1fr))}
+      .block-fields:not(.whole-day) label:first-child,.block-fields button {grid-column:1/-1}
+      #weekday-hours .hours-line {grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
@@ -747,7 +766,7 @@
                   <p class="text-[11px] text-slate-400 mt-1">Only add real reviews, with the client's permission.</p>
                 </div>
                 <button type="submit" class="w-full py-2.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold transition">Save public page settings</button>
-              </form><form id="block-period" class="hours-card"><h3>Block part of a day</h3><div class="desk-actions"><label>Date<input required name="date" type="date"></label><label>From<input required name="start" type="time"></label><label>Until<input required name="end" type="time"></label><button class="desk-btn">Block time</button></div><div id="partial-blocks"></div></form>
+              </form>
 
               <div class="pt-3 border-t border-blush-100 space-y-2">
                 <p class="text-xs font-semibold text-charcoal">DuitNow QR</p>
@@ -762,15 +781,32 @@
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-blush-100 space-y-2">
-                <p class="text-xs font-semibold text-charcoal">Block dates (leave, rest days)</p>
-                <div class="flex gap-2">
-                  <input type="date" id="block-date" class="flex-1 min-w-0 px-3 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
-                  <input type="text" id="block-note" maxlength="40" placeholder="Note (private)" class="flex-1 min-w-0 px-3 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
-                  <button type="button" onclick="addBlockedDate()" class="px-3 rounded-xl bg-charcoal text-white text-xs font-bold">Block</button>
-                </div>
+              <section class="hours-card schedule-blocks">
+                <h3 class="font-semibold">Block availability</h3>
+                <form id="block-period">
+                  <fieldset>
+                    <legend>Block a time range</legend>
+                    <div class="block-fields">
+                      <label>Date<input required name="date" type="date"></label>
+                      <label>From<input required name="start" type="time"></label>
+                      <label>Until<input required name="end" type="time"></label>
+                      <button class="desk-btn" type="submit">Block time</button>
+                    </div>
+                  </fieldset>
+                </form>
+                <div id="partial-blocks"></div>
+                <form onsubmit="event.preventDefault();addBlockedDate()">
+                  <fieldset>
+                    <legend>Block a whole day</legend>
+                    <div class="block-fields whole-day">
+                      <label>Date<input required type="date" id="block-date"></label>
+                      <label>Private note<input type="text" id="block-note" maxlength="40" placeholder="Optional"></label>
+                      <button class="desk-btn" type="submit">Block date</button>
+                    </div>
+                  </fieldset>
+                </form>
                 <div id="blocked-list" class="space-y-1.5"></div>
-              </div>
+              </section>
             </div></div>
         <div id="studio-data" class="studio-stack hidden">
           <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
@@ -3524,7 +3560,7 @@
         document.getElementById('pub-faq').value = s.publicFaq || '';
         document.getElementById('pub-reviews').value = s.publicReviews || '';
       }
-      byId('partial-blocks').innerHTML=(s.timeBlocks||[]).filter(b=>b.date>=localDateStr()).map(b=>'<p>'+esc(b.date+' · '+b.start+' – '+b.end)+' <button type="button" class="underline" data-unblock="'+esc(b.date+' '+b.start+' '+b.end)+'">Remove</button></p>').join('');
+      byId('partial-blocks').innerHTML=(s.timeBlocks||[]).filter(b=>b.date>=localDateStr()).map(b=>'<p class="block-entry"><span>'+esc(formatDisplayDate(b.date)+' · '+formatDisplayTime(b.start)+' – '+formatDisplayTime(b.end))+'</span> <button type="button" class="underline" data-unblock="'+esc(b.date+' '+b.start+' '+b.end)+'">Remove</button></p>').join('');
       const qr = document.getElementById('pub-qr-preview');
       if (qr) {
         qr.textContent = '';
