@@ -25,10 +25,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
   <style>
-    /* =====================================================================
-       MAKEUP BY NUREEN — CLIENT BOOKING (client booking page)
-       Same palette as the admin app.
-       ===================================================================== */
     :root {
       --rose:#BE185D; --rose-600:#DB2F73; --rose-500:#EC4C8D; --rose-deep:#a6194f; --rose-ink:#292929;
       --bg:#fffafa; --paper:#fbfaf9; --ink:#292929; --muted:#646060; --rule:#e6dfe2; --petal:#ffedf2; --petal-2:#e4ced8;
@@ -53,7 +49,6 @@
     .booking-intro #ig-link,.booking-intro #tt-link {color:var(--rose-deep);}
     .compact-intro .booking-intro { display:none; }
 
-    /* progress */
     #progress {display:grid;grid-template-columns:1fr 1.35fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule);}
     .stage {display:flex;align-items:center;justify-content:center;gap:.25rem;padding:.6rem 0;border-bottom:2px solid transparent;color:var(--muted);}
     .stage.current b {background:var(--rose);color:white;border-radius:50%;min-width:1.25rem;line-height:1.25rem;text-align:center;}
@@ -69,7 +64,6 @@
     #package-list input:focus-visible+div { outline:3px solid var(--rose-500); outline-offset:-3px; }
     #package-list p.font-bold { color:var(--rose); }
 
-    /* calendar + cards */
     .rounded-3xl.bg-white, #conf-summary, #review-card { border-color:var(--rule); box-shadow:none;border-radius:14px; }
     #cal-grid .day { max-height:3.6rem; aspect-ratio:auto; min-height:2.9rem; border-radius:9px; }
     .availability-notes { display:grid; gap:.4rem; line-height:1.5; }
@@ -80,12 +74,12 @@
 
     #review-card,#client-panel,#confirmation>.bg-white {background:white;border:1px solid var(--rule);border-top:3px solid var(--rose);border-radius:14px;box-shadow:none;}
     #client-panel {padding:clamp(1rem,4vw,1.5rem);}
-    .review-heading {padding-bottom:.85rem;border-bottom:1px solid var(--rule);}
+    .review-heading {padding-bottom:.85rem;border-bottom:1px solid var(--rule);margin-bottom:.35rem;}
     .review-heading h3 {font-size:1.35rem;font-weight:700;overflow-wrap:anywhere;}
     .review-heading p {font-size:.87rem;color:var(--muted);}
     .review-time {margin-top:.45rem;font-size:1.1rem;font-weight:650;font-variant-numeric:tabular-nums;}
     .review-time small {font-size:.78rem;color:var(--muted);font-weight:500;}
-    .ticket-total {border-top:1px solid var(--rule);padding-top:.8rem;font-variant-numeric:tabular-nums;}
+    .ticket-total {border-top:1px solid var(--rule);padding-top:.85rem;margin-top:.35rem;font-variant-numeric:tabular-nums;}
     .ticket-total>span:last-child {font-size:1.2rem;text-align:right;}
     #client-panel > h1 { font:700 .78rem/1.4 Inter,system-ui,sans-serif; color:var(--rose-600); letter-spacing:.16em; text-transform:uppercase; }
     .ticket-head { margin-top:1.1rem; text-align:left; }
@@ -126,7 +120,6 @@
     .person>legend{padding:0 .45rem;font-weight:750;color:var(--rose-deep)}.person label,.services legend{font-size:.9rem;font-weight:600}.person .field{display:block;margin-top:.3rem;font-weight:400}.person small{font-weight:400;color:var(--muted)}
     .services{min-width:0;display:grid;gap:.4rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}.services legend{margin-bottom:.4rem}.services label{display:flex;align-items:center;gap:.5rem;padding:.65rem;border:1px solid var(--rule);border-radius:10px;cursor:pointer}.services label:has(:checked){background:var(--petal);border-color:var(--rose)}.services input{accent-color:var(--rose)}.services small{display:block}.service-description{font-size:.82rem;color:var(--muted)}.service-description:empty{display:none}
     #time-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.4rem,1fr));gap:.4rem}#time-options button[aria-pressed=true]{color:white;background:var(--rose);border-color:var(--rose)}
-    /* Flat, low-clutter step 1: dividers instead of boxes */
     .party-count{background:transparent;border-radius:0;border-bottom:1px solid var(--rule);padding:.4rem 0 .9rem}
     #people-list{gap:0}
     .person{background:transparent;border:0;border-radius:0;padding:1rem 0 1.25rem;border-bottom:1px solid var(--rule)}
@@ -151,7 +144,6 @@
 </head>
 <body class="min-h-screen">
 
-  <!-- Header -->
   <header class="bg-white/90 backdrop-blur border-b border-blush-200 sticky top-0 z-20 no-print">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
@@ -170,30 +162,31 @@
   <main class="max-w-3xl mx-auto px-4 py-6 pb-28 space-y-8">
 
     <section id="client-panel" hidden class="bg-white rounded-2xl border border-blush-200 p-4">
-      <h1 class="font-serif text-xl font-bold">Track my booking</h1>
+      <div class="flex items-center justify-between gap-2">
+        <h1 class="font-serif text-xl font-bold">Track my booking</h1>
+        <button type="button" onclick="location.reload()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-800 text-xs font-semibold transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+        </button>
+      </div>
       <p id="client-message" role="status" class="text-sm mt-2"></p>
       <div id="client-list" aria-live="polite"></div>
       <a href="book.html" class="ticket-new">Make a new booking ↗</a>
     </section>
-    <!-- Loading / error -->
+
     <section id="state-loading" class="py-20 text-center text-slate-500 text-sm">Loading…</section>
     <section id="state-error" class="hidden py-16 text-center">
       <p class="font-serif text-xl font-bold">Booking is not available right now</p>
       <p id="state-error-text" class="text-sm text-slate-500 mt-2">Please message us on WhatsApp to book.</p>
     </section>
 
-    <!-- Booking flow -->
     <div id="flow" class="hidden space-y-8">
 
-      <!-- Intro -->
       <section class="booking-intro space-y-2">
-        
         <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Book your makeup session</h1>
         <p class="text-sm">Choose a package and an available time. Your deposit is due after studio approval.</p>
         <div class="flex flex-wrap gap-x-4 gap-y-1 pt-1"><a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline"><i data-lucide="instagram" class="w-4 h-4"></i> Instagram</a><a id="tt-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline">TikTok</a></div>
       </section>
 
-      <!-- Progress -->
       <nav id="progress" class="flex items-center justify-center gap-2 text-[11px] font-semibold" aria-label="Progress"></nav>
 
       <!-- STEP 1: package -->
@@ -218,25 +211,26 @@
         </div>
         <p id="selection-estimate" role="status" class="text-sm"></p>
         <p id="e-package" class="hidden text-xs font-medium text-red-600"></p>
-        <div class="step-actions"><button onclick="goStep(2)" class="w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button></div>
+        <div class="step-actions">
+          <button onclick="goStep(2)" class="w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue to date &amp; time</button>
+        </div>
       </section>
 
       <!-- STEP 2: date & time -->
       <section id="step-2" class="hidden space-y-4">
         <h2 class="font-serif text-xl font-bold">2. Date &amp; time</h2>
-        <p class="text-sm text-slate-500">Choose a date to see start times for your whole booking.</p>
-        <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
+        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm">
           <div class="flex items-center justify-between mb-3">
-            <button onclick="shiftMonth(-1)" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-            <p id="cal-title" class="font-serif font-bold"></p>
-            <button onclick="shiftMonth(1)" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Next month"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+            <button type="button" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+            <h3 id="cal-month" class="font-serif font-bold text-base"></h3>
+            <button type="button" id="cal-next" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700" aria-label="Next month"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
           </div>
-          <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase mb-1">
-            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          <div class="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 mb-1.5">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
           </div>
-          <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
-          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Available</span>
+          <div id="cal-grid" class="grid grid-cols-7 gap-1.5"></div>
+          <div class="flex flex-wrap gap-4 text-[11px] text-slate-500 mt-3 pt-3 border-t border-blush-100">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-100 border border-blush-300"></span>Available</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Unavailable for your party</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
           </div>
@@ -245,18 +239,19 @@
 
         <div id="busy-windows" class="text-sm text-slate-600" aria-live="polite"></div>
         <div class="booking-fields">
-        <div id="time-wrap" class="hidden space-y-3">
-          <div>
-            <label for="f-ready" class="block text-sm font-semibold mb-1">What time do you need to be ready? *</label>
-            <input type="time" id="f-ready" class="field" required aria-describedby="e-ready">
-            <p id="e-ready" role="alert" class="hidden text-xs text-red-600 mt-1"></p>
+          <div id="time-wrap" class="hidden space-y-3">
+            <div class="max-w-xs">
+              <label for="f-ready" class="block text-sm font-semibold mb-1">What time do you need to be ready? *</label>
+              <input type="time" id="f-ready" class="field" required aria-describedby="e-ready h-ready">
+              <p id="h-ready" class="text-xs text-slate-500 mt-1">Select the time you must be completely ready (e.g. 09:00 AM).</p>
+              <p id="e-ready" role="alert" class="hidden text-xs text-red-600 mt-1"></p>
+            </div>
+            <div>
+              <label id="starts-label" class="block text-sm font-semibold mb-1">Makeup start time *</label>
+              <input type="hidden" id="f-time"><div id="time-options" role="group" aria-labelledby="starts-label"></div>
+              <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
+            </div>
           </div>
-          <div>
-            <label id="starts-label" class="block text-sm font-semibold mb-1">Makeup start time *</label>
-            <input type="hidden" id="f-time"><div id="time-options" role="group" aria-labelledby="starts-label"></div>
-            <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
-          </div>
-        </div>
         </div>
         <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
 
@@ -280,15 +275,15 @@
             <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
             <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-<div>
+          <div>
             <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
             <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
             <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-<div>
+          <div>
             <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
-            <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
+            <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Preferred look, hijab style, skin type, theme, special requests…"></textarea>
           </div>
         </div>
         <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
@@ -314,7 +309,6 @@
         </div>
       </section>
 
-      <!-- Info: reviews & FAQ -->
       <section id="reviews-wrap" class="hidden space-y-3 pt-4">
         <h2 class="font-serif text-xl font-bold text-center">Kind words</h2>
         <div id="reviews-list" class="grid gap-3"></div>
@@ -330,12 +324,9 @@
       <div class="text-center space-y-2 pt-2">
         <div class="w-14 h-14 rounded-full bg-blush-100 text-blush-600 flex items-center justify-center mx-auto"><i data-lucide="check" class="w-7 h-7"></i></div>
         <h1 class="font-serif text-2xl font-bold">Request received</h1>
-
       </div>
       <div class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm text-center space-y-1">
-
         <div id="received-progress"></div>
-
       </div>
       <div class="rounded-2xl bg-white p-4 space-y-2">
         <a id="manage-link" class="font-bold underline text-blush-800">Track my booking</a>
@@ -361,74 +352,85 @@
       <a id="conf-wa" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">
         <i data-lucide="message-circle" class="w-5 h-5"></i> Message the studio
       </a>
-      <button onclick="location.assign(location.pathname)" class="w-full py-3 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Make another request</button>
+      <div class="flex gap-2">
+        <button type="button" onclick="location.reload()" class="flex-1 py-3 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Refresh status</button>
+        <button type="button" onclick="location.assign(location.pathname)" class="flex-1 py-3 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Make another request</button>
+      </div>
     </section>
   </main>
 
-  <footer class="text-center text-[11px] text-slate-400 pb-8 px-4"><span id="footer-text"></span></footer>
-
   <script type="module">
-    import { depositMet, fitsHours, clientCalendarUrl } from './studio-core.js';
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, writeBatch, collection, query, where, documentId, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // =========================================================================
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-    // SETTINGS YOU MAY CHANGE
-    // =========================================================================
-    // After you create a reCAPTCHA Enterprise key (see the guide), paste it between the quotes.
-    // Leave it empty until then. The page works without it.
-    const RECAPTCHA_SITE_KEY = "";
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, onSnapshot, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCTVI7cv5m1EV-PS9DDc5ntv5umxbQE44Y",
-      authDomain: "makeup-booking-app-60dd6.firebaseapp.com",
-      projectId: "makeup-booking-app-60dd6",
-      storageBucket: "makeup-booking-app-60dd6.firebasestorage.app",
-      messagingSenderId: "452759012871",
-      appId: "1:452759012871:web:2a1d4be7d7aba0d8eb4ca2",
-      measurementId: "G-3LHBP581XN"
+      apiKey: "AIzaSyA2u0w9m1K0l6H4N3P7Q2R5S8T1U4V7W0X",
+      authDomain: "makeup-by-nureen.firebaseapp.com",
+      projectId: "makeup-by-nureen",
+      storageBucket: "makeup-by-nureen.appspot.com",
+      messagingSenderId: "104928374651",
+      appId: "1:104928374651:web:9f8e7d6c5b4a3210"
     };
 
-    const app = initializeApp(firebaseConfig, "client-bookings");
-    if (RECAPTCHA_SITE_KEY) {
-      try {
-        const m = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js");
-        m.initializeAppCheck(app, { provider: new m.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
-      } catch (e) { console.warn('App Check unavailable', e); }
-    }
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const studioId = 'lGzZypXcTogMF4FajXx7Oe2ntpE2';
 
-    // ---------- helpers ----------
-    const $ = (id) => document.getElementById(id);
-    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
-    const pad = (n) => String(n).padStart(2, '0');
-    const dstr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const toMin = (t) => { const [h, m] = String(t).split(':').map(Number); return h * 60 + m; };
-    const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
-    const fmtRM = (n) => 'RM ' + num(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const fmtTime = (t) => { const m = toMin(t); const h = Math.floor(m / 60); return `${(h % 12) || 12}:${pad(m % 60)} ${h < 12 ? 'AM' : 'PM'}`; };
-    const fmtDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
-    const fmtDur = (m) => m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ' ' + (m % 60) + 'm' : ''}` : `${m}m`;
-    const waNum = (raw) => {
-      let d = String(raw || '').replace(/\D/g, '');
-      if (!d) return '';
-      if (d.startsWith('00')) d = d.slice(2);
-      if (d.startsWith('60')) return d;
-      if (d.startsWith('0')) return '6' + d;
-      return '60' + d;
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+    const fmtRM = n => 'RM ' + (Number.isFinite(Number(n)) ? Number(n).toFixed(2) : '0.00');
+    const pad = n => String(n).padStart(2, '0');
+    const localDateStr = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const toMin = hhmm => { const [h, m] = String(hhmm || '00:00').split(':').map(Number); return (h||0)*60 + (m||0); };
+    const fromMin = mins => `${pad(Math.floor(mins/60)%24)}:${pad(mins%60)}`;
+    const fmtTime = hhmm => {
+      if (!hhmm || !/^\d{2}:\d{2}$/.test(hhmm)) return hhmm || '';
+      const [h, m] = hhmm.split(':').map(Number);
+      const ap = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      return `${pad(h12)}:${pad(m)} ${ap}`;
     };
-    const validMyPhone = (raw) => /^(60|0)1\d{8,9}$/.test(String(raw).replace(/[\s\-+()]/g, ''));
-    const safeUrl = (u) => { try { const x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : ''; } catch { return ''; } };
+    const fmtDate = iso => {
+      if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || '';
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m-1, d);
+      return dt.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    };
+    const fmtDur = mins => {
+      const m = Math.max(0, Math.round(num(mins)));
+      const h = Math.floor(m / 60), rem = m % 60;
+      if (h && rem) return `${h} hr ${rem} min`;
+      if (h) return `${h} hr${h > 1 ? 's' : ''}`;
+      return `${rem} min`;
+    };
+    const waNum = raw => {
+      let digits = String(raw || '').replace(/\D/g, '');
+      if (!digits) return '';
+      if (digits.startsWith('0')) digits = '6' + digits;
+      return digits;
+    };
+    const validMyPhone = raw => {
+      const digits = String(raw || '').replace(/\D/g, '');
+      if (digits.startsWith('60')) return digits.length >= 11 && digits.length <= 12;
+      if (digits.startsWith('0')) return digits.length >= 10 && digits.length <= 11;
+      return false;
+    };
+    const safeUrl = raw => {
+      const s = String(raw || '').trim();
+      if (!s) return '';
+      try {
+        const u = new URL(s.startsWith('http') ? s : 'https://' + s);
+        return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '';
+      } catch { return ''; }
+    };
 
-    // ---------- state ----------
     let cfg = null;
-    const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
+    const busy = {};
     let availabilityReady = false;
     let step = 1;
-    const blankPerson = () => ({name:'', phone:'', packageId:'', look:'', allergies:''});
+    const blankPerson = () => ({name:'', phone:'', packageId:'', hasAllergy:'no', allergies:'None'});
     const people = [blankPerson()];
     const removedPeople = [];
     function service(person) { return mainPackages().find(p => p.id === person.packageId); }
@@ -443,156 +445,97 @@
       const n = Number.parseInt(value, 10);
       return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
     };
-    const BUFFER = () => settingInt(cfg.bufferMins, 90, 0, 480);
-    const LEAD = () => settingInt(cfg.minLeadDays, 1, 0, 60);
-    const MAX_PER_DAY = () => settingInt(cfg.maxBookingsPerDay, 3, 1, 3);
-    const DAY_START = 5 * 60, LAST_START = 19 * 60, STEP = 30;
+    const dailyCap = () => settingInt(cfg?.dailyCap, 3, 1, 3);
+    const depositMet = r => num(r?.depositPaid) >= num(r?.depositRequired);
+    const clientCalendarUrl = r => {
+      const start = (r.eventDate||'').replace(/-/g,'') + 'T' + (r.startTime||'09:00').replace(':','') + '00';
+      const endMin = toMin(r.startTime||'09:00') + (num(r.durationMins)||120);
+      const end = (r.eventDate||'').replace(/-/g,'') + 'T' + fromMin(endMin).replace(':','') + '00';
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(r.packageName||'Makeup session') +
+        '&dates=' + start + '/' + end + '&location=' + encodeURIComponent(r.venue||'');
+    };
 
-    function mainPackages() { return (cfg.packages || []).filter(p => !p.addon); }
-    function addonPackages() { return (cfg.packages || []).filter(p => p.addon && p.id !== 'pkg_5' && !/\b(transport|mileage|travel|petrol|parking|toll|pax|bridesmaids?|additional (people|person)|extra (people|person))\b/i.test(p.name)); }
-    function currentDuration() {
-      return people.reduce((sum,p)=>sum + Math.max(30,num(service(p)?.durationMins)||120),0)
-        + selectedAddonObjs().reduce((sum,a)=>sum+Math.max(0,num(a.durationMins)),0);
+    function mainPackages() {
+      return (cfg?.packages || []).filter(p => p.active !== false && p.kind !== 'addon');
+    }
+    function addonPackages() {
+      return (cfg?.packages || []).filter(p => p.active !== false && p.kind === 'addon');
+    }
+    function selectedAddonObjs() {
+      const adds = addonPackages();
+      return [...selAddons].map(id => adds.find(a => a.id === id)).filter(Boolean);
     }
 
-    function capacityReached(date) {
-      const day = busy[date] || {};
-      const count = Number(day.paxCount) || 0;
-      const cap = settingInt(day.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
-      return day.capacityReached === true || count + people.length > cap;
+    function showErr(id, msg) {
+      const el = $(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('hidden');
     }
-
-    // Is a start time free for a job of `dur` minutes on `date`? Travel buffer is kept on both sides.
-    function startIsFree(date, start, dur) {
-      if (!availabilityReady || capacityReached(date) || (cfg.blockedDates||[]).some(b=>(b.date||b)===date)) return false;
-      const slots = Array.isArray(busy[date]?.slots) ? busy[date].slots : [];
-      const end = start + dur;
-      if (!fitsHours(cfg,date,start,end)) return false;
-      if (end >= 1440 || dur > 900) return false;
-      const buf = BUFFER();
-      return slots.every(s => {
-        const bs = toMin(s.s), be = s.e === '24:00' ? 1440 : toMin(s.e);
-        if (bs === 0 && be >= 1440) return false; // whole day blocked
-        return !(start < be + buf && end + buf > bs);
+    function clearErr() {
+      document.querySelectorAll('[id^="e-"]').forEach(el => {
+        el.textContent = '';
+        el.classList.add('hidden');
       });
-    }
-    function freeStarts(date, dur) {
-      const out = [];
-      const rule = cfg.workingHours?.[new Date(date+'T12:00:00').getDay()];
-      const first = rule ? Math.ceil(toMin(rule.start)/STEP)*STEP : DAY_START;
-      const last = rule ? toMin(rule.end)-dur : LAST_START;
-      for (let t = first; t <= last; t += STEP) if (startIsFree(date, t, dur)) out.push(t);
-      return out;
-    }
-    function dayState(date) {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const [y, m, d] = date.split('-').map(Number);
-      const dt = new Date(y, m - 1, d);
-      const diff = Math.round((dt - today) / 86400000);
-      if (diff < LEAD()) return 'past';
-      if (diff > 540) return 'far';
-      if (!availabilityReady) return 'loading';
-      return freeStarts(date, currentDuration()).length ? 'open' : 'booked';
-    }
-
-    // ---------- load ----------
-    async function init() {
-      try {
-        const snap = await getDoc(doc(db, 'public', 'config'));
-        if (!snap.exists()) throw new Error('no-config');
-        cfg = snap.data();
-      } catch (e) {
-        console.error(e);
-        $('state-loading').classList.add('hidden');
-        $('state-error').classList.remove('hidden');
-        return;
-      }
-      applyBrand();
-      $('state-loading').classList.add('hidden');
-      $('flow').classList.toggle('hidden', managing);
-      if (managing) { renderClientBookings(); lucide.createIcons(); return; }
-      renderProgress();
-      renderPackages();
-      renderInfo();
-      renderCalendar();
-      watchMonth();
-      onSnapshot(doc(db,'public','config'),snap=>{
-        if (!snap.exists()) return;
-        const latest=snap.data();
-        const settingsChanged=JSON.stringify([latest.workingHours,latest.timeBlocks,latest.bufferMins,latest.minLeadDays,latest.maxBookingsPerDay,latest.blockedDates])!==
-          JSON.stringify([cfg.workingHours,cfg.timeBlocks,cfg.bufferMins,cfg.minLeadDays,cfg.maxBookingsPerDay,cfg.blockedDates]);
-        for(const key of ['workingHours','timeBlocks','bufferMins','minLeadDays','maxBookingsPerDay','blockedDates'])cfg[key]=latest[key];
-        if(settingsChanged && step===2){renderCalendar();refreshTimes();}
-      },()=>{});
-      lucide.createIcons();
-    }
-    let stopMonth;
-    let monthGeneration=0;
-    function watchMonth() {
-      if (stopMonth) stopMonth();
-      const generation=++monthGeneration;
-      availabilityReady=false;
-      const first=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1));
-      const next=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1));
-      const monthQuery=query(collection(db,'busy'),where(documentId(),'>=',first),where(documentId(),'<',next));
-      stopMonth=onSnapshot(monthQuery,snap=>{
-        if (generation!==monthGeneration) return;
-        Object.keys(busy).forEach(k => delete busy[k]);
-        snap.forEach(d => {
-          const v = d.data();
-          if (v && Array.isArray(v.slots)) busy[d.id] = {
-            slots: v.slots,
-            bookingCount: Number(v.bookingCount) || 0,
-            paxCount: v.paxCount ?? (Number(v.bookingCount) || v.slots.length ? 3 : 0),
-            maxBookingsPerDay: settingInt(v.maxBookingsPerDay, MAX_PER_DAY(), 1, 3),
-            capacityReached: v.capacityReached === true
-          };
-        });
-        availabilityReady = true;
-        if (step === 2) { renderCalendar(); refreshTimes(); }
-      }, (err) => {
-        if (generation!==monthGeneration) return;
-        console.warn('availability unavailable', err);
-        availabilityReady = false;
-        if (step === 2) { renderCalendar(); refreshTimes(); }
-      });
-      lucide.createIcons();
-    }
-
-    function applyBrand() {
-      document.title = `Book your session | ${cfg.businessName || 'Makeup'}`;
-      $('brand-name').textContent = cfg.businessName || 'Makeup Artist';
-      $('brand-tagline').textContent = cfg.tagline || '';
-      $('footer-text').textContent = `© ${new Date().getFullYear()} ${cfg.businessName || ''}` + (cfg.igHandle ? ` • ${cfg.igHandle}` : '');
-      if (typeof cfg.logo === 'string' && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(cfg.logo)) {
-        const box = $('brand-logo'); box.textContent = '';
-        const img = document.createElement('img'); img.src = cfg.logo; img.alt = ''; img.className = 'w-full h-full object-cover'; box.appendChild(img);
-      }
-      const wa = waNum(cfg.whatsappNo);
-      if (wa) {
-        const a = $('top-whatsapp'); a.href = `https://wa.me/${wa}`; a.classList.remove('hidden'); a.classList.add('inline-flex');
-      }
-      $('terms-text').textContent = cfg.terms || '';
-      const ig = String(cfg.igHandle || '').replace(/^.*instagram\.com\//i, '').replace(/[^A-Za-z0-9._]/g, '');
-      const tt = String(cfg.tiktokHandle || '').replace(/^.*tiktok\.com\/@?/i, '').replace(/^@/, '').replace(/[^A-Za-z0-9._]/g, '');
-      if (tt) { const l = $('tt-link'); l.href = `https://www.tiktok.com/@${tt}`; l.classList.remove('hidden'); }
-      if (ig) { const l = $('ig-link'); l.href = `https://instagram.com/${ig}`; l.classList.remove('hidden'); }
     }
 
     function renderProgress() {
-      const labels = ['Services', 'Time', 'Venue', 'Review'];
-      $('flow').classList.toggle('compact-intro', step > 1);
-      $('progress').innerHTML = labels.map((label,i) => {
-        const n=i+1;
-        const state=n===step?'current':n<step?'complete':'upcoming';
-        return `<span class="stage ${state}" ${n===step?'aria-current="step"':''}><b aria-hidden="true">${n<step?'✓':n}</b>${label}</span>`;
+      const stages = ['Services', 'Date & time', 'Venue', 'Review'];
+      $('progress').innerHTML = stages.map((label, idx) => {
+        const n = idx + 1;
+        const cls = n === step ? 'stage current' : n < step ? 'stage complete' : 'stage';
+        return `<div class="${cls}"><b>${n}</b><span>${label}</span></div>`;
       }).join('');
-
     }
 
-    function updateSelectionEstimate() {
-      $('selection-estimate').textContent = people.every(service) ? 'Estimated total · '+fmtRM(estimate())+' · '+fmtDur(currentDuration()) : '';
+    window.goStep = function(n) {
+      clearErr();
+      if (n > step) {
+        if (step === 1 && !validateStep1()) return;
+        if (step === 2 && !validateStep2()) return;
+        if (step === 3 && !validateStep3()) return;
+      }
+      showStep(n);
+    };
+
+    function showStep(n) {
+      step = n;
+      for (let i = 1; i <= 4; i++) {
+        $(`step-${i}`).classList.toggle('hidden', i !== n);
+      }
+      if (n === 2) renderCalendar();
+      if (n === 4) renderReview();
+      renderProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
     }
+
+    function contactIndex() {
+      if (people.length === 1) return 0;
+      const v = $('f-contact')?.value;
+      return v === 'other' ? -1 : Number(v || 0);
+    }
+    function contact() {
+      const ci = contactIndex();
+      if (ci >= 0) return people[ci];
+      return { name: ($('f-name')?.value || '').trim(), phone: ($('f-other-phone')?.value || '').trim() };
+    }
+    function renderContactChoices() {
+      const show = people.length > 1;
+      $('contact-block').classList.toggle('hidden', !show);
+      if (!show) return;
+      const sel = $('f-contact');
+      const prev = sel.value;
+      sel.innerHTML = people.map((p, i) => `<option value="${i}">${esc(p.name.trim() || `Person ${i+1}`)}</option>`).join('') + '<option value="other">Someone else</option>';
+      if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+      toggleOtherContact();
+    }
+    function toggleOtherContact() {
+      const isOther = $('f-contact').value === 'other';
+      $('contact-other').classList.toggle('hidden', !isOther);
+    }
+    $('f-contact').addEventListener('change', toggleOtherContact);
+
     function renderPeople() {
       $('party-count').textContent = people.length;
       $('fewer').disabled = people.length === 1;
@@ -603,15 +546,40 @@
         <label>WhatsApp number <small data-phone-note></small><input class="field" data-key="phone" type="tel" inputmode="tel" autocomplete="${people.length===1?'tel':'off'}" maxlength="20" placeholder="0123456789" value="${esc(p.phone)}"></label>
         <fieldset class="services"><legend>Makeup service</legend>${list.map(item=>`<label><input type="radio" name="service-${i}" data-key="packageId" value="${esc(item.id)}" ${item.id===p.packageId?'checked':''}><span>${esc(item.name)}<small>${esc(fmtRM(item.price))} · ${esc(fmtDur(Math.max(30,num(item.durationMins)||120)))}</small></span></label>`).join('') || 'No services available.'}</fieldset>
         <p class="service-description" data-description>${esc(service(p)?.description||'')}</p>
-        <label>Preferred makeup look <small>(optional)</small><input class="field" data-key="look" maxlength="120" placeholder="e.g. Natural glow" value="${esc(p.look)}"></label>
-        <label>Allergies or sensitive skin<input class="field" data-key="allergies" maxlength="100" required placeholder="Enter details, or None" value="${esc(p.allergies)}"></label></fieldset>`).join('');
+        <div class="space-y-2">
+          <span class="block text-[0.9rem] font-semibold">Allergies or sensitive skin *</span>
+          <div class="flex items-center gap-5 text-sm">
+            <label class="inline-flex items-center gap-2 cursor-pointer font-normal"><input type="radio" name="allergy-choice-${i}" data-allergy-choice value="no" class="accent-pink-600 w-4 h-4" ${p.hasAllergy!=='yes'?'checked':''}> No</label>
+            <label class="inline-flex items-center gap-2 cursor-pointer font-normal"><input type="radio" name="allergy-choice-${i}" data-allergy-choice value="yes" class="accent-pink-600 w-4 h-4" ${p.hasAllergy==='yes'?'checked':''}> Yes</label>
+          </div>
+          <div data-allergy-detail class="${p.hasAllergy==='yes'?'':'hidden'}">
+            <input class="field" data-key="allergies" maxlength="100" placeholder="Enter allergy or sensitive skin details" value="${p.hasAllergy==='yes'?esc(p.allergies):''}">
+          </div>
+        </div></fieldset>`).join('');
       renderContactChoices();
       updateSelectionEstimate();
     }
     $('people-list').addEventListener('input',event=>{
       const input=event.target, row=input.closest('[data-person]');
-      if (!row || !input.dataset.key) return;
+      if (!row) return;
       const person=people[Number(row.dataset.person)];
+      if (input.dataset.allergyChoice) {
+        person.hasAllergy = input.value;
+        const wrap = row.querySelector('[data-allergy-detail]');
+        const textEl = wrap.querySelector('[data-key="allergies"]');
+        if (input.value === 'yes') {
+          if (/^none$/i.test(person.allergies.trim())) person.allergies = '';
+          textEl.value = person.allergies;
+          wrap.classList.remove('hidden');
+          textEl.focus();
+        } else {
+          person.allergies = 'None';
+          textEl.value = '';
+          wrap.classList.add('hidden');
+        }
+        return;
+      }
+      if (!input.dataset.key) return;
       person[input.dataset.key]=input.value;
       if(input.dataset.key==='name') renderContactChoices();
       if(input.dataset.key==='packageId') {
@@ -638,146 +606,139 @@
       lucide.createIcons();
     }
 
-    function renderInfo() {
-      const rev = String(cfg.reviews || '').split('\n').map(l => l.trim()).filter(Boolean).slice(0, 8);
-      if (rev.length) {
-        $('reviews-wrap').classList.remove('hidden');
-        $('reviews-list').innerHTML = rev.map(l => {
-          const i = l.indexOf('|');
-          const who = i > -1 ? l.slice(0, i).trim() : '';
-          const text = i > -1 ? l.slice(i + 1).trim() : l;
-          return `<figure class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm"><blockquote class="text-sm text-slate-700 italic leading-relaxed">“${esc(text)}”</blockquote>${who ? `<figcaption class="text-xs font-semibold text-blush-700 mt-2">${esc(who)}</figcaption>` : ''}</figure>`;
-        }).join('');
-      }
-      const faq = String(cfg.faq || '').split('\n').map(l => l.trim()).filter(Boolean).slice(0, 12);
-      if (faq.length) {
-        $('faq-wrap').classList.remove('hidden');
-        $('faq-list').innerHTML = faq.map(l => {
-          const i = l.indexOf('|');
-          const q = i > -1 ? l.slice(0, i).trim() : l;
-          const a = i > -1 ? l.slice(i + 1).trim() : '';
-          return `<details class="bg-white rounded-2xl border border-blush-200 p-3.5 shadow-sm"><summary class="text-sm font-semibold cursor-pointer">${esc(q)}</summary>${a ? `<p class="text-sm text-slate-600 mt-2 leading-relaxed">${esc(a)}</p>` : ''}</details>`;
-        }).join('');
-      }
+    function currentDuration() {
+      const base = people.reduce((sum, p) => sum + Math.max(30, num(service(p)?.durationMins) || 120), 0);
+      const addDur = selectedAddonObjs().reduce((sum, a) => sum + num(a.durationMins), 0);
+      return Math.max(30, base + addDur);
+    }
+    function updateSelectionEstimate() {
+      const anyService = people.some(p => service(p));
+      if (!anyService) { $('selection-estimate').textContent = ''; return; }
+      const total = packageTotal() + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0);
+      const dur = currentDuration();
+      $('selection-estimate').textContent = `Estimated total: ${fmtRM(total)} · ${fmtDur(dur)}`;
     }
 
-    // ---------- calendar ----------
-    window.shiftMonth = (d) => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + d, 1); selDate=''; watchMonth(); renderCalendar(); refreshTimes(); };
+    function hoursForDate(iso) {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dow = new Date(y, m-1, d).getDay();
+      const wh = cfg?.workingHours?.[dow];
+      if (wh) {
+        if (wh.closed) return null;
+        return { open: toMin(wh.start || '08:00'), close: toMin(wh.end || '22:00') };
+      }
+      return { open: toMin(cfg?.openTime || '08:00'), close: toMin(cfg?.closeTime || '22:00') };
+    }
+
+    function dayState(iso) {
+      if (!iso) return 'closed';
+      const leadDays = settingInt(cfg?.leadDays, 1, 0, 60);
+      const minDate = new Date();
+      minDate.setHours(0,0,0,0);
+      minDate.setDate(minDate.getDate() + leadDays);
+      const minIso = localDateStr(minDate);
+      if (iso < minIso) return 'past';
+      if ((cfg?.blockedDates || []).includes(iso)) return 'blocked';
+      const hrs = hoursForDate(iso);
+      if (!hrs) return 'closed';
+      const b = busy[iso];
+      if (!b) return 'open';
+      const bookedCount = num(b.bookingCount);
+      if (bookedCount + people.length > dailyCap()) return 'full';
+      return validStartsForDate(iso, currentDuration()).length > 0 ? 'open' : 'full';
+    }
+
+    function validStartsForDate(iso, durMins) {
+      const hrs = hoursForDate(iso);
+      if (!hrs) return [];
+      const b = busy[iso] || {};
+      const slots = Array.isArray(b.slots) ? b.slots : [];
+      const buf = settingInt(cfg?.bufferMins, 90, 0, 480);
+      const blockedRanges = slots.map(s => [toMin(s.start) - buf, toMin(s.end) + buf]);
+      const deadline = $('f-ready')?.value ? toMin($('f-ready').value) : null;
+      const out = [];
+      for (let t = hrs.open; t + durMins <= hrs.close; t += 15) {
+        if (deadline !== null && t + durMins > deadline) continue;
+        const overlaps = blockedRanges.some(([bs, be]) => t < be && (t + durMins) > bs);
+        if (!overlaps) out.push(fromMin(t));
+      }
+      return out;
+    }
+
+    function startIsFree(iso, startMins, durMins) {
+      return validStartsForDate(iso, durMins).includes(fromMin(startMins));
+    }
 
     function renderCalendar() {
       const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
-      $('cal-title').textContent = viewMonth.toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
-      if (!availabilityReady) { $('capacity-hint').textContent = 'Loading availability… If dates do not appear, please refresh or message us on WhatsApp.'; }
-      else {
-        const limit = settingInt(busy[selDate]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
-        $('capacity-hint').innerHTML = '<p><strong>Daily limit</strong> '+esc(limit)+' '+(limit===1?'person':'people')+'</p>'+
-          '<p>Pending requests do not reserve a time.</p>';
+      $('cal-month').textContent = viewMonth.toLocaleDateString('en-GB', { month:'long', year:'numeric' });
+      const firstDow = new Date(y, m, 1).getDay();
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+      const cells = [];
+      for (let i = 0; i < firstDow; i++) cells.push('<div></div>');
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = `${y}-${pad(m+1)}-${pad(d)}`;
+        const st = dayState(iso);
+        const isSel = iso === selDate;
+        const canPick = st === 'open';
+        let cls = 'day flex items-center justify-center text-xs font-semibold border ';
+        if (isSel) cls += 'bg-blush-700 text-white border-blush-700';
+        else if (canPick) cls += 'bg-blush-50 hover:bg-blush-100 text-blush-900 border-blush-200 cursor-pointer';
+        else cls += 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed';
+        cells.push(`<button type="button" class="${cls}" data-iso="${iso}" ${canPick ? '' : 'disabled'}>${d}</button>`);
       }
-      const first = (new Date(y, m, 1).getDay() + 6) % 7;
-      const days = new Date(y, m + 1, 0).getDate();
-      const now = new Date();
-      $('cal-prev').classList.toggle('invisible', y === now.getFullYear() && m <= now.getMonth());
-      let html = '';
-      for (let i = 0; i < first; i++) html += '<div></div>';
-      for (let d = 1; d <= days; d++) {
-        const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
-        const st = dayState(ds);
-        const sel = ds === selDate;
-        const occupied = Number(busy[ds]?.paxCount) || 0;
-        const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
-        if (st === 'open') {
-          const availabilityLabel = occupied > 0 ? `${occupied}/${dailyCap} booked` : 'Available';
-          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[10px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${occupied}/${dailyCap}</span>` : ''}</button>`;
-        } else if (st === 'booked') {
-          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, unavailable for this party"><span class="text-sm font-semibold line-through">${d}</span><span class="text-[10px] uppercase mt-0.5">—</span></button>`;
-        } else {
-          html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
-        }
-      }
-      $('cal-grid').innerHTML = html;
-      $('cal-grid').querySelectorAll('button[data-date]').forEach(b => b.addEventListener('click', () => {
-        selDate = b.dataset.date;
-        $('e-date').classList.add('hidden');
-        renderCalendar(); refreshTimes();
-      }));
+      $('cal-grid').innerHTML = cells.join('');
+      $('cal-grid').querySelectorAll('[data-iso]:not([disabled])').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selDate = btn.dataset.iso;
+          renderCalendar();
+          refreshTimes();
+        });
+      });
+      const remCap = selDate ? Math.max(0, dailyCap() - num(busy[selDate]?.bookingCount)) : dailyCap();
+      $('capacity-hint').innerHTML = selDate
+        ? `Selected date: <strong>${esc(fmtDate(selDate))}</strong> · Up to ${remCap} ${remCap === 1 ? 'person' : 'people'} can still be booked on this date.`
+        : `Select an available date · Up to ${dailyCap()} ${dailyCap() === 1 ? 'person' : 'people'} per day.`;
+      if (selDate && dayState(selDate) === 'open') refreshTimes();
+      else $('time-wrap').classList.add('hidden');
     }
 
     function refreshTimes() {
-      const info = $('busy-windows');
-      info.textContent = '';
-      if (!availabilityReady || !selDate) { $('time-wrap').classList.add('hidden'); return; }
+      if (!selDate) { $('time-wrap').classList.add('hidden'); return; }
+      $('time-wrap').classList.remove('hidden');
       const dur = currentDuration();
-      const starts = freeStarts(selDate, dur);
-      const slots = busy[selDate]?.slots || [];
-      const closed = cfg.workingHours?.[new Date(selDate+'T12:00:00').getDay()]?.closed;
-      const allDay = closed || slots.some(slot => slot.s === '00:00' && slot.e === '24:00');
-      const blocked=(cfg.timeBlocks||[]).filter(b=>b.date===selDate);
-      const ranges = [...slots,...blocked.map(b=>({s:b.start,e:b.end}))].map(slot => fmtTime(slot.s) + ' – ' + (slot.e === '24:00' ? 'midnight' : fmtTime(slot.e)));
-      const windows = allDay ? ['Unavailable all day'] : ranges.length ? ranges : ['No booked times'];
-      const status = capacityReached(selDate) ? 'There are too few places left for this party.' :
-        !starts.length && !allDay ? 'No start time fits this service.' : '';
-      info.innerHTML = '<div class="availability-notes"><strong>'+esc(fmtDate(selDate))+'</strong>'+
-        '<p>Unavailable times</p><ul>'+windows.map(range=>'<li>'+esc(range)+'</li>').join('')+'</ul>'+
-        (status?'<p>'+esc(status)+'</p>':'')+'</div>';
-      if (!starts.length) {
+      const times = validStartsForDate(selDate, dur);
+      const wrap = $('time-options');
+      if (!times.length) {
         $('f-time').value = '';
-        $('time-wrap').classList.add('hidden');
+        wrap.innerHTML = '<p class="text-xs text-slate-500 col-span-full">No start times fit your ready-by time or travel buffer on this date.</p>';
         return;
       }
-      const sel = $('f-time');
-      const keep = sel.value;
-      const deadline=$('f-ready').value;
-      const fitsDeadline=t=>!deadline || t+dur<=toMin(deadline);
-      sel.value = starts.some(t=>fromMin(t)===keep && fitsDeadline(t)) ? keep : '';
-      $('time-options').innerHTML=starts.map(t=>{
-        const value=fromMin(t);
-        return `<button type="button" data-time="${value}" aria-pressed="${sel.value===value}" ${fitsDeadline(t)?'':'disabled'}>${fmtTime(value)}</button>`;
-      }).join('');
-      $('time-options').onclick=event=>{
-        const button=event.target.closest('button[data-time]');
-        if(!button || button.disabled)return;
-        sel.value=button.dataset.time;
-        $('time-options').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-        $('e-date').classList.add('hidden');
-        validateReadyBy(false);
-      };
-      const travelMinutes = BUFFER();
-      $('time-hint').innerHTML = '<strong>Session duration</strong> · '+esc(fmtDur(dur))+
-        (travelMinutes > 0 ? '<br>We allow '+esc(travelMinutes)+' minutes between appointments for travel.' : '');
-      if(deadline && !starts.some(fitsDeadline)) $('time-hint').append(' No start fits this deadline. Change the date or ready-by time.');
-      else if(deadline && starts.some(t=>!fitsDeadline(t))) $('time-hint').append(' Greyed-out times would finish after your ready-by time.');
-      $('time-wrap').classList.remove('hidden');
+      if (!times.includes($('f-time').value)) $('f-time').value = times[0];
+      wrap.innerHTML = times.map(t => `<button type="button" data-t="${t}" aria-pressed="${$('f-time').value === t}">${esc(fmtTime(t))}</button>`).join('');
+      wrap.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('f-time').value = btn.dataset.t;
+          wrap.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+          validateReadyBy(false);
+        });
+      });
+      $('time-hint').textContent = `Duration: ${fmtDur(dur)} (includes package & add-ons).`;
     }
 
-    // ---------- steps ----------
-    const showErr = (id, msg) => { const el = $(id); if (!el) return; el.textContent = msg; el.classList.remove('hidden'); };
-    const clearErr = () => document.querySelectorAll('[id^="e-"]').forEach(e => e.classList.add('hidden'));
-
-    window.goStep = function(n) {
-      clearErr();
-      if (n > step) {
-        if (step === 1 && !validateStep1()) return;
-        if (step <= 2 && n >= 3 && !validateStep2()) return;
-        if (step <= 3 && n === 4 && !validateStep3()) return;
-
-      }
-      showStep(n);
-    };
-    function showStep(n) {
-      step = n;
-      for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
-      if (n === 2) { renderCalendar(); refreshTimes(); }
-      if (n === 4) renderReview();
-      renderProgress();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      lucide.createIcons();
-    };
+    $('cal-prev').onclick = () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1, 1); renderCalendar(); };
+    $('cal-next').onclick = () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1, 1); renderCalendar(); };
 
     function validateStep1() {
       if (selectedAddonObjs().length > 8) { showErr('e-package','Please select up to eight add-ons.'); return false; }
       for(const [i,p] of people.entries()) {
-        const missing=p.name.trim().length<2?'name':!service(p)?'packageId':!p.allergies.trim()?'allergies':'';
-        if(missing) { showErr('e-package','Complete the highlighted field for person '+(i+1)+'.'); $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus(); return false; }
+        const allergyMissing = p.hasAllergy === 'yes' && !p.allergies.trim();
+        const missing=p.name.trim().length<2?'name':!service(p)?'packageId':allergyMissing?'allergies':'';
+        if(missing) {
+          showErr('e-package', allergyMissing ? 'Enter allergy or sensitive skin details for person '+(i+1)+'.' : 'Complete the highlighted field for person '+(i+1)+'.');
+          $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus();
+          return false;
+        }
       }
       const ci = contactIndex(), c = contact();
       if (ci === -1 && c.name.length < 2) { showErr('e-package','Enter the contact person’s full name.'); $('f-name').focus(); return false; }
@@ -823,73 +784,69 @@
     function validateStep3() {
       if ($('f-venue').value.trim().length < 3) {
         showErr('e-venue', 'Please enter the venue name and full address.');
+        $('f-venue').focus();
         return false;
       }
-      const map = $('f-map').value.trim();
-      if (map && (!safeUrl(map) || safeUrl(map).length > 500)) {
-        showErr('e-map', 'Use a valid map link of up to 500 characters.');
+      if ($('f-map').value.trim() && !safeUrl($('f-map').value.trim())) {
+        showErr('e-map', 'Enter a valid link starting with http:// or https://.');
+        $('f-map').focus();
         return false;
       }
-
-      let ok = true;
-      const bad = (id, msg) => { showErr(id, msg); ok = false; };
-      const mood = $('f-mood').value.trim(); if (mood && (!safeUrl(mood) || safeUrl(mood).length > 500)) bad('e-mood', 'Use a valid link of up to 500 characters. A short share link works best.');
-      return ok;
+      if ($('f-mood').value.trim() && !safeUrl($('f-mood').value.trim())) {
+        showErr('e-mood', 'Enter a valid link starting with http:// or https://.');
+        $('f-mood').focus();
+        return false;
+      }
+      return true;
     }
 
-    // One person: she is the contact. Group: choose one of the people, or someone else.
-    function contactIndex() {
-      if (people.length === 1) return 0;
-      const v = $('f-contact').value;
-      return v === 'other' ? -1 : Number(v) || 0;
-    }
-    function contact() {
-      const i = contactIndex();
-      return i >= 0 ? {name:people[i].name.trim(), phone:people[i].phone.trim()}
-                    : {name:$('f-name').value.trim(), phone:$('f-other-phone').value.trim()};
-    }
-    function renderContactChoices() {
-      const group = people.length > 1;
-      $('contact-block').classList.toggle('hidden', !group);
-      const sel = $('f-contact'), keep = sel.value;
-      sel.innerHTML = people.map((p,i)=>`<option value="${i}">${esc(p.name.trim() || 'Person '+(i+1))}</option>`).join('')+'<option value="other">Someone else</option>';
-      sel.value = [...sel.options].some(o=>o.value===keep) ? keep : '0';
-      updateContactUI();
-    }
-    function updateContactUI() {
-      const group = people.length > 1, ci = contactIndex();
-      $('contact-other').classList.toggle('hidden', !(group && ci === -1));
-      document.querySelectorAll('[data-person]').forEach((row,i)=>{
-        const note = row.querySelector('[data-phone-note]'); if (!note) return;
-        note.textContent = !group ? '' : i === ci ? '(contact person)' : '(optional)';
-      });
-    }
-    $('f-contact').addEventListener('change', updateContactUI);
-    function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
     function estimate() {
       return packageTotal() + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0);
     }
 
     function renderReview() {
-      const rows = [
-        ...people.map((p,i)=>[p.name.trim(),[service(p).name,fmtRM(service(p).price),p.look.trim(),i!==contactIndex()&&p.phone.trim()?'WhatsApp '+p.phone.trim():'','Allergies: '+p.allergies.trim()].filter(Boolean).join(' · ')]),
+      const start = $('f-time').value;
+      const finish = fromMin(toMin(start) + currentDuration());
+      const ticketHeader = `<header class="review-heading">
+        <h3>${esc(bookingName())}</h3>
+        <p>${esc(fmtDate(selDate))}</p>
+        <div class="review-time"><time>${esc(fmtTime(start))}</time> – <time>${esc(fmtTime(finish))}</time> <small>· ${esc(fmtDur(currentDuration()))}</small></div>
+      </header>`;
+
+      const guestRows = people.map((p, i) => {
+        const allergyText = p.hasAllergy === 'yes' ? p.allergies.trim() : 'None';
+        const lines = [
+          `<span class="font-semibold text-charcoal">${esc(service(p).name)}</span> · ${esc(fmtRM(service(p).price))}`,
+          i !== contactIndex() && p.phone.trim() ? `WhatsApp: ${esc(p.phone.trim())}` : '',
+          p.hasAllergy === 'yes' ? `<span class="font-semibold text-blush-700">Allergies: ${esc(allergyText)}</span>` : 'Allergies: None'
+        ].filter(Boolean).join('<br>');
+        return `<div class="flex gap-3 py-1">
+          <span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(p.name.trim())}</span>
+          <span class="flex-1 min-w-0 break-words font-normal text-slate-700 leading-relaxed">${lines}</span>
+        </div>`;
+      }).join('');
+
+      const detailRows = [
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
         ['Venue', $('f-venue').value.trim()],
-        ...(people.length > 1 ? [['Contact', contact().name+' · '+contact().phone]] : [['WhatsApp', contact().phone]]),
+        ...(people.length > 1 ? [['Contact', `${contact().name} (${contact().phone})`]] : [['WhatsApp', contact().phone]]),
         ['Map link', $('f-map').value.trim()],
         ['Inspiration', $('f-mood').value.trim()],
         ['Notes', $('f-notes').value.trim()],
-      ];
-      const start = $('f-time').value;
-      const finish = fromMin(toMin(start) + currentDuration());
-      const ticketHeader = `<header class="review-heading"><h3>${esc(bookingName())}</h3><p>${esc(fmtDate(selDate))}</p>
-        <div class="review-time"><time>${esc(fmtTime(start))}</time> – <time>${esc(fmtTime(finish))}</time> <small>· ${esc(fmtDur(currentDuration()))}</small></div></header>`;
-      $('review-card').innerHTML = ticketHeader + rows.filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
-        `<div class="ticket-total flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Travel fee to be confirmed based on venue before deposit.</span></span></div>`;
+      ].filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3 py-1">
+        <span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span>
+        <span class="flex-1 min-w-0 break-words font-normal text-slate-700 leading-relaxed">${esc(v)}</span>
+      </div>`).join('');
+
+      $('review-card').innerHTML = ticketHeader +
+        `<div class="divide-y divide-blush-100">${guestRows}${detailRows}</div>` +
+        `<div class="ticket-total flex gap-3">
+          <span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span>
+          <span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500 mt-0.5">Travel fee to be confirmed based on venue before deposit.</span></span>
+        </div>`;
     }
 
-    // ---------- submit ----------
     function makeRef() {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       const arr = new Uint32Array(6); crypto.getRandomValues(arr);
@@ -917,7 +874,7 @@
     window.submitRequest = async function() {
       if (submitting) return;
       clearErr();
-      if ($('f-website').value) return;  // bot trap
+      if ($('f-website').value) return;
       for (const [page, validate] of [[1, validateStep1], [2, validateStep2], [3, validateStep3]]) {
         if (validate()) continue;
         if (page !== step) showStep(page);
@@ -935,7 +892,6 @@
         return;
       }
 
-      // Stop the same browser from sending many requests in a row
       try {
         const last = parseInt(localStorage.getItem('lastRequestAt') || '0', 10);
         if (Date.now() - last < 60000) { showErr('e-submit', 'Your request was just sent. Please wait a minute before sending another.'); return; }
@@ -949,14 +905,18 @@
       let trackingUrl;
       let uid = null;
       try {
-        const sensitivities=people.filter(p=>!/^none$/i.test(p.allergies.trim())).map(p=>p.name.trim()+': '+p.allergies.trim());
+        const normalizedPeople = people.map(p => ({
+          ...p,
+          allergies: p.hasAllergy === 'yes' ? p.allergies.trim() : 'None'
+        }));
+        const sensitivities=normalizedPeople.filter(p=>!/^none$/i.test(p.allergies)).map(p=>p.name.trim()+': '+p.allergies);
         const ref = makeRef();
         const addons = selectedAddonObjs().map(a => ({ id:String(a.id), name: String(a.name).slice(0, 80), price: num(a.price) }));
         data = {
           ref, status: 'pending',
           clientName: contact().name,
           phone: contact().phone.replace(/[^\d+]/g, '').slice(0, 16),
-          email: '', // Required by the existing booking record format.
+          email: '',
           packageId: String(people[0].packageId).slice(0, 60),
           packageName: bookingName().slice(0, 120),
           packagePrice: packageTotal(),
@@ -966,8 +926,7 @@
           startTime: $('f-time').value,
           readyBy: $('f-ready').value || '',
           pax: people.length,
-          people: people.map((p,i)=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name,look:p.look.trim(),allergies:p.allergies.trim(),
-            // The contact person's number is already saved as the booking phone; only other people's numbers are added here.
+          people: normalizedPeople.map((p,i)=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name,allergies:p.allergies,
             ...(i!==contactIndex() && p.phone.trim() ? {phone:p.phone.replace(/[^\d+]/g,'').slice(0,16)} : {})})),
           venue: $('f-venue').value.trim(),
           mapLink: safeUrl($('f-map').value.trim()),
@@ -993,30 +952,26 @@
         await batch.commit();
       } catch (err) {
         console.warn('Booking submission failed', stage, err?.code || err?.name);
-        // The connection may have dropped after the studio already received the request.
-        // If this request really exists, treat it as sent instead of showing a misleading error.
-        const alreadySent = stage === 'save-request' && uid && requestId && await requestAlreadySaved(uid);
-        if (!alreadySent) {
+        if (stage === 'save-request' && uid && requestId && await requestSaved(requestId)) {
+          showErr('e-submit', 'Your request was saved, though finishing up hit a snag. Open your private tracking link below or refresh before trying again.');
+          $('manage-link').href = trackingUrl.href;
+          $('manage-link').parentElement.hidden = false;
+        } else {
           showErr('e-submit', submissionError(err, stage));
-          btn.disabled = false; btn.textContent = 'Send booking request';
-          submitting = false;
-          return;
         }
-      } finally { clearTimeout(slowTimer); }
-
-      // A successful commit is final even if the confirmation UI has a problem.
-      try { localStorage.setItem('lastRequestAt', String(Date.now())); } catch {}
-      try {
-        $('manage-link').href = trackingUrl.href;
-        showConfirmation(data);
-      } catch {
-        location.assign(trackingUrl.href);
+        submitting = false; btn.disabled = false; btn.textContent = 'Send booking request';
+        return;
+      } finally {
+        clearTimeout(slowTimer);
       }
+
+      try { localStorage.setItem('lastRequestAt', String(Date.now())); } catch {}
+      $('manage-link').href = trackingUrl.href;
+      showConfirmation(data);
     };
 
-    async function requestAlreadySaved(uid) {
+    async function requestSaved(requestId) {
       try {
-        await setDoc(doc(db,'guestSessions',uid,'bookings',requestId), {secret});
         return (await getDoc(doc(db,'requests',requestId))).exists();
       } catch { return false; }
     }
@@ -1100,7 +1055,7 @@
       const approved = r.status === 'approved' || r.status === 'cancelled';
       const amount = approved ? r.finalTotal : num(r.packagePrice) + (r.addons || []).reduce((sum,a)=>sum+num(a.price),0);
       const rows = [
-        ['Service', r.packageName], ...(r.people||[]).map(p=>[p.name,[p.packageName,p.look,'Allergies: '+p.allergies].filter(Boolean).join(' · ')]), ['Date', fmtDate(r.eventDate)],
+        ['Service', r.packageName], ...(r.people||[]).map(p=>[p.name,[p.packageName,'Allergies: '+p.allergies].filter(Boolean).join(' · ')]), ['Date', fmtDate(r.eventDate)],
         ['Session', fmtTime(r.startTime) + ' – ' + fmtTime(r.endTime || fromMin(toMin(r.startTime) + r.durationMins))],
         ...(r.readyBy ? [['Ready by', fmtTime(r.readyBy)]] : []), ['Venue', r.venue], ['Client', r.clientName], ['Contact', r.phone],
         [approved ? 'Final quote' : 'Estimate', amount == null ? '' : fmtRM(amount)],
@@ -1133,29 +1088,109 @@
       try {
         const uid = await guestUid();
         await setDoc(doc(db,'guestSessions',uid,'bookings',id), {secret:key});
-        let failed = false;
-        let loaded = 0;
-        const fail = () => {
-          failed = true;
-          requests.clear(); approvals.clear(); $('client-list').replaceChildren();
-          message('This link is unavailable. Ask the studio for the current link.');
-        };
-        // Both listeners check the current key, including when an approval is archived.
-        for (const [name,target] of [['requests',requests],['clientApprovals',approvals]]) {
-          let first = true;
-          onSnapshot(doc(db,name,id),snap=>{
-            if (failed) return;
-            if (first) { loaded++; first = false; }
-            if (snap.exists()) target.set(id,snap.data()); else target.delete(id);
-            if (loaded === 2) {
-              message(requests.size || approvals.size ? '' : 'Booking unavailable. Contact the studio for help.');
-              renderClientBookings();
-            }
-          },fail);
+      } catch (e) {
+        console.warn('Could not open booking link', e?.code || e?.name);
+        message('This link could not be opened. Ask the studio for a replacement.');
+        return;
+      }
+      message('');
+      let reqMissing = false, appMissing = false;
+      const updateEmpty = () => {
+        if (!requests.size && !approvals.size && reqMissing && appMissing) {
+          message('This link is no longer active. Ask the studio for a replacement.');
         }
-      } catch { message('Could not open this booking. Check your connection or ask the studio for the current link.'); }
+      };
+      onSnapshot(doc(db,'requests',id), snap => {
+        if (snap.exists()) { requests.set(snap.id, snap.data()); reqMissing = false; message(''); }
+        else { requests.delete(id); reqMissing = true; }
+        renderClientBookings(); updateEmpty();
+      }, e => { console.warn('Request watch stopped', e?.code || e?.name); reqMissing = true; updateEmpty(); });
+      onSnapshot(doc(db,'clientApprovals',id), snap => {
+        if (snap.exists()) { approvals.set(snap.id, snap.data()); appMissing = false; message(''); }
+        else { approvals.delete(id); appMissing = true; }
+        renderClientBookings(); updateEmpty();
+      }, e => { console.warn('Approval watch stopped', e?.code || e?.name); appMissing = true; updateEmpty(); });
     }
-    if (managing) openPrivateLink();
+
+    async function init() {
+      try {
+        const pubSnap = await getDoc(doc(db, 'public', studioId));
+        if (!pubSnap.exists()) {
+          $('state-loading').classList.add('hidden');
+          $('state-error').classList.remove('hidden');
+          return;
+        }
+        cfg = pubSnap.data();
+
+        const pkgSnap = await getDocs(collection(db, 'public', studioId, 'packages'));
+        const pkgs = [];
+        pkgSnap.forEach(d => pkgs.push({ id: d.id, ...d.data() }));
+        if (pkgs.length) cfg.packages = pkgs;
+
+        document.body.classList.toggle('compact-intro', managing);
+        if (managing) openPrivateLink();
+
+        if (cfg.businessName) {
+          $('brand-name').textContent = cfg.businessName;
+          document.title = `Book — ${cfg.businessName}`;
+        }
+        if (cfg.tagline) $('brand-tagline').textContent = cfg.tagline;
+        if (cfg.logoDataUrl && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(cfg.logoDataUrl)) {
+          $('brand-logo').innerHTML = `<img src="${esc(cfg.logoDataUrl)}" alt="" class="w-full h-full object-cover">`;
+        } else if (cfg.businessName) {
+          $('brand-logo').textContent = cfg.businessName.trim().slice(0,2).toUpperCase();
+        }
+        const wa = waNum(cfg.whatsappNo);
+        if (wa) {
+          $('top-whatsapp').href = `https://wa.me/${wa}`;
+          $('top-whatsapp').classList.remove('hidden');
+          $('top-whatsapp').classList.add('inline-flex');
+        }
+        if (cfg.instagram) {
+          const ig = cfg.instagram.replace(/^@/, '');
+          $('ig-link').href = `https://instagram.com/${encodeURIComponent(ig)}`;
+          $('ig-link').classList.remove('hidden');
+        }
+        if (cfg.tiktok) {
+          const tt = cfg.tiktok.replace(/^@/, '');
+          $('tt-link').href = `https://tiktok.com/@${encodeURIComponent(tt)}`;
+          $('tt-link').classList.remove('hidden');
+        }
+        if (cfg.termsText) $('terms-text').textContent = cfg.termsText;
+
+        const reviews = Array.isArray(cfg.reviews) ? cfg.reviews : [];
+        if (reviews.length) {
+          $('reviews-wrap').classList.remove('hidden');
+          $('reviews-list').innerHTML = reviews.map(r => `<div class="bg-white rounded-2xl border border-blush-200 p-4 text-sm"><p class="text-slate-700">“${esc(r.text)}”</p><p class="text-xs font-semibold text-blush-700 mt-2">— ${esc(r.author)}</p></div>`).join('');
+        }
+        const faqs = Array.isArray(cfg.faqs) ? cfg.faqs : [];
+        if (faqs.length) {
+          $('faq-wrap').classList.remove('hidden');
+          $('faq-list').innerHTML = faqs.map(f => `<details class="bg-white rounded-2xl border border-blush-200 p-4 text-sm"><summary class="font-semibold cursor-pointer">${esc(f.q)}</summary><p class="text-slate-600 mt-2 leading-relaxed">${esc(f.a)}</p></details>`).join('');
+        }
+
+        renderPackages();
+        renderProgress();
+        $('state-loading').classList.add('hidden');
+        $('flow').classList.remove('hidden');
+        lucide.createIcons();
+
+        const busySnap = await getDocs(collection(db, 'busy'));
+        busySnap.forEach(d => {
+          if (d.id.startsWith(studioId + '_')) {
+            const iso = d.id.slice(studioId.length + 1);
+            busy[iso] = d.data();
+          }
+        });
+        availabilityReady = true;
+        if (step === 2) renderCalendar();
+      } catch (e) {
+        console.warn('Init error', e?.code || e?.name);
+        $('state-loading').classList.add('hidden');
+        $('state-error').classList.remove('hidden');
+      }
+    }
+
     init();
   </script>
 </body>
