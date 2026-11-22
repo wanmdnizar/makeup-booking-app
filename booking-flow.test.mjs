@@ -31,13 +31,15 @@ test('payment stages work with partial, waived and older deposits',()=>{
 async function approvalFunction(bindings) {
   const html=await readFile(new URL('./index.html',import.meta.url),'utf8');
   const section=(from,to)=>html.slice(html.indexOf('    function '+from),html.indexOf(to,html.indexOf('    function '+from)));
-  const source=section('maxBookingsPerDay','    function capacityErrorMessage')+
-    section('trackingId','    async function deleteBookingWithCapacity');
+  const source=section('bookingPax','    function normalizeBooking')+
+    section('maxBookingsPerDay','    function capacityErrorMessage')+
+    section('trackingId','    // Runs a Firestore write');
   const deps={...bindings,minutes,cents,fitsHours,timeToMinutes:minutes,num:Number,
     DATE_RE:/^\d{4}-\d\d-\d\d$/,TIME_RE:/^\d\d:\d\d$/,localDateStr:()=>'2030-01-01',currentUser:{uid:'owner'},
     navigator:{onLine:true},bookingsLoaded:true,bookingsServerLoaded:true,bookingsHasPendingWrites:false,
     DEFAULT_SETTINGS:{},appState:{bookings:[],requests:[],settings:{}}};
-  return Function(...Object.keys(deps),source+'\nreturn saveBookingWithCapacity;')(...Object.values(deps));
+  const save=Function(...Object.keys(deps),source+'\nreturn Object.assign(saveBookingWithCapacity,{remove:deleteBookingWithCapacity,pax:bookingPax});')(...Object.values(deps));
+  return save;
 }
 function appointment(id){return {id,clientName:'Test client',clientPhone:'0123456789',eventDate:date,startTime:'07:00',endTime:'11:00',
   packageName:'Bridal',venue:'Meru',subtotal:1250,depositRequired:200,depositPaid:0};}
@@ -57,13 +59,67 @@ test('approval rejects a second appointment for the same time and publishes appr
   assert.equal(docs.get('requests/b').status,'pending');
 });
 
+// ---- Party-size, buffer, move/delete and older-booking checks (in-memory Firestore stand-in) ----
+async function memoryStudio(settings={}) {
+  const docs=new Map([['studio/packages/bridal',main],['studio/meta/profile',{bufferMins:90,maxBookingsPerDay:3,
+    workingHours:Array(7).fill({start:'06:00',end:'20:00'}),...settings}]]);
+  const db={};const save=await approvalFunction({db,doc:(_db,...p)=>p.join('/'),userDoc:(...p)=>'studio/'+p.join('/'),serverTimestamp:()=>1,
+    runTransaction:async(_,fn)=>{
+      const changes=new Map();
+      await fn({get:async k=>({exists:()=>docs.has(k),data:()=>docs.get(k)}),
+        set:(k,d,o)=>changes.set(k,o?.merge?{...docs.get(k),...d}:d),delete:k=>changes.set(k,null)});
+      for(const [k,v] of changes) v===null?docs.delete(k):docs.set(k,v);
+    }});
+  return {docs,save};
+}
+const job=(id,start,end,pax,extra={})=>({...appointment(id),startTime:start,endTime:end,pax,...extra});
+const saveOpts={allowOverwrite:true,enforceCapacity:true,enforceSlotConflict:true};
+
+test('daily limit counts people: 2 booked leaves one place; a 3-person party fills the day',async()=>{
+  const {save}=await memoryStudio();
+  await save(job('a','06:00','08:00',1),saveOpts);await save(job('b','10:00','12:00',1),saveOpts);
+  await save(job('c','14:00','16:00',1),saveOpts);                                   // third person fits
+  await assert.rejects(()=>save(job('d','18:00','19:00',1),saveOpts),/daily-capacity-reached/);
+  const two=await memoryStudio();
+  await two.save(job('a','06:00','08:00',2),saveOpts);
+  await assert.rejects(()=>two.save(job('b','12:00','16:00',2),saveOpts),/daily-capacity-reached/);
+  await two.save(job('c','12:00','14:00',1),saveOpts);
+  const three=await memoryStudio();
+  await three.save(job('t','06:00','12:00',3),saveOpts);
+  await assert.rejects(()=>three.save(job('x','16:00','17:00',1),saveOpts),/daily-capacity-reached/);
+});
+
+test('travel buffer: exactly the buffer apart is allowed, closer is not',async()=>{
+  const {save}=await memoryStudio();
+  await save(job('a','08:00','10:00',1),saveOpts);
+  await assert.rejects(()=>save(job('b','11:00','13:00',1),saveOpts),/daily-time-conflict/);
+  await save(job('c','11:30','13:30',1),saveOpts);
+});
+
+test('moving or deleting a booking frees its places on the original date',async()=>{
+  const {docs,save}=await memoryStudio();
+  await save(job('g','08:00','14:00',3),saveOpts);
+  await assert.rejects(()=>save(job('h','16:00','17:00',1),saveOpts),/daily-capacity-reached/);
+  await save(job('g','08:00','14:00',3,{eventDate:'2030-12-26'}),{mustExist:true,enforceCapacity:true});
+  assert.equal(docs.get('studio/dailyCapacity/'+date).paxCount,0);
+  await save(job('h','16:00','17:00',1),saveOpts);
+  await save.remove('g');
+  assert.equal(docs.get('studio/dailyCapacity/2030-12-26').paxCount,0);
+});
+
+test('older bookings without a stored headcount fall back predictably',async()=>{
+  const {save}=await memoryStudio();
+  for(const [booking,expected] of [[{},1],[{packageName:'Group makeup · 3 people'},3],[{notes:'Request NB-1 | 2 pax | x'},2],
+    [{people:[{},{}]},2],[{pax:3},3],[{notes:'wants 3 pax'},1]]) assert.equal(save.pax(booking),expected);
+});
+
 test('Firestore Emulator: guest submission, private read, competing approvals and deposit recording',
   {skip:!process.env.FIRESTORE_EMULATOR_HOST},async()=>{
     const endpoint=new URL('http://'+process.env.FIRESTORE_EMULATOR_HOST);
     assert.ok(['localhost','127.0.0.1','[::1]'].includes(endpoint.hostname));
     const {initializeTestEnvironment,assertFails}=await import('@firebase/rules-unit-testing');
     const sdk=await import('firebase/firestore');
-    const rules=(await readFile(new URL('./firestore.rules',import.meta.url),'utf8')).replaceAll('PASTE_YOUR_ADMIN_UID_HERE','owner');
+    const rules=(await readFile(new URL('./firestore.rules',import.meta.url),'utf8')).replaceAll('PASTE_YOUR_ADMIN_UID_HERE','owner').replaceAll('lGzZypXcTogMF4FajXx7Oe2ntpE2','owner');
     const env=await initializeTestEnvironment({projectId:'demo-nureen-regression',firestore:{host:endpoint.hostname,port:Number(endpoint.port),rules}});
     try {
       await env.clearFirestore();
