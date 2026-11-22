@@ -70,12 +70,9 @@
     #progress { position:relative; padding:.7rem .25rem; background:white; border:1px solid #e1dcdf; border-radius:.8rem; }
     #cal-grid .day { max-height:3.4rem; aspect-ratio:auto; min-height:2.8rem; }
     @media screen {
-      #step-1>h2,#step-2>h2,#step-3>h2 {font-size:clamp(1.3rem,3vw,1.8rem);letter-spacing:-.045em;}
+      #step-1>h2,#step-2>h2,#step-3>h2,#step-4>h2 {font-size:clamp(1.3rem,3vw,1.8rem);letter-spacing:-.045em;}
       #package-list .rounded-3xl {border-radius:1rem;transition:border-color .15s,background-color .15s;}
       #package-list label:has(:checked)>div {background:#f7f0f5;border-color:#803456;}
-      #extra-details {border-color:#dcd6da;padding:1rem 1.15rem;}
-      #extra-details[open] summary {margin-bottom:.85rem;}
-      #extra-details>div {padding:.35rem 0;}
     }
     .bridal-deadline{border-left:3px solid #853656;padding:.5rem .85rem;background:#faf4f6;border-radius:.4rem}
   </style>
@@ -143,7 +140,7 @@
 
       <!-- STEP 2: date & time -->
       <section id="step-2" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">2. Pick a date &amp; time</h2>
+        <h2 class="font-serif text-xl font-bold">2. Date, time &amp; venue</h2>
         <p class="text-sm text-slate-500">Dates show how many sessions are already booked. Client names and details are never shown.</p>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
           <div class="flex items-center justify-between mb-3">
@@ -166,14 +163,27 @@
         <div id="busy-windows" class="text-sm text-slate-600" aria-live="polite"></div>
         <div id="time-wrap" class="hidden space-y-3">
           <div>
-            <label class="block text-sm font-semibold mb-1">Makeup start time *</label>
+            <label for="f-time" class="block text-sm font-semibold mb-1">Makeup start time *</label>
             <select id="f-time" class="field"></select>
             <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1">Event / ready-by time <span class="font-normal text-slate-500">(optional)</span></label>
+            <label for="f-ready" class="block text-sm font-semibold mb-1">Event / ready-by time <span class="font-normal text-slate-500">(optional)</span></label>
             <input type="time" id="f-ready" class="field">
             <p class="text-xs text-slate-500 mt-1">Your selected session must finish by this time on the same day.</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
+            <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
+            <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
+            <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
+            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
+            <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
         </div>
         <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
@@ -186,7 +196,7 @@
 
       <!-- STEP 3: details -->
       <section id="step-3" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">3. Details &amp; send</h2>
+        <h2 class="font-serif text-xl font-bold">3. Contact &amp; makeup preferences</h2>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
           <div>
             <label class="block text-sm font-semibold mb-1" for="f-name">Full name *</label>
@@ -200,11 +210,6 @@
               <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
 
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
-            <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
-            <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
 
         </div>
@@ -225,27 +230,28 @@
 
         </div>
 
-        <details id="extra-details" class="bg-white border rounded-2xl p-4 space-y-3"><summary class="cursor-pointer font-semibold">Add extra details</summary>            <div>
-              <label class="block text-sm font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
-              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120" placeholder="Optional">
-              <p id="e-email" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
-            <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
-            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
-            <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>          <div>
+        <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
+          <div>
             <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
             <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
             <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>          <div>
+          </div>
+          <div>
             <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
             <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
-          </div></details>
+          </div>
+        </div>
         <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
 
-        <h3 class="font-serif text-xl font-bold">Booking summary</h3>
+        <div class="flex gap-2">
+          <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
+          <button onclick="goStep(4)" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Review booking</button>
+        </div>
+      </section>
+
+      <section id="step-4" class="hidden space-y-4">
+        <h2 class="font-serif text-xl font-bold">4. Review &amp; send</h2>
         <div id="review-card" class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm space-y-3 text-sm"></div>
         <label class="flex items-start gap-3 text-xs text-slate-600 leading-relaxed">
           <input type="checkbox" id="f-terms" class="mt-0.5 accent-pink-600 w-4 h-4 shrink-0">
@@ -254,7 +260,7 @@
         <p id="e-terms" class="hidden text-xs font-medium text-red-600"></p>
         <p id="e-submit" role="alert" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-3"></p>
         <div class="flex gap-2">
-          <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
+          <button onclick="goStep(3)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
           <button id="submit-btn" onclick="submitRequest()" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 disabled:opacity-60 text-white font-semibold text-sm transition">Send booking request</button>
         </div>
       </section>
@@ -521,7 +527,7 @@
     }
 
     function renderProgress() {
-      const labels = ['Package', 'Date', 'Details'];
+      const labels = ['Package', 'Visit', 'Details', 'Review'];
       $('progress').innerHTML = labels.map((l, i) => {
         const n = i + 1, on = n === step, done = n < step;
         return `<span class="flex items-center gap-1.5 ${on ? 'text-blush-800' : done ? 'text-blush-600' : 'text-slate-400'}">
@@ -658,15 +664,16 @@
       if (n > step) {
         if (step === 1 && !validateStep1()) return;
         if (step <= 2 && n >= 3 && !validateStep2()) return;
+        if (step <= 3 && n === 4 && !validateStep3()) return;
 
       }
       showStep(n);
     };
     function showStep(n) {
       step = n;
-      for (let i = 1; i <= 3; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
+      for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
       if (n === 2) { $('f-ready').closest('div').classList.toggle('bridal-deadline',/bridal|akad|sanding|nikah/i.test(selPkg?.name||'')); renderCalendar(); refreshTimes(); }
-      if (n === 3) renderReview();
+      if (n === 4) renderReview();
       renderProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       lucide.createIcons();
@@ -698,17 +705,23 @@
       const t = $('f-time').value;
       if (!t) { showErr('e-date', 'Please choose a start time.'); return false; }
       if (!startIsFree(selDate, toMin(t), currentDuration())) { showErr('e-date', 'That time was just taken. Please choose another.'); refreshTimes(); return false; }
-      return validateReadyBy();
+      if (!validateReadyBy()) return false;
+      if ($('f-venue').value.trim().length < 3) {
+        showErr('e-venue', 'Please enter the venue name and full address.');
+        return false;
+      }
+      const map = $('f-map').value.trim();
+      if (map && (!safeUrl(map) || safeUrl(map).length > 500)) {
+        showErr('e-map', 'Use a valid map link of up to 500 characters.');
+        return false;
+      }
+      return true;
     }
     function validateStep3() {
       let ok = true;
-      const bad = (id, msg) => { if (['e-email','e-map','e-mood'].includes(id)) $('extra-details').open=true; showErr(id, msg); ok = false; };
+      const bad = (id, msg) => { showErr(id, msg); ok = false; };
       if ($('f-name').value.trim().length < 2) bad('e-name', 'Please enter your full name.');
       if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 012-345 6789.');
-      const emailVal = $('f-email').value.trim();
-      if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)) bad('e-email', 'Please enter a valid email address.');
-      if ($('f-venue').value.trim().length < 3) bad('e-venue', 'Please tell us where the makeup will be done.');
-      const map = $('f-map').value.trim(); if (map && (!safeUrl(map) || safeUrl(map).length > 500)) bad('e-map', 'Use a valid link of up to 500 characters. A short share link works best.');
       const mood = $('f-mood').value.trim(); if (mood && (!safeUrl(mood) || safeUrl(mood).length > 500)) bad('e-mood', 'Use a valid link of up to 500 characters. A short share link works best.');
       const al = document.querySelector('input[name=allergy]:checked');
       if (!al) bad('e-allergy', 'Please let us know about allergies.');
@@ -730,10 +743,18 @@
         ['Package', `${selPkg.name} (${fmtRM(selPkg.price)})`],
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
         ['Date', fmtDate(selDate)],
-        ['Makeup start', `${fmtTime($('f-time').value)} – ${fmtTime(fromMin(toMin($('f-time').value) + currentDuration()))}`],
+        ['Session time', `${fmtTime($('f-time').value)} – ${fmtTime(fromMin(toMin($('f-time').value) + currentDuration()))}`],
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
+        ['Venue', $('f-venue').value.trim()],
+        ['Name', $('f-name').value.trim()],
+        ['WhatsApp', $('f-phone').value.trim()],
+        ['Allergies', document.querySelector('input[name=allergy]:checked')?.value === 'yes'
+          ? $('f-allergies').value.trim() : 'None reported'],
+        ['Map link', $('f-map').value.trim()],
+        ['Inspiration', $('f-mood').value.trim()],
+        ['Notes', $('f-notes').value.trim()],
       ];
-      $('review-card').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
+      $('review-card').innerHTML = rows.filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
         `<div class="flex gap-3 pt-3 border-t border-blush-100"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Travel fee to be confirmed based on venue before deposit.</span></span></div>`;
     }
 
@@ -803,7 +824,7 @@
           ref, status: 'pending',
           clientName: $('f-name').value.trim(),
           phone: $('f-phone').value.replace(/[^\d+]/g, '').slice(0, 16),
-          email: $('f-email').value.trim(),
+          email: '', // Required by the existing booking record format.
           packageId: String(selPkg.id).slice(0, 60),
           packageName: String(selPkg.name).slice(0, 120),
           packagePrice: num(selPkg.price),
