@@ -50,7 +50,7 @@
     .booking-intro {text-align:left;}
     .booking-intro h1 {font-size:clamp(1.7rem,5vw,2.3rem);font-weight:700;line-height:1.12;}
     .booking-intro p {color:var(--muted);margin-inline:0;max-width:48ch;}
-    .booking-intro #ig-link {color:var(--rose-deep);}
+    .booking-intro #ig-link,.booking-intro #tt-link {color:var(--rose-deep);}
     .compact-intro .booking-intro { display:none; }
 
     /* progress */
@@ -92,7 +92,9 @@
     .ticket-ref { display:block; font:600 .82rem/1.5 ui-monospace,monospace; letter-spacing:.09em; color:var(--rose); }
     .ticket-head h2 { margin:.4rem 0; font:800 clamp(1.45rem,4vw,2rem)/1.15 Inter,system-ui,sans-serif; letter-spacing:-.045em; color:var(--rose-ink); }
     .ticket-head p, .ticket-foot p, .ticket-new { color:var(--muted); font-size:.87rem; line-height:1.55; }
-    .track { display:flex; list-style:none; padding:1.3rem 0; margin:1rem 0 0; border-top:1px solid var(--rule); }
+    .tag{display:inline-block;margin-left:.4rem;padding:.1rem .55rem;border-radius:999px;background:var(--petal);color:var(--rose-deep);font:700 .7rem/1.5 Inter,system-ui,sans-serif;vertical-align:middle}
+    .tag-ok{background:#dcfce7;color:#166534}.tag-off{background:#e5e7eb;color:#374151}
+    .track { display:flex; list-style:none; padding:1.3rem 0; margin:1rem 0 0; border-top:1px dashed var(--petal-2); }
     .track li { position:relative; flex:1; min-width:0; display:grid; justify-items:center; align-content:start; gap:.55rem; text-align:center; font:600 .75rem/1.35 Inter,system-ui,sans-serif; color:var(--muted); }
     .track li::before { content:""; position:absolute; top:9px; width:100%; right:50%; height:2px; background:var(--petal-2); }
     .track li:first-child::before { display:none; }
@@ -143,6 +145,7 @@
     #addon-list label:last-child{border-bottom:0}
     #cal-grid{gap:.2rem}
     @media(max-width:360px){main{padding-inline:.5rem}#step-2>.rounded-3xl{padding:.4rem}#cal-grid{gap:2px}#cal-grid .day{min-height:3rem}}
+    .step-actions{position:sticky;bottom:0;z-index:15;padding:.75rem 0 calc(.75rem + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 80%,rgba(255,250,250,0))}
     .save-wa{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;color:var(--rose-deep);border:1px solid var(--petal-2);border-radius:12px;font-weight:650}
   </style>
 </head>
@@ -187,7 +190,7 @@
         
         <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Book your makeup session</h1>
         <p class="text-sm">Choose a package and an available time. Your deposit is due after studio approval.</p>
-        <a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline pt-1"><i data-lucide="instagram" class="w-4 h-4"></i> See my work on Instagram</a>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 pt-1"><a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline"><i data-lucide="instagram" class="w-4 h-4"></i> Instagram</a><a id="tt-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline">TikTok</a></div>
       </section>
 
       <!-- Progress -->
@@ -198,13 +201,24 @@
         <h2 class="font-serif text-xl font-bold">1. People &amp; services</h2>
         <div class="party-count"><label for="party-count">How many people? <small>(up to 3)</small></label><div><button type="button" id="fewer" aria-label="One fewer person">−</button><output id="party-count" aria-live="polite">1</output><button type="button" id="more" aria-label="Add one person">+</button></div></div>
         <div id="people-list"></div>
+        <div id="contact-block" class="hidden space-y-3">
+          <div>
+            <label class="block text-sm font-semibold mb-1" for="f-contact">Who should we contact? *</label>
+            <select id="f-contact" class="field"></select>
+            <p class="text-xs text-slate-500 mt-1">We send booking updates to this person’s WhatsApp.</p>
+          </div>
+          <div id="contact-other" class="hidden space-y-3">
+            <div><label class="block text-sm font-semibold mb-1" for="f-name">Contact person’s full name *</label><input id="f-name" class="field" autocomplete="off" maxlength="80"></div>
+            <div><label class="block text-sm font-semibold mb-1" for="f-other-phone">Contact person’s WhatsApp number *</label><input id="f-other-phone" class="field" type="tel" inputmode="tel" autocomplete="off" placeholder="0123456789" maxlength="20"></div>
+          </div>
+        </div>
         <div id="addon-wrap" class="hidden space-y-2">
           <h3 class="text-sm font-bold">Booking add-ons <span class="font-normal text-slate-500">(optional)</span></h3>
           <div id="addon-list" class="grid gap-2"></div>
         </div>
         <p id="selection-estimate" role="status" class="text-sm"></p>
         <p id="e-package" class="hidden text-xs font-medium text-red-600"></p>
-        <button onclick="goStep(2)" class="w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button>
+        <div class="step-actions"><button onclick="goStep(2)" class="w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button></div>
       </section>
 
       <!-- STEP 2: date & time -->
@@ -246,7 +260,7 @@
         </div>
         <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
 
-        <div class="flex gap-2">
+        <div class="step-actions flex gap-2">
           <button onclick="goStep(1)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
           <button onclick="goStep(3)" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button>
         </div>
@@ -254,24 +268,8 @@
 
       <!-- STEP 3: details -->
       <section id="step-3" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">3. Contact &amp; venue</h2>
+        <h2 class="font-serif text-xl font-bold">3. Venue &amp; notes</h2>
         <div class="booking-fields">
-<div id="contact-wrap" class="space-y-3">
-            <div id="contact-pick-wrap" class="hidden">
-              <label class="block text-sm font-semibold mb-1" for="f-contact">Who should we contact? *</label>
-              <select id="f-contact" class="field"></select>
-            </div>
-            <div id="contact-name-wrap" class="hidden">
-              <label class="block text-sm font-semibold mb-1" for="f-name">Contact person’s full name *</label>
-              <input id="f-name" class="field" autocomplete="name" maxlength="80">
-              <p id="e-name" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>
-          </div>
-<div>
-              <label class="block text-sm font-semibold mb-1" for="f-phone">WhatsApp number *</label>
-              <input id="f-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="0123456789" maxlength="20">
-              <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>
           <div>
             <label class="block text-sm font-semibold mb-1" for="f-venue">Makeup location *</label>
             <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
@@ -295,7 +293,7 @@
         </div>
         <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
 
-        <div class="flex gap-2">
+        <div class="step-actions flex gap-2">
           <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
           <button onclick="goStep(4)" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Review booking</button>
         </div>
@@ -310,7 +308,7 @@
         </label>
         <p id="e-terms" class="hidden text-xs font-medium text-red-600"></p>
         <p id="e-submit" role="alert" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-3"></p>
-        <div class="flex gap-2">
+        <div class="step-actions flex gap-2">
           <button onclick="goStep(3)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
           <button id="submit-btn" onclick="submitRequest()" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 disabled:opacity-60 text-white font-semibold text-sm transition">Send booking request</button>
         </div>
@@ -430,7 +428,7 @@
     const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
     let availabilityReady = false;
     let step = 1;
-    const blankPerson = () => ({name:'', packageId:'', look:'', allergies:''});
+    const blankPerson = () => ({name:'', phone:'', packageId:'', look:'', allergies:''});
     const people = [blankPerson()];
     const removedPeople = [];
     function service(person) { return mainPackages().find(p => p.id === person.packageId); }
@@ -576,11 +574,13 @@
       }
       $('terms-text').textContent = cfg.terms || '';
       const ig = String(cfg.igHandle || '').replace(/^.*instagram\.com\//i, '').replace(/[^A-Za-z0-9._]/g, '');
+      const tt = String(cfg.tiktokHandle || '').replace(/^.*tiktok\.com\/@?/i, '').replace(/^@/, '').replace(/[^A-Za-z0-9._]/g, '');
+      if (tt) { const l = $('tt-link'); l.href = `https://www.tiktok.com/@${tt}`; l.classList.remove('hidden'); }
       if (ig) { const l = $('ig-link'); l.href = `https://instagram.com/${ig}`; l.classList.remove('hidden'); }
     }
 
     function renderProgress() {
-      const labels = ['Services', 'Time', 'Contact', 'Review'];
+      const labels = ['Services', 'Time', 'Venue', 'Review'];
       $('flow').classList.toggle('compact-intro', step > 1);
       $('progress').innerHTML = labels.map((label,i) => {
         const n=i+1;
@@ -600,10 +600,12 @@
       const list = mainPackages();
       $('people-list').innerHTML = people.map((p,i)=>`<fieldset class="person" data-person="${i}"><legend>Person ${i+1}</legend>
         <label>${people.length===1?'Full name':'Name'}<input class="field" data-key="name" autocomplete="${people.length===1?'name':'off'}" maxlength="60" required value="${esc(p.name)}"></label>
+        <label>WhatsApp number <small data-phone-note></small><input class="field" data-key="phone" type="tel" inputmode="tel" autocomplete="${people.length===1?'tel':'off'}" maxlength="20" placeholder="0123456789" value="${esc(p.phone)}"></label>
         <fieldset class="services"><legend>Makeup service</legend>${list.map(item=>`<label><input type="radio" name="service-${i}" data-key="packageId" value="${esc(item.id)}" ${item.id===p.packageId?'checked':''}><span>${esc(item.name)}<small>${esc(fmtRM(item.price))} · ${esc(fmtDur(Math.max(30,num(item.durationMins)||120)))}</small></span></label>`).join('') || 'No services available.'}</fieldset>
         <p class="service-description" data-description>${esc(service(p)?.description||'')}</p>
         <label>Preferred makeup look <small>(optional)</small><input class="field" data-key="look" maxlength="120" placeholder="e.g. Natural glow" value="${esc(p.look)}"></label>
         <label>Allergies or sensitive skin<input class="field" data-key="allergies" maxlength="100" required placeholder="Enter details, or None" value="${esc(p.allergies)}"></label></fieldset>`).join('');
+      renderContactChoices();
       updateSelectionEstimate();
     }
     $('people-list').addEventListener('input',event=>{
@@ -611,6 +613,7 @@
       if (!row || !input.dataset.key) return;
       const person=people[Number(row.dataset.person)];
       person[input.dataset.key]=input.value;
+      if(input.dataset.key==='name') renderContactChoices();
       if(input.dataset.key==='packageId') {
         row.querySelector('[data-description]').textContent=service(person)?.description||'';
         updateSelectionEstimate();
@@ -742,6 +745,7 @@
       $('time-hint').innerHTML = '<strong>Session duration</strong> · '+esc(fmtDur(dur))+
         (travelMinutes > 0 ? '<br>We allow '+esc(travelMinutes)+' minutes between appointments for travel.' : '');
       if(deadline && !starts.some(fitsDeadline)) $('time-hint').append(' No start fits this deadline. Change the date or ready-by time.');
+      else if(deadline && starts.some(t=>!fitsDeadline(t))) $('time-hint').append(' Greyed-out times would finish after your ready-by time.');
       $('time-wrap').classList.remove('hidden');
     }
 
@@ -763,7 +767,6 @@
       step = n;
       for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
       if (n === 2) { renderCalendar(); refreshTimes(); }
-      if (n === 3) renderContact();
       if (n === 4) renderReview();
       renderProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -775,6 +778,15 @@
       for(const [i,p] of people.entries()) {
         const missing=p.name.trim().length<2?'name':!service(p)?'packageId':!p.allergies.trim()?'allergies':'';
         if(missing) { showErr('e-package','Complete the highlighted field for person '+(i+1)+'.'); $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus(); return false; }
+      }
+      const ci = contactIndex(), c = contact();
+      if (ci === -1 && c.name.length < 2) { showErr('e-package','Enter the contact person’s full name.'); $('f-name').focus(); return false; }
+      if (!validMyPhone(c.phone)) {
+        showErr('e-package', people.length === 1 ? 'Enter a Malaysian WhatsApp number, e.g. 0123456789.' : 'Enter a Malaysian WhatsApp number for the contact person, e.g. 0123456789.');
+        (ci >= 0 ? $('people-list').children[ci].querySelector('[data-key="phone"]') : $('f-other-phone'))?.focus(); return false;
+      }
+      for (const [i,p] of people.entries()) if (i !== ci && p.phone.trim() && !validMyPhone(p.phone)) {
+        showErr('e-package','Check the WhatsApp number for person '+(i+1)+', or leave it empty.'); $('people-list').children[i].querySelector('[data-key="phone"]')?.focus(); return false;
       }
       if(currentDuration()>900 || packageTotal()>100000) {showErr('e-package','This group exceeds the online booking limit. Contact the studio to arrange a session.');return false;}
       return true;
@@ -821,31 +833,38 @@
 
       let ok = true;
       const bad = (id, msg) => { showErr(id, msg); ok = false; };
-      if (contactName().length < 2) bad('e-name', 'Please enter the contact person’s full name.');
-      if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 0123456789.');
       const mood = $('f-mood').value.trim(); if (mood && (!safeUrl(mood) || safeUrl(mood).length > 500)) bad('e-mood', 'Use a valid link of up to 500 characters. A short share link works best.');
       return ok;
     }
 
-    // One person: their name is the contact. Group: pick one of the entered names, or someone else.
-    function renderContact() {
-      const single = people.length === 1;
-      $('contact-pick-wrap').classList.toggle('hidden', single);
+    // One person: she is the contact. Group: choose one of the people, or someone else.
+    function contactIndex() {
+      if (people.length === 1) return 0;
+      const v = $('f-contact').value;
+      return v === 'other' ? -1 : Number(v) || 0;
+    }
+    function contact() {
+      const i = contactIndex();
+      return i >= 0 ? {name:people[i].name.trim(), phone:people[i].phone.trim()}
+                    : {name:$('f-name').value.trim(), phone:$('f-other-phone').value.trim()};
+    }
+    function renderContactChoices() {
+      const group = people.length > 1;
+      $('contact-block').classList.toggle('hidden', !group);
       const sel = $('f-contact'), keep = sel.value;
       sel.innerHTML = people.map((p,i)=>`<option value="${i}">${esc(p.name.trim() || 'Person '+(i+1))}</option>`).join('')+'<option value="other">Someone else</option>';
       sel.value = [...sel.options].some(o=>o.value===keep) ? keep : '0';
-      updateContactName();
+      updateContactUI();
     }
-    function updateContactName() {
-      const other = people.length > 1 && $('f-contact').value === 'other';
-      $('contact-name-wrap').classList.toggle('hidden', !other);
+    function updateContactUI() {
+      const group = people.length > 1, ci = contactIndex();
+      $('contact-other').classList.toggle('hidden', !(group && ci === -1));
+      document.querySelectorAll('[data-person]').forEach((row,i)=>{
+        const note = row.querySelector('[data-phone-note]'); if (!note) return;
+        note.textContent = !group ? '' : i === ci ? '(contact person)' : '(optional)';
+      });
     }
-    function contactName() {
-      if (people.length === 1) return people[0].name.trim();
-      const v = $('f-contact').value;
-      return v === 'other' ? $('f-name').value.trim() : (people[Number(v)]?.name.trim() || '');
-    }
-    $('f-contact').addEventListener('change', updateContactName);
+    $('f-contact').addEventListener('change', updateContactUI);
     function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
     function estimate() {
       return packageTotal() + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0);
@@ -853,12 +872,11 @@
 
     function renderReview() {
       const rows = [
-        ...people.map(p=>[p.name.trim(),[service(p).name,fmtRM(service(p).price),p.look.trim(),'Allergies: '+p.allergies.trim()].filter(Boolean).join(' · ')]),
+        ...people.map((p,i)=>[p.name.trim(),[service(p).name,fmtRM(service(p).price),p.look.trim(),i!==contactIndex()&&p.phone.trim()?'WhatsApp '+p.phone.trim():'','Allergies: '+p.allergies.trim()].filter(Boolean).join(' · ')]),
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
         ['Venue', $('f-venue').value.trim()],
-        ...(people.length > 1 ? [['Contact', contactName()]] : []),
-        ['WhatsApp', $('f-phone').value.trim()],
+        ...(people.length > 1 ? [['Contact', contact().name+' · '+contact().phone]] : [['WhatsApp', contact().phone]]),
         ['Map link', $('f-map').value.trim()],
         ['Inspiration', $('f-mood').value.trim()],
         ['Notes', $('f-notes').value.trim()],
@@ -936,8 +954,8 @@
         const addons = selectedAddonObjs().map(a => ({ id:String(a.id), name: String(a.name).slice(0, 80), price: num(a.price) }));
         data = {
           ref, status: 'pending',
-          clientName: contactName(),
-          phone: $('f-phone').value.replace(/[^\d+]/g, '').slice(0, 16),
+          clientName: contact().name,
+          phone: contact().phone.replace(/[^\d+]/g, '').slice(0, 16),
           email: '', // Required by the existing booking record format.
           packageId: String(people[0].packageId).slice(0, 60),
           packageName: bookingName().slice(0, 120),
@@ -948,7 +966,9 @@
           startTime: $('f-time').value,
           readyBy: $('f-ready').value || '',
           pax: people.length,
-          people: people.map(p=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name,look:p.look.trim(),allergies:p.allergies.trim()})),
+          people: people.map((p,i)=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name,look:p.look.trim(),allergies:p.allergies.trim(),
+            // The contact person's number is already saved as the booking phone; only other people's numbers are added here.
+            ...(i!==contactIndex() && p.phone.trim() ? {phone:p.phone.replace(/[^\d+]/g,'').slice(0,16)} : {})})),
           venue: $('f-venue').value.trim(),
           mapLink: safeUrl($('f-map').value.trim()),
           allergyStatus: sensitivities.length ? 'yes' : 'none',
@@ -1068,7 +1088,7 @@
       const title = cancelled ? 'Booking cancelled' : declined ? 'Request declined' : paid ? 'Booking confirmed' : approved ? 'Approved by the studio' : 'Awaiting studio review';
       const detail = cancelled || declined ? 'Contact the studio if you would like to discuss another date.'
         : paid ? (r.depositRequired===0?'Your date is secured.':'The studio has recorded your required payment.') : approved ? 'Follow the studio’s deposit instructions to secure your date.' : 'Your request is with the studio. You can check its progress here.';
-      return '<div class="ticket-head"><span class="ticket-ref">' + esc(r.ref) + '</span><h2>' + title + '</h2><p>'+detail+'</p></div>' +
+      return '<div class="ticket-head"><span class="ticket-ref">' + esc(r.ref) + '</span> <span class="tag '+(cancelled||declined?'tag-off':paid||approved?'tag-ok':'')+'">'+(cancelled?'Cancelled':declined?'Declined':paid?'Confirmed':approved?'Approved':'Pending')+'</span><h2>' + title + '</h2><p>'+detail+'</p></div>' +
         '<ol class="track" aria-label="Booking progress">'+labels.map((label,i)=>
           '<li class="'+(i < current ? 'done' : i === current ? 'current' : '')+'"'+(i === current ? ' aria-current="step"' : '')+'><span class="dot" aria-hidden="true">'+(i < current ? '✓' : '')+'</span><span>'+label+'</span></li>'
         ).join('')+'</ol>';
