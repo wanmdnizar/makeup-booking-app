@@ -69,6 +69,15 @@
     #flow > section:first-child h1 { font-size:clamp(2rem,5vw,3.35rem); }
     #progress { position:relative; padding:.7rem .25rem; background:white; border:1px solid #e1dcdf; border-radius:.8rem; }
     #cal-grid .day { max-height:3.4rem; aspect-ratio:auto; min-height:2.8rem; }
+    @media screen {
+      #step-1>h2,#step-2>h2,#step-3>h2,#step-4>h2 {font-size:clamp(1.3rem,3vw,1.8rem);letter-spacing:-.045em;}
+      #package-list .rounded-3xl {border-radius:1rem;transition:border-color .15s,background-color .15s;}
+      #package-list label:has(:checked)>div {background:#f7f0f5;border-color:#803456;}
+      #extra-details {border-color:#dcd6da;padding:1rem 1.15rem;}
+      #extra-details[open] summary {margin-bottom:.85rem;}
+      #extra-details>div {padding:.35rem 0;}
+    }
+    .bridal-deadline{border-left:3px solid #853656;padding:.5rem .85rem;background:#faf4f6;border-radius:.4rem}
   </style>
 </head>
 <body class="min-h-screen">
@@ -190,23 +199,14 @@
               <input id="f-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="012-345 6789" maxlength="20">
               <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
-              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120" placeholder="Optional">
-              <p id="e-email" class="hidden text-xs text-red-600 mt-1"></p>
-            </div>
+
           </div>
           <div>
             <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
             <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
             <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
-            <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
-            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
-            <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
+
         </div>
 
         <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
@@ -221,18 +221,28 @@
             </div>
             <p id="e-allergy" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-          <div>
+
+
+        </div>
+
+        <details id="extra-details" class="bg-white border rounded-2xl p-4 space-y-3"><summary class="cursor-pointer font-semibold">Add extra details</summary>            <div>
+              <label class="block text-sm font-semibold mb-1" for="f-email">Email <span class="font-normal text-slate-500">(optional)</span></label>
+              <input id="f-email" class="field" type="email" autocomplete="email" maxlength="120" placeholder="Optional">
+              <p id="e-email" class="hidden text-xs text-red-600 mt-1"></p>
+            </div>          <div>
+            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
+            <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
+            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
+            <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>          <div>
             <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
             <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
             <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
-          </div>
-          <div>
+          </div>          <div>
             <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
             <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
-          </div>
-        </div>
-
+          </div></details>
         <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
 
         <div class="flex gap-2">
@@ -312,8 +322,9 @@
   <footer class="text-center text-[11px] text-slate-400 pb-8 px-4"><span id="footer-text"></span></footer>
 
   <script type="module">
+    import { depositMet, fitsHours, clientCalendarUrl } from './studio-core.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, writeBatch, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, writeBatch, collection, query, where, documentId, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =========================================================================
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -402,6 +413,7 @@
       if (!availabilityReady || capacityReached(date)) return false;
       const slots = Array.isArray(busy[date]?.slots) ? busy[date].slots : [];
       const end = start + dur;
+      if (!fitsHours(cfg,date,start,end)) return false;
       if (end >= 1440 || dur > 900) return false;
       const buf = BUFFER();
       return slots.every(s => {
@@ -412,7 +424,10 @@
     }
     function freeStarts(date, dur) {
       const out = [];
-      for (let t = DAY_START; t <= LAST_START; t += STEP) if (startIsFree(date, t, dur)) out.push(t);
+      const rule = cfg.workingHours?.[new Date(date+'T12:00:00').getDay()];
+      const first = rule ? Math.ceil(toMin(rule.start)/STEP)*STEP : DAY_START;
+      const last = rule ? toMin(rule.end)-dur : LAST_START;
+      for (let t = first; t <= last; t += STEP) if (startIsFree(date, t, dur)) out.push(t);
       return out;
     }
     function dayState(date) {
@@ -446,7 +461,28 @@
       renderPackages();
       renderInfo();
       renderCalendar();
-      onSnapshot(collection(db, 'busy'), (snap) => {
+      watchMonth();
+      onSnapshot(doc(db,'public','config'),snap=>{
+        if (!snap.exists()) return;
+        const latest=snap.data();
+        const settingsChanged=JSON.stringify([latest.workingHours,latest.timeBlocks,latest.bufferMins,latest.minLeadDays,latest.maxBookingsPerDay])!==
+          JSON.stringify([cfg.workingHours,cfg.timeBlocks,cfg.bufferMins,cfg.minLeadDays,cfg.maxBookingsPerDay]);
+        for(const key of ['workingHours','timeBlocks','bufferMins','minLeadDays','maxBookingsPerDay'])cfg[key]=latest[key];
+        if(settingsChanged && step===2){renderCalendar();refreshTimes();}
+      },()=>{});
+      lucide.createIcons();
+    }
+    let stopMonth;
+    let monthGeneration=0;
+    function watchMonth() {
+      if (stopMonth) stopMonth();
+      const generation=++monthGeneration;
+      availabilityReady=false;
+      const first=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1));
+      const next=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1));
+      const monthQuery=query(collection(db,'busy'),where(documentId(),'>=',first),where(documentId(),'<',next));
+      stopMonth=onSnapshot(monthQuery,snap=>{
+        if (generation!==monthGeneration) return;
         Object.keys(busy).forEach(k => delete busy[k]);
         snap.forEach(d => {
           const v = d.data();
@@ -460,6 +496,7 @@
         availabilityReady = true;
         if (step === 2) { renderCalendar(); refreshTimes(); }
       }, (err) => {
+        if (generation!==monthGeneration) return;
         console.warn('availability unavailable', err);
         availabilityReady = false;
         if (step === 2) { renderCalendar(); refreshTimes(); }
@@ -558,7 +595,7 @@
     }
 
     // ---------- calendar ----------
-    window.shiftMonth = (d) => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + d, 1); renderCalendar(); };
+    window.shiftMonth = (d) => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + d, 1); selDate=''; watchMonth(); renderCalendar(); refreshTimes(); };
 
     function renderCalendar() {
       const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
@@ -601,8 +638,10 @@
       const dur = currentDuration();
       const starts = freeStarts(selDate, dur);
       const slots = busy[selDate]?.slots || [];
-      const allDay = slots.some(slot => slot.s === '00:00' && slot.e === '24:00');
-      const ranges = slots.map(slot => fmtTime(slot.s) + ' – ' + (slot.e === '24:00' ? 'midnight' : fmtTime(slot.e)));
+      const closed = cfg.workingHours?.[new Date(selDate+'T12:00:00').getDay()]?.closed;
+      const allDay = closed || slots.some(slot => slot.s === '00:00' && slot.e === '24:00');
+      const blocked=(cfg.timeBlocks||[]).filter(b=>b.date===selDate);
+      const ranges = [...slots,...blocked.map(b=>({s:b.start,e:b.end}))].map(slot => fmtTime(slot.s) + ' – ' + (slot.e === '24:00' ? 'midnight' : fmtTime(slot.e)));
       const details = allDay ? 'Unavailable all day.' : ranges.length ? 'Unavailable: ' + ranges.join(', ') + '.' : 'No booked times.';
       const status = capacityReached(selDate) ? ' Fully booked for this date.' : !starts.length && !allDay ? ' No start time fits this service.' : '';
       info.textContent = fmtDate(selDate) + ' · ' + details + status;
@@ -633,7 +672,7 @@
       }
       step = n;
       for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
-      if (n === 2) { renderCalendar(); refreshTimes(); }
+      if (n === 2) { $('f-ready').closest('div').classList.toggle('bridal-deadline',/bridal|akad|sanding|nikah/i.test(selPkg?.name||'')); renderCalendar(); refreshTimes(); }
       renderProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       lucide.createIcons();
@@ -669,7 +708,7 @@
     }
     function validateStep3() {
       let ok = true;
-      const bad = (id, msg) => { showErr(id, msg); ok = false; };
+      const bad = (id, msg) => { if (['e-email','e-map','e-mood'].includes(id)) $('extra-details').open=true; showErr(id, msg); ok = false; };
       if ($('f-name').value.trim().length < 2) bad('e-name', 'Please enter your full name.');
       if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 012-345 6789.');
       const emailVal = $('f-email').value.trim();
@@ -761,7 +800,7 @@
       try {
         const al = document.querySelector('input[name=allergy]:checked').value;
         const ref = makeRef();
-        const addons = selectedAddonObjs().map(a => ({ name: String(a.name).slice(0, 80), price: num(a.price) }));
+        const addons = selectedAddonObjs().map(a => ({ id:String(a.id), name: String(a.name).slice(0, 80), price: num(a.price) }));
         data = {
           ref, status: 'pending',
           clientName: $('f-name').value.trim(),
@@ -868,12 +907,12 @@
     const message = text => { $('client-message').textContent = text; };
     function progressTicket(r) {
       const cancelled = r.status === 'cancelled', declined = r.status === 'declined';
-      const approved = r.status === 'approved', paid = approved && num(r.depositPaid) > 0;
+      const approved = r.status === 'approved', paid = approved && depositMet(r);
       const current = cancelled || declined ? 1 : paid ? 2 : approved ? 1 : 0;
-      const labels = cancelled || declined ? ['Submitted', cancelled ? 'Cancelled' : 'Declined'] : ['Submitted','Approved','Deposit received'];
+      const labels = cancelled || declined ? ['Submitted', cancelled ? 'Cancelled' : 'Declined'] : ['Submitted','Approved',r.depositRequired===0?'Confirmed':'Deposit received'];
       const title = cancelled ? 'Booking cancelled' : declined ? 'Request declined' : paid ? 'Booking confirmed' : approved ? 'Approved by the studio' : 'Awaiting studio review';
       const detail = cancelled || declined ? 'Contact the studio if you would like to discuss another date.'
-        : paid ? 'The studio has recorded your payment.' : approved ? 'Follow the studio’s deposit instructions to secure your date.' : 'Your request is with the studio. You can check its progress here.';
+        : paid ? (r.depositRequired===0?'Your date is secured.':'The studio has recorded your required payment.') : approved ? 'Follow the studio’s deposit instructions to secure your date.' : 'Your request is with the studio. You can check its progress here.';
       return '<div class="ticket-head"><span class="ticket-ref">' + esc(r.ref) + '</span><h2>' + title + '</h2><p>'+detail+'</p></div>' +
         '<ol class="track" aria-label="Booking progress">'+labels.map((label,i)=>
           '<li class="'+(i < current ? 'done' : i === current ? 'current' : '')+'"'+(i === current ? ' aria-current="step"' : '')+'><span class="dot" aria-hidden="true">'+(i < current ? '✓' : '')+'</span><span>'+label+'</span></li>'
@@ -890,11 +929,18 @@
         ['Session', fmtTime(r.startTime) + ' – ' + fmtTime(r.endTime || fromMin(toMin(r.startTime) + r.durationMins))],
         ['Venue', r.venue], ['Client', r.clientName], ['Contact', r.phone],
         [approved ? 'Final quote' : 'Estimate', amount == null ? '' : fmtRM(amount)],
+        ['Deposit required',approved && r.depositRequired!=null ? fmtRM(r.depositRequired) : ''],
+        ['Deposit due',approved && !depositMet(r) && r.depositDue ? fmtDate(r.depositDue) : ''],
         ['Payment received', approved && num(r.depositPaid)>0 ? fmtRM(r.depositPaid) : '']
       ];
       const phone = waNum(cfg?.whatsappNo);
       const link = phone ? '<a class="ticket-contact" href="https://wa.me/'+phone+'?text='+encodeURIComponent('Hello, I have a correction for booking '+r.ref+'.')+'">Contact the studio ↗</a>' : '';
-      box.innerHTML = progressTicket(r) + '<dl class="ticket-rows">'+rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>' +
+      const next = r.status==='approved' && !depositMet(r) ? '<div class="ticket-foot"><b>Secure your date</b><p>'+
+        (r.depositRequired!=null?'Deposit outstanding: '+esc(fmtRM(Math.max(0,r.depositRequired-num(r.depositPaid))))+'. ':'')+
+        esc(cfg?.depositText||'Contact the studio for deposit instructions.')+'</p>'+
+        (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(cfg?.duitnowQr||'')?'<img alt="Studio DuitNow QR" width="180" src="'+esc(cfg.duitnowQr)+'">':'')+'</div>' : '';
+      const calendar = r.status==='approved' && depositMet(r) ? '<a class="ticket-contact" href="'+esc(clientCalendarUrl(r))+'" target="_blank" rel="noopener">Save to Google Calendar ↗</a>' : '';
+      box.innerHTML = progressTicket(r)+next+calendar + '<dl class="ticket-rows">'+rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>' +
         '<div class="ticket-foot"><p>For corrections, contact the studio and quote your booking reference.</p>'+link+'</div>';
     }
     async function openPrivateLink() {
