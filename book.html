@@ -70,7 +70,7 @@
     #progress { position:relative; padding:.7rem .25rem; background:white; border:1px solid #e1dcdf; border-radius:.8rem; }
     #cal-grid .day { max-height:3.4rem; aspect-ratio:auto; min-height:2.8rem; }
     @media screen {
-      #step-1>h2,#step-2>h2,#step-3>h2,#step-4>h2 {font-size:clamp(1.3rem,3vw,1.8rem);letter-spacing:-.045em;}
+      #step-1>h2,#step-2>h2,#step-3>h2 {font-size:clamp(1.3rem,3vw,1.8rem);letter-spacing:-.045em;}
       #package-list .rounded-3xl {border-radius:1rem;transition:border-color .15s,background-color .15s;}
       #package-list label:has(:checked)>div {background:#f7f0f5;border-color:#803456;}
       #extra-details {border-color:#dcd6da;padding:1rem 1.15rem;}
@@ -186,7 +186,7 @@
 
       <!-- STEP 3: details -->
       <section id="step-3" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">3. Your details</h2>
+        <h2 class="font-serif text-xl font-bold">3. Details &amp; send</h2>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 sm:p-5 shadow-sm space-y-4">
           <div>
             <label class="block text-sm font-semibold mb-1" for="f-name">Full name *</label>
@@ -245,25 +245,16 @@
           </div></details>
         <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
 
-        <div class="flex gap-2">
-          <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
-          <button onclick="goStep(4)" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Review request</button>
-        </div>
-      </section>
-
-      <!-- STEP 4: review -->
-      <section id="step-4" class="hidden space-y-4">
-        <h2 class="font-serif text-xl font-bold">4. Review &amp; send</h2>
-        <p class="text-sm text-slate-600">Please check the date, time and venue. After submission, the studio handles any corrections.</p>
+        <h3 class="font-serif text-xl font-bold">Booking summary</h3>
         <div id="review-card" class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm space-y-3 text-sm"></div>
         <label class="flex items-start gap-3 text-xs text-slate-600 leading-relaxed">
           <input type="checkbox" id="f-terms" class="mt-0.5 accent-pink-600 w-4 h-4 shrink-0">
           <span>I understand this is a booking <b>request</b>. My date is only confirmed after approval and deposit payment. <span id="terms-text"></span></span>
         </label>
         <p id="e-terms" class="hidden text-xs font-medium text-red-600"></p>
-        <p id="e-submit" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-3"></p>
+        <p id="e-submit" role="alert" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-3"></p>
         <div class="flex gap-2">
-          <button onclick="goStep(3)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
+          <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
           <button id="submit-btn" onclick="submitRequest()" class="flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 disabled:opacity-60 text-white font-semibold text-sm transition">Send booking request</button>
         </div>
       </section>
@@ -530,11 +521,11 @@
     }
 
     function renderProgress() {
-      const labels = ['Package', 'Date', 'Details', 'Review'];
+      const labels = ['Package', 'Date', 'Details'];
       $('progress').innerHTML = labels.map((l, i) => {
         const n = i + 1, on = n === step, done = n < step;
         return `<span class="flex items-center gap-1.5 ${on ? 'text-blush-800' : done ? 'text-blush-600' : 'text-slate-400'}">
-          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${on ? 'bg-blush-700 text-white' : done ? 'bg-blush-200 text-blush-800' : 'bg-slate-200 text-slate-500'}">${n}</span>${l}</span>${n < 4 ? '<span class="w-4 h-px bg-blush-200"></span>' : ''}`;
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${on ? 'bg-blush-700 text-white' : done ? 'bg-blush-200 text-blush-800' : 'bg-slate-200 text-slate-500'}">${n}</span>${l}</span>${n < labels.length ? '<span class="w-4 h-px bg-blush-200"></span>' : ''}`;
       }).join('');
     }
 
@@ -667,12 +658,15 @@
       if (n > step) {
         if (step === 1 && !validateStep1()) return;
         if (step <= 2 && n >= 3 && !validateStep2()) return;
-        if (step <= 3 && n >= 4 && !validateStep3()) return;
-        if (n === 4) renderReview();
+
       }
+      showStep(n);
+    };
+    function showStep(n) {
       step = n;
-      for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
+      for (let i = 1; i <= 3; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
       if (n === 2) { $('f-ready').closest('div').classList.toggle('bridal-deadline',/bridal|akad|sanding|nikah/i.test(selPkg?.name||'')); renderCalendar(); refreshTimes(); }
+      if (n === 3) renderReview();
       renderProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       lucide.createIcons();
@@ -732,22 +726,12 @@
     }
 
     function renderReview() {
-      const al = document.querySelector('input[name=allergy]:checked').value;
-      const emailVal = $('f-email').value.trim();
       const rows = [
         ['Package', `${selPkg.name} (${fmtRM(selPkg.price)})`],
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
         ['Date', fmtDate(selDate)],
         ['Makeup start', `${fmtTime($('f-time').value)} – ${fmtTime(fromMin(toMin($('f-time').value) + currentDuration()))}`],
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
-        ['Name', $('f-name').value.trim()],
-        ['Phone', $('f-phone').value.trim()],
-        ...(emailVal ? [['Email', emailVal]] : []),
-        ['People', '1'],
-        ['Location', $('f-venue').value.trim()],
-        ['Allergies', al === 'yes' ? $('f-allergies').value.trim() : 'None'],
-        ...($('f-mood').value.trim() ? [['Moodboard', $('f-mood').value.trim()]] : []),
-        ...($('f-notes').value.trim() ? [['Notes', $('f-notes').value.trim()]] : [])
       ];
       $('review-card').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
         `<div class="flex gap-3 pt-3 border-t border-blush-100"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Travel fee to be confirmed based on venue before deposit.</span></span></div>`;
@@ -782,8 +766,22 @@
       if (submitting) return;
       clearErr();
       if ($('f-website').value) return;  // bot trap
-      if (!$('f-terms').checked) { showErr('e-terms', 'Please tick the box to continue.'); return; }
-      if (!validateStep1() || !validateStep2() || !validateStep3()) { showErr('e-submit', 'Some details need fixing. Please go back and check.'); return; }
+      for (const [page, validate] of [[1, validateStep1], [2, validateStep2], [3, validateStep3]]) {
+        if (validate()) continue;
+        if (page !== step) showStep(page);
+        const error = $(`step-${page}`).querySelector('[id^="e-"]:not(.hidden)');
+        if (error) {
+          error.tabIndex = -1;
+          error.focus({preventScroll: true});
+          error.scrollIntoView({block: 'center'});
+        }
+        return;
+      }
+      if (!$('f-terms').checked) {
+        showErr('e-terms', 'Please tick the box to continue.');
+        $('f-terms').focus();
+        return;
+      }
 
       // Stop the same browser from sending many requests in a row
       try {
