@@ -79,6 +79,40 @@
     .availability-notes {display:grid;gap:.4rem;line-height:1.5;}
     .availability-notes ul {list-style:disc;padding-left:1.35rem;}
     .availability-notes strong {font-weight:650;}
+
+    @media screen {
+      :root {--aubergine:#362539;--orchid:#684261;--petal:#f4e8ec;--parchment:#faf7f4;--apricot:#ffceaa;}
+      body {background:var(--parchment);color:var(--aubergine);}
+      .studio-band {background:radial-gradient(ellipse at 105% 105%,#814964 0,transparent 53%),linear-gradient(115deg,#302232,#513349);color:white;border-radius:1.25rem;box-shadow:0 9px 22px -17px #392135;}
+      .studio-band h1,.studio-band h2 {letter-spacing:-.045em;}
+      .ticket-total {border-top:1px dashed #c6b2bc;padding-top:1rem;font-variant-numeric:tabular-nums;}
+    }
+
+    @media screen {
+      .booking-intro {padding:clamp(1.2rem,4vw,2.3rem);text-align:left;}
+      .booking-intro p {color:#f3e2ea;margin-inline:0;max-width:46ch;}
+      .booking-intro #ig-link {color:var(--apricot);}
+      .compact-intro .booking-intro {display:none;}
+      #progress {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.2rem;padding:.3rem;background:#eee7e9;border:0;}
+      .stage {display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.55rem 0;color:#60555f;border-radius:.65rem;}
+      .stage b {font-variant-numeric:tabular-nums;} .stage.current {background:var(--aubergine);color:white;} .stage.current b {color:var(--apricot);}
+      .stage.complete {color:#4f314b;}
+      #package-list {gap:0;border:1px solid #dfd3d8;border-radius:1rem;background:white;}
+      #package-list label .rounded-3xl {position:relative;padding-left:2.75rem;border:0;border-radius:0;background:transparent;box-shadow:none;}
+      #package-list label:first-child>div {border-radius:1rem 1rem 0 0;}
+      #package-list label:last-child>div {border-radius:0 0 1rem 1rem;}
+      #package-list label+label {border-top:1px solid #eadfe3;}
+      #package-list label>div:before {content:"";position:absolute;left:1rem;top:1.15rem;width:1rem;height:1rem;border:1.5px solid #a793a2;border-radius:50%;}
+      #package-list label:has(:checked)>div {background:var(--petal);}
+      #package-list label:has(:checked)>div:before {border:5px solid var(--orchid);background:white;}
+      #package-list input:focus-visible+div {outline:3px solid var(--orchid);outline-offset:-3px;}
+      #review-card .ticket-heading {margin:-1.25rem -1.25rem 1.1rem;padding:1.25rem;border-radius:1rem 1rem 0 0;box-shadow:none;}
+      .ticket-heading h3 {font-size:1.35rem;font-weight:700;} .ticket-heading p {color:#f0dfe9;}
+      .ticket-time {display:flex;align-items:center;gap:.7rem;margin-top:1rem;font:650 clamp(1.1rem,4.5vw,1.75rem)/1.2 system-ui;font-variant-numeric:tabular-nums;}
+      .ticket-time span {color:var(--apricot);}
+      .ticket-total>span:last-child {font-size:1.25rem;}
+      #received-progress .current .dot,#client-list .current .dot {box-shadow:inset 0 0 0 4px white,0 0 0 3px #e9cbbd;}
+    }
   </style>
 </head>
 <body class="min-h-screen">
@@ -118,10 +152,10 @@
     <div id="flow" class="hidden space-y-8">
 
       <!-- Intro -->
-      <section class="text-center space-y-2 pt-2">
+      <section class="studio-band booking-intro space-y-2">
         
         <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Book your makeup session</h1>
-        <p class="text-sm text-slate-600 max-w-md mx-auto">Choose your package, pick an available date and send your request. You will be asked to pay a deposit once it is approved.</p>
+        <p class="text-sm text-slate-600 max-w-md mx-auto">Choose a package and an available time. Your deposit is due after studio approval.</p>
         <a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline pt-1"><i data-lucide="instagram" class="w-4 h-4"></i> See my work on Instagram</a>
       </section>
 
@@ -520,11 +554,13 @@
 
     function renderProgress() {
       const labels = ['Package', 'Visit', 'Details', 'Review'];
-      $('progress').innerHTML = labels.map((l, i) => {
-        const n = i + 1, on = n === step, done = n < step;
-        return `<span class="flex items-center gap-1.5 ${on ? 'text-blush-800' : done ? 'text-blush-600' : 'text-slate-400'}">
-          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${on ? 'bg-blush-700 text-white' : done ? 'bg-blush-200 text-blush-800' : 'bg-slate-200 text-slate-500'}">${n}</span>${l}</span>${n < labels.length ? '<span class="w-4 h-px bg-blush-200"></span>' : ''}`;
+      $('flow').classList.toggle('compact-intro', step > 1);
+      $('progress').innerHTML = labels.map((label,i) => {
+        const n=i+1;
+        const state=n===step?'current':n<step?'complete':'upcoming';
+        return `<span class="stage ${state}" ${n===step?'aria-current="step"':''}><b aria-hidden="true">${n<step?'✓':n}</b>${label}</span>`;
       }).join('');
+
     }
 
     function renderPackages() {
@@ -551,7 +587,7 @@
       $('addon-list').innerHTML = adds.map(p => `
         <label class="flex items-center gap-3 bg-white rounded-2xl border border-blush-200 p-3 cursor-pointer has-[:checked]:border-blush-600 has-[:checked]:bg-blush-50">
           <input type="checkbox" value="${esc(p.id)}" class="accent-pink-600 w-4 h-4 addon-cb" ${selAddons.has(p.id) ? 'checked' : ''}>
-          <span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="block text-[11px] text-slate-500">${esc(p.description || '')}</span></span>
+          <span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="block text-[11px] text-slate-500">${esc(p.description || '')}</span>${num(p.durationMins)>0 ? '<span class="block text-xs font-semibold">Adds '+esc(fmtDur(num(p.durationMins)))+'</span>' : ''}</span>
           <span class="text-sm font-bold text-blush-700 shrink-0">${esc(fmtRM(p.price))}</span>
         </label>`).join('');
       $('addon-list').querySelectorAll('.addon-cb').forEach(cb => cb.addEventListener('change', () => {
@@ -739,10 +775,8 @@
 
     function renderReview() {
       const rows = [
-        ['Package', `${selPkg.name} (${fmtRM(selPkg.price)})`],
+        ['Package price',fmtRM(selPkg.price)],
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
-        ['Date', fmtDate(selDate)],
-        ['Session time', `${fmtTime($('f-time').value)} – ${fmtTime(fromMin(toMin($('f-time').value) + currentDuration()))}`],
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
         ['Venue', $('f-venue').value.trim()],
         ['Name', $('f-name').value.trim()],
@@ -753,8 +787,12 @@
         ['Inspiration', $('f-mood').value.trim()],
         ['Notes', $('f-notes').value.trim()],
       ];
-      $('review-card').innerHTML = rows.filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
-        `<div class="flex gap-3 pt-3 border-t border-blush-100"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Travel fee to be confirmed based on venue before deposit.</span></span></div>`;
+      const start = $('f-time').value;
+      const finish = fromMin(toMin(start) + currentDuration());
+      const ticketHeader = `<header class="ticket-heading studio-band"><h3>${esc(selPkg.name)}</h3><p>${esc(fmtDate(selDate))}</p>
+        <div class="ticket-time"><time>${esc(fmtTime(start))}</time><span aria-label="to">→</span><time>${esc(fmtTime(finish))}</time></div></header>`;
+      $('review-card').innerHTML = ticketHeader + rows.filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
+        `<div class="ticket-total flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Travel fee to be confirmed based on venue before deposit.</span></span></div>`;
     }
 
     // ---------- submit ----------
