@@ -124,6 +124,25 @@
     .person>legend{padding:0 .45rem;font-weight:750;color:var(--rose-deep)}.person label,.services legend{font-size:.9rem;font-weight:600}.person .field{display:block;margin-top:.3rem;font-weight:400}.person small{font-weight:400;color:var(--muted)}
     .services{min-width:0;display:grid;gap:.4rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}.services legend{margin-bottom:.4rem}.services label{display:flex;align-items:center;gap:.5rem;padding:.65rem;border:1px solid var(--rule);border-radius:10px;cursor:pointer}.services label:has(:checked){background:var(--petal);border-color:var(--rose)}.services input{accent-color:var(--rose)}.services small{display:block}.service-description{font-size:.82rem;color:var(--muted)}.service-description:empty{display:none}
     #time-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.4rem,1fr));gap:.4rem}#time-options button[aria-pressed=true]{color:white;background:var(--rose);border-color:var(--rose)}
+    /* Flat, low-clutter step 1: dividers instead of boxes */
+    .party-count{background:transparent;border-radius:0;border-bottom:1px solid var(--rule);padding:.4rem 0 .9rem}
+    #people-list{gap:0}
+    .person{background:transparent;border:0;border-radius:0;padding:1rem 0 1.25rem;border-bottom:1px solid var(--rule)}
+    .person:last-child{border-bottom:0}
+    .person>legend{padding:0;margin-bottom:.15rem;float:left;width:100%}
+    .person>legend+*{clear:both}
+    .services{grid-template-columns:1fr;gap:0;border-block:1px solid var(--rule)}
+    .services legend{padding:0;margin:0 0 .4rem}
+    .services label{border:0;border-radius:0;border-bottom:1px solid var(--rule);padding:.8rem .5rem;min-height:48px}
+    .services label:last-of-type{border-bottom:0}
+    .services label:has(:checked){background:var(--petal);box-shadow:inset 3px 0 var(--rose);border-color:var(--rule)}
+    .services label>span{display:flex;flex:1;min-width:0;justify-content:space-between;gap:.75rem;align-items:baseline}
+    .services label small{white-space:nowrap}
+    #addon-list{gap:0;border-block:1px solid var(--rule)}
+    #addon-list label{border:0;border-bottom:1px solid var(--rule);border-radius:0;background:transparent;box-shadow:none;min-height:48px}
+    #addon-list label:last-child{border-bottom:0}
+    #cal-grid{gap:.2rem}
+    @media(max-width:360px){main{padding-inline:.5rem}#step-2>.rounded-3xl{padding:.4rem}#cal-grid{gap:2px}#cal-grid .day{min-height:3rem}}
     .save-wa{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;color:var(--rose-deep);border:1px solid var(--petal-2);border-radius:12px;font-weight:650}
   </style>
 </head>
@@ -214,14 +233,14 @@
         <div class="booking-fields">
         <div id="time-wrap" class="hidden space-y-3">
           <div>
-            <label id="starts-label" class="block text-sm font-semibold mb-1">Makeup start time *</label>
-            <input type="hidden" id="f-time"><div id="time-options" role="group" aria-labelledby="starts-label"></div>
-            <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
-          </div>
-          <div>
             <label for="f-ready" class="block text-sm font-semibold mb-1">What time do you need to be ready? *</label>
             <input type="time" id="f-ready" class="field" required aria-describedby="e-ready">
             <p id="e-ready" role="alert" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>
+          <div>
+            <label id="starts-label" class="block text-sm font-semibold mb-1">Makeup start time *</label>
+            <input type="hidden" id="f-time"><div id="time-options" role="group" aria-labelledby="starts-label"></div>
+            <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
           </div>
         </div>
         </div>
@@ -237,13 +256,19 @@
       <section id="step-3" class="hidden space-y-4">
         <h2 class="font-serif text-xl font-bold">3. Contact &amp; venue</h2>
         <div class="booking-fields">
-<div>
-            <label class="block text-sm font-semibold mb-1" for="f-name">Organiser’s full name *</label>
-            <input id="f-name" class="field" autocomplete="name" maxlength="80">
-            <p id="e-name" class="hidden text-xs text-red-600 mt-1"></p>
+<div id="contact-wrap" class="space-y-3">
+            <div id="contact-pick-wrap" class="hidden">
+              <label class="block text-sm font-semibold mb-1" for="f-contact">Who should we contact? *</label>
+              <select id="f-contact" class="field"></select>
+            </div>
+            <div id="contact-name-wrap" class="hidden">
+              <label class="block text-sm font-semibold mb-1" for="f-name">Contact person’s full name *</label>
+              <input id="f-name" class="field" autocomplete="name" maxlength="80">
+              <p id="e-name" class="hidden text-xs text-red-600 mt-1"></p>
+            </div>
           </div>
 <div>
-              <label class="block text-sm font-semibold mb-1" for="f-phone">Phone / WhatsApp *</label>
+              <label class="block text-sm font-semibold mb-1" for="f-phone">WhatsApp number *</label>
               <input id="f-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="0123456789" maxlength="20">
               <p id="e-phone" class="hidden text-xs text-red-600 mt-1"></p>
             </div>
@@ -574,7 +599,7 @@
       $('more').disabled = people.length >= 3;
       const list = mainPackages();
       $('people-list').innerHTML = people.map((p,i)=>`<fieldset class="person" data-person="${i}"><legend>Person ${i+1}</legend>
-        <label>First name<input class="field" data-key="name" maxlength="60" required value="${esc(p.name)}"></label>
+        <label>${people.length===1?'Full name':'Name'}<input class="field" data-key="name" autocomplete="${people.length===1?'name':'off'}" maxlength="60" required value="${esc(p.name)}"></label>
         <fieldset class="services"><legend>Makeup service</legend>${list.map(item=>`<label><input type="radio" name="service-${i}" data-key="packageId" value="${esc(item.id)}" ${item.id===p.packageId?'checked':''}><span>${esc(item.name)}<small>${esc(fmtRM(item.price))} · ${esc(fmtDur(Math.max(30,num(item.durationMins)||120)))}</small></span></label>`).join('') || 'No services available.'}</fieldset>
         <p class="service-description" data-description>${esc(service(p)?.description||'')}</p>
         <label>Preferred makeup look <small>(optional)</small><input class="field" data-key="look" maxlength="120" placeholder="e.g. Natural glow" value="${esc(p.look)}"></label>
@@ -738,7 +763,7 @@
       step = n;
       for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
       if (n === 2) { renderCalendar(); refreshTimes(); }
-      if(n===3 && people.length===1 && !$('f-name').value) $('f-name').value=people[0].name.trim();
+      if (n === 3) renderContact();
       if (n === 4) renderReview();
       renderProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -748,7 +773,7 @@
     function validateStep1() {
       if (selectedAddonObjs().length > 8) { showErr('e-package','Please select up to eight add-ons.'); return false; }
       for(const [i,p] of people.entries()) {
-        const missing=!p.name.trim()?'name':!service(p)?'packageId':!p.allergies.trim()?'allergies':'';
+        const missing=p.name.trim().length<2?'name':!service(p)?'packageId':!p.allergies.trim()?'allergies':'';
         if(missing) { showErr('e-package','Complete the highlighted field for person '+(i+1)+'.'); $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus(); return false; }
       }
       if(currentDuration()>900 || packageTotal()>100000) {showErr('e-package','This group exceeds the online booking limit. Contact the studio to arrange a session.');return false;}
@@ -796,12 +821,31 @@
 
       let ok = true;
       const bad = (id, msg) => { showErr(id, msg); ok = false; };
-      if ($('f-name').value.trim().length < 2) bad('e-name', 'Please enter your full name.');
+      if (contactName().length < 2) bad('e-name', 'Please enter the contact person’s full name.');
       if (!validMyPhone($('f-phone').value)) bad('e-phone', 'Enter a Malaysian mobile number, e.g. 0123456789.');
       const mood = $('f-mood').value.trim(); if (mood && (!safeUrl(mood) || safeUrl(mood).length > 500)) bad('e-mood', 'Use a valid link of up to 500 characters. A short share link works best.');
       return ok;
     }
 
+    // One person: their name is the contact. Group: pick one of the entered names, or someone else.
+    function renderContact() {
+      const single = people.length === 1;
+      $('contact-pick-wrap').classList.toggle('hidden', single);
+      const sel = $('f-contact'), keep = sel.value;
+      sel.innerHTML = people.map((p,i)=>`<option value="${i}">${esc(p.name.trim() || 'Person '+(i+1))}</option>`).join('')+'<option value="other">Someone else</option>';
+      sel.value = [...sel.options].some(o=>o.value===keep) ? keep : '0';
+      updateContactName();
+    }
+    function updateContactName() {
+      const other = people.length > 1 && $('f-contact').value === 'other';
+      $('contact-name-wrap').classList.toggle('hidden', !other);
+    }
+    function contactName() {
+      if (people.length === 1) return people[0].name.trim();
+      const v = $('f-contact').value;
+      return v === 'other' ? $('f-name').value.trim() : (people[Number(v)]?.name.trim() || '');
+    }
+    $('f-contact').addEventListener('change', updateContactName);
     function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
     function estimate() {
       return packageTotal() + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0);
@@ -813,7 +857,7 @@
         ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
         ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
         ['Venue', $('f-venue').value.trim()],
-        ['Name', $('f-name').value.trim()],
+        ...(people.length > 1 ? [['Contact', contactName()]] : []),
         ['WhatsApp', $('f-phone').value.trim()],
         ['Map link', $('f-map').value.trim()],
         ['Inspiration', $('f-mood').value.trim()],
@@ -885,13 +929,14 @@
       let slowTimer;
       let data;
       let trackingUrl;
+      let uid = null;
       try {
         const sensitivities=people.filter(p=>!/^none$/i.test(p.allergies.trim())).map(p=>p.name.trim()+': '+p.allergies.trim());
         const ref = makeRef();
         const addons = selectedAddonObjs().map(a => ({ id:String(a.id), name: String(a.name).slice(0, 80), price: num(a.price) }));
         data = {
           ref, status: 'pending',
-          clientName: $('f-name').value.trim(),
+          clientName: contactName(),
           phone: $('f-phone').value.replace(/[^\d+]/g, '').slice(0, 16),
           email: '', // Required by the existing booking record format.
           packageId: String(people[0].packageId).slice(0, 60),
@@ -916,7 +961,7 @@
         };
         stage = 'guest-sign-in';
         slowTimer = setTimeout(() => { btn.textContent = 'Still sending… Keep this page open'; }, 12000);
-        const uid = await guestUid();
+        uid = await guestUid();
         requestId ||= doc(collection(db,'requests')).id;
         secret ||= randomSecret();
         trackingUrl = new URL(location.pathname, location.origin);
@@ -928,10 +973,15 @@
         await batch.commit();
       } catch (err) {
         console.warn('Booking submission failed', stage, err?.code || err?.name);
-        showErr('e-submit', submissionError(err, stage));
-        btn.disabled = false; btn.textContent = 'Send booking request';
-        submitting = false;
-        return;
+        // The connection may have dropped after the studio already received the request.
+        // If this request really exists, treat it as sent instead of showing a misleading error.
+        const alreadySent = stage === 'save-request' && uid && requestId && await requestAlreadySaved(uid);
+        if (!alreadySent) {
+          showErr('e-submit', submissionError(err, stage));
+          btn.disabled = false; btn.textContent = 'Send booking request';
+          submitting = false;
+          return;
+        }
       } finally { clearTimeout(slowTimer); }
 
       // A successful commit is final even if the confirmation UI has a problem.
@@ -943,6 +993,13 @@
         location.assign(trackingUrl.href);
       }
     };
+
+    async function requestAlreadySaved(uid) {
+      try {
+        await setDoc(doc(db,'guestSessions',uid,'bookings',requestId), {secret});
+        return (await getDoc(doc(db,'requests',requestId))).exists();
+      } catch { return false; }
+    }
 
     function showConfirmation(d) {
       $('flow').classList.add('hidden');
