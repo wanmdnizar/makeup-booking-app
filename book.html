@@ -8,15 +8,15 @@
   <meta name="description" content="Request a makeup session: choose a package, pick an available date and send your booking request." />
   <meta property="og:title" content="Book your makeup session" />
   <meta property="og:description" content="Choose a package, pick an available date and send your request." />
-  <meta name="theme-color" content="#b81d55" />
+  <meta name="theme-color" content="#BE185D" />
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <script>
     tailwind.config = {
       theme: { extend: {
         fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'], serif: ['Playfair Display', 'ui-serif', 'Georgia'] },
         colors: {
-          blush: { 50:'#fff5f8',100:'#ffe8ef',200:'#fed0df',300:'#fbaac6',400:'#f77aa6',500:'#ec4c85',600:'#d92b68',700:'#b81d55',800:'#981b4a',900:'#80193f' },
-          charcoal: '#231F20'
+          blush: { 50:'#FFF8FB',100:'#FFE8F0',200:'#FFD3E3',300:'#FFA8C8',400:'#FF7FAE',500:'#EC4C8D',600:'#DB2F73',700:'#BE185D',800:'#9D174D',900:'#831843' },
+          charcoal: '#2B1B22'
         }
       } }
     };
@@ -25,94 +25,108 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: #fff5f8; color: #231F20; -webkit-tap-highlight-color: transparent; }
-    .field { width: 100%; padding: .7rem .9rem; font-size: 1rem; background: #fff; border: 1px solid #fed0df; border-radius: .9rem; }
-    .field:focus { outline: none; border-color: #ec4c85; box-shadow: 0 0 0 3px rgba(236,76,133,.15); }
-    .field.err { border-color: #dc2626; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-    .day { aspect-ratio: 1 / 1; }
-    @media print { .no-print { display: none !important; } }
-
-    @media screen {
-      body { background: #f6f5f3; color:#242026; }
-      :is(header,.glass-header) { background:rgba(255,255,255,.94); border-color:#dad6d8; }
-      :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid #904465; outline-offset:3px; }
-      .tab-content .rounded-3xl.bg-white, #flow .bg-white.rounded-3xl, #confirmation > .bg-white, #client-panel {
-        border-radius:1.1rem; border-color:#dedadc; box-shadow:0 2px 7px #21162008;
-      }
-      :is(h1,h2,h3).font-serif { font-family:'Inter',system-ui,sans-serif; letter-spacing:-.035em; }
-      .field { border-color:#d6d1d4; border-radius:.7rem; }
+    /* =====================================================================
+       MAKEUP BY NUREEN — PINK TICKET THEME (client booking page)
+       Same palette as the admin app.
+       ===================================================================== */
+    :root {
+      --rose:#BE185D; --rose-600:#DB2F73; --rose-500:#EC4C8D; --rose-deep:#831843; --rose-ink:#4A0F2B;
+      --grad:linear-gradient(135deg,#EC4C8D 0%,#D1286F 45%,#9D174D 100%);
+      --bg:#FFF3F7; --paper:#FFF8FB; --ink:#2B1B22; --muted:#7D6571; --rule:#F6D9E5; --petal:#FFE8F0; --petal-2:#FFD3E3;
+      --shadow:0 12px 32px -20px rgba(190,24,93,.55);
     }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',system-ui,sans-serif; background-color:var(--bg); background-image:radial-gradient(ellipse 70% 38% at 100% 0%,#FFDCEA 0,transparent 70%); background-attachment:fixed; color:var(--ink); -webkit-tap-highlight-color:transparent; }
+    :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid var(--rose-500); outline-offset:2px; }
+    .field { width:100%; padding:.75rem .95rem; font-size:1rem; background:#fff; border:1px solid var(--petal-2); border-radius:14px; color:var(--ink); }
+    .field:focus { outline:none; border-color:var(--rose-500); box-shadow:0 0 0 3px rgba(236,76,141,.18); }
+    .field.err { border-color:#dc2626; }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+    .day { aspect-ratio:1 / 1; }
+    @media print { .no-print { display:none !important; } }
+    header.sticky { background:rgba(255,255,255,.88) !important; border-color:var(--rule) !important; }
+    h1.font-serif, h2.font-serif, h3.font-serif { font-family:'Inter',system-ui,sans-serif; letter-spacing:-.035em; }
+    #brand-name { font-family:'Playfair Display',Georgia,serif; letter-spacing:0; }
 
-    #client-panel { padding:clamp(1.1rem,4vw,2rem); }
-    #client-panel > h1 { font:600 .85rem/1.4 Inter,system-ui,sans-serif; color:#655762; letter-spacing:.03em; }
+    /* hero */
+    .studio-band { background:var(--grad); color:#fff; border-radius:28px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+    .studio-band::before { content:""; position:absolute; right:-3.5rem; top:-3.5rem; width:12rem; height:12rem; border-radius:50%; background:rgba(255,255,255,.12); }
+    .studio-band::after { content:""; position:absolute; right:3rem; bottom:-5rem; width:9rem; height:9rem; border-radius:50%; background:rgba(255,255,255,.08); }
+    .studio-band > * { position:relative; z-index:1; }
+    .booking-intro { padding:clamp(1.3rem,4vw,2.3rem); text-align:left; }
+    .booking-intro h1 { font-weight:800; letter-spacing:-.045em; font-size:clamp(2rem,6vw,3rem); }
+    .booking-intro p { color:#FFE3EE; margin-inline:0; max-width:46ch; }
+    .booking-intro #ig-link { color:#FFE3D2; }
+    .compact-intro .booking-intro { display:none; }
+
+    /* progress */
+    #progress { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.25rem; padding:.3rem; background:var(--petal); border:0; border-radius:999px; }
+    .stage { display:flex; align-items:center; justify-content:center; gap:.35rem; padding:.55rem 0; color:#8A5A70; border-radius:999px; }
+    .stage b { font-variant-numeric:tabular-nums; }
+    .stage.current { background:var(--grad); color:#fff; box-shadow:0 6px 14px -8px rgba(190,24,93,.9); }
+    .stage.complete { color:var(--rose-deep); }
+
+    /* step headings */
+    #step-1>h2,#step-2>h2,#step-3>h2,#step-4>h2 { font-size:clamp(1.3rem,3vw,1.8rem); font-weight:800; letter-spacing:-.045em; color:var(--rose-ink); }
+
+    /* package list as ticket stubs */
+    #package-list { gap:.7rem; }
+    #package-list label .rounded-3xl { position:relative; padding-left:3rem; border:1px solid var(--rule); border-radius:22px; background:#fff; box-shadow:0 2px 8px -4px rgba(190,24,93,.25); transition:all .15s; }
+    #package-list label>div:before { content:""; position:absolute; left:1.1rem; top:1.25rem; width:1.1rem; height:1.1rem; border:1.5px solid #D9A9BF; border-radius:50%; background:#fff; }
+    #package-list label:has(:checked)>div { background:var(--petal); border-color:var(--rose-500); box-shadow:0 8px 20px -12px rgba(190,24,93,.7); }
+    #package-list label:has(:checked)>div:before { border:6px solid var(--rose); background:#fff; }
+    #package-list input:focus-visible+div { outline:3px solid var(--rose-500); outline-offset:2px; }
+    #package-list p.font-bold { color:var(--rose); }
+
+    /* calendar + cards */
+    .rounded-3xl.bg-white, #conf-summary, #review-card { border-color:var(--rule); box-shadow:0 2px 10px -6px rgba(190,24,93,.3); }
+    #cal-grid .day { max-height:3.6rem; aspect-ratio:auto; min-height:2.9rem; border-radius:16px; }
+    .availability-notes { display:grid; gap:.4rem; line-height:1.5; }
+    .availability-notes ul { list-style:disc; padding-left:1.35rem; }
+    .availability-notes strong { font-weight:700; }
+    .booking-fields { display:grid; gap:1rem; }
+    .booking-fields fieldset { min-width:0; border:0; padding:0; margin:0; }
+
+    /* review ticket */
+    #review-card { overflow:hidden; border-radius:28px; }
+    #review-card .ticket-heading { margin:-1.25rem -1.25rem 0; padding:1.4rem 1.25rem 1.7rem; border-radius:0; box-shadow:none; }
+    #review-card .ticket-heading::before, #review-card .ticket-heading::after { display:none; }
+    .ticket-heading h3 { font-size:1.4rem; font-weight:800; letter-spacing:-.03em; }
+    .ticket-heading p { color:#FFE3EE; }
+    .ticket-time { display:flex; align-items:center; gap:.7rem; margin-top:1rem; font:800 clamp(1.2rem,5vw,1.8rem)/1.2 Inter,system-ui; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+    .ticket-time span { color:#FFD3E3; }
+    .perf { position:relative; height:0; margin:0 -1.25rem 1rem; border-top:2px dashed #F2C2D6; }
+    .perf::before, .perf::after { content:""; position:absolute; top:-13px; width:26px; height:26px; border-radius:50%; background:var(--bg); border:1px solid var(--rule); }
+    .perf::before { left:-13px; } .perf::after { right:-13px; }
+    .ticket-total { border-top:1px dashed #F2C2D6; padding-top:1rem; font-variant-numeric:tabular-nums; }
+    .ticket-total>span:last-child { font-size:1.25rem; }
+
+    /* tracking ticket */
+    #client-panel { padding:clamp(1.1rem,4vw,2rem); border-radius:28px; border:1px solid var(--rule); box-shadow:var(--shadow); background:#fff; }
+    #client-panel > h1 { font:700 .78rem/1.4 Inter,system-ui,sans-serif; color:var(--rose-600); letter-spacing:.16em; text-transform:uppercase; }
     .ticket-head { margin-top:1.1rem; text-align:left; }
-    .ticket-ref { display:block; font:600 .82rem/1.5 ui-monospace,monospace; letter-spacing:.09em; color:#8b365c; }
-    .ticket-head h2 { margin:.4rem 0; font:650 clamp(1.45rem,4vw,2rem)/1.15 Inter,system-ui,sans-serif; letter-spacing:-.045em; }
-    .ticket-head p,.ticket-foot p,.ticket-new { color:#655f65; font-size:.87rem; line-height:1.55; }
-    .track { display:flex; list-style:none; padding:1.3rem 0; margin:1rem 0 0; border-top:1px solid #e4dfe1; }
-    .track li { position:relative; flex:1; min-width:0; display:grid; justify-items:center; align-content:start; gap:.55rem; text-align:center; font:550 .75rem/1.35 Inter,system-ui,sans-serif; color:#655f65; }
-    .track li::before { content:""; position:absolute; top:9px; width:100%; right:50%; height:2px; background:#dedadc; }
+    .ticket-ref { display:block; font:600 .82rem/1.5 ui-monospace,monospace; letter-spacing:.09em; color:var(--rose); }
+    .ticket-head h2 { margin:.4rem 0; font:800 clamp(1.45rem,4vw,2rem)/1.15 Inter,system-ui,sans-serif; letter-spacing:-.045em; color:var(--rose-ink); }
+    .ticket-head p, .ticket-foot p, .ticket-new { color:var(--muted); font-size:.87rem; line-height:1.55; }
+    .track { display:flex; list-style:none; padding:1.3rem 0; margin:1rem 0 0; border-top:1.5px dashed #F2C2D6; }
+    .track li { position:relative; flex:1; min-width:0; display:grid; justify-items:center; align-content:start; gap:.55rem; text-align:center; font:600 .75rem/1.35 Inter,system-ui,sans-serif; color:var(--muted); }
+    .track li::before { content:""; position:absolute; top:9px; width:100%; right:50%; height:2px; background:var(--petal-2); }
     .track li:first-child::before { display:none; }
-    .track .done + li::before { background:#8b365c; }
-    .dot { z-index:1; width:20px; height:20px; border:2px solid #c8c1c5; border-radius:50%; background:white; font-size:12px; line-height:16px; }
-    .done .dot,.current .dot { background:#853656; border-color:#853656; color:white; }
-    .current .dot { box-shadow:inset 0 0 0 4px white,0 0 0 1px #853656; }
-    .track .current { color:#752c4d; font-weight:700; }
-    .ticket-rows { margin:0; border-top:1px solid #dedadc; }
-    .ticket-rows div { display:grid; grid-template-columns:minmax(5rem,1fr) 2fr; gap:1rem; padding:.65rem 0; border-bottom:1px solid #ece8ea; font-size:.9rem; }
-    .ticket-rows time,.ticket-rows dd { font-variant-numeric:tabular-nums; }
-    .ticket-rows dt { color:#655f65; } .ticket-rows dd { font-weight:550; overflow-wrap:anywhere; }
-    .ticket-foot { margin:1rem 0; } .ticket-contact,#manage-link { display:inline-block; border-radius:.65rem; padding:.7rem 1rem; background:#322633; color:white; font-weight:600; text-decoration:none; margin:.5rem 0; }
+    .track .done + li::before { background:var(--rose); }
+    .dot { z-index:1; width:20px; height:20px; border:2px solid #E8BBD0; border-radius:50%; background:#fff; font-size:12px; line-height:16px; }
+    .done .dot, .current .dot { background:var(--rose); border-color:var(--rose); color:#fff; }
+    .current .dot { box-shadow:inset 0 0 0 4px #fff, 0 0 0 1px var(--rose); }
+    .track .current { color:var(--rose-deep); font-weight:800; }
+    .ticket-rows { margin:0; border-top:1px solid var(--rule); }
+    .ticket-rows div { display:grid; grid-template-columns:minmax(5rem,1fr) 2fr; gap:1rem; padding:.65rem 0; border-bottom:1px solid #FBE6EE; font-size:.9rem; }
+    .ticket-rows time, .ticket-rows dd { font-variant-numeric:tabular-nums; }
+    .ticket-rows dt { color:var(--muted); } .ticket-rows dd { font-weight:600; margin:0; overflow-wrap:anywhere; }
+    .ticket-foot { margin:1rem 0; }
+    .ticket-contact, #manage-link { display:inline-block; border-radius:14px; padding:.75rem 1.1rem; background:var(--grad); color:#fff !important; font-weight:700; text-decoration:none !important; margin:.5rem 0; box-shadow:0 8px 18px -10px rgba(190,24,93,.9); }
     .ticket-new { text-decoration:underline; text-underline-offset:.2em; }
-    #flow > section:first-child h1 { font-size:clamp(2rem,5vw,3.35rem); }
-    #progress { position:relative; padding:.7rem .25rem; background:white; border:1px solid #e1dcdf; border-radius:.8rem; }
-    #cal-grid .day { max-height:3.4rem; aspect-ratio:auto; min-height:2.8rem; }
-    @media screen {
-      #step-1>h2,#step-2>h2,#step-3>h2,#step-4>h2 {font-size:clamp(1.3rem,3vw,1.8rem);letter-spacing:-.045em;}
-      #package-list .rounded-3xl {border-radius:1rem;transition:border-color .15s,background-color .15s;}
-      #package-list label:has(:checked)>div {background:#f7f0f5;border-color:#803456;}
-    }
-    .booking-fields {display:grid;gap:1rem;}
-    .booking-fields fieldset {min-width:0;border:0;padding:0;margin:0;}
-    .availability-notes {display:grid;gap:.4rem;line-height:1.5;}
-    .availability-notes ul {list-style:disc;padding-left:1.35rem;}
-    .availability-notes strong {font-weight:650;}
-
-    @media screen {
-      :root {--aubergine:#362539;--orchid:#684261;--petal:#f4e8ec;--parchment:#faf7f4;--apricot:#ffceaa;}
-      body {background:var(--parchment);color:var(--aubergine);}
-      .studio-band {background:radial-gradient(ellipse at 105% 105%,#814964 0,transparent 53%),linear-gradient(115deg,#302232,#513349);color:white;border-radius:1.25rem;box-shadow:0 9px 22px -17px #392135;}
-      .studio-band h1,.studio-band h2 {letter-spacing:-.045em;}
-      .ticket-total {border-top:1px dashed #c6b2bc;padding-top:1rem;font-variant-numeric:tabular-nums;}
-    }
-
-    @media screen {
-      .booking-intro {padding:clamp(1.2rem,4vw,2.3rem);text-align:left;}
-      .booking-intro p {color:#f3e2ea;margin-inline:0;max-width:46ch;}
-      .booking-intro #ig-link {color:var(--apricot);}
-      .compact-intro .booking-intro {display:none;}
-      #progress {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.2rem;padding:.3rem;background:#eee7e9;border:0;}
-      .stage {display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.55rem 0;color:#60555f;border-radius:.65rem;}
-      .stage b {font-variant-numeric:tabular-nums;} .stage.current {background:var(--aubergine);color:white;} .stage.current b {color:var(--apricot);}
-      .stage.complete {color:#4f314b;}
-      #package-list {gap:0;border:1px solid #dfd3d8;border-radius:1rem;background:white;}
-      #package-list label .rounded-3xl {position:relative;padding-left:2.75rem;border:0;border-radius:0;background:transparent;box-shadow:none;}
-      #package-list label:first-child>div {border-radius:1rem 1rem 0 0;}
-      #package-list label:last-child>div {border-radius:0 0 1rem 1rem;}
-      #package-list label+label {border-top:1px solid #eadfe3;}
-      #package-list label>div:before {content:"";position:absolute;left:1rem;top:1.15rem;width:1rem;height:1rem;border:1.5px solid #a793a2;border-radius:50%;}
-      #package-list label:has(:checked)>div {background:var(--petal);}
-      #package-list label:has(:checked)>div:before {border:5px solid var(--orchid);background:white;}
-      #package-list input:focus-visible+div {outline:3px solid var(--orchid);outline-offset:-3px;}
-      #review-card .ticket-heading {margin:-1.25rem -1.25rem 1.1rem;padding:1.25rem;border-radius:1rem 1rem 0 0;box-shadow:none;}
-      .ticket-heading h3 {font-size:1.35rem;font-weight:700;} .ticket-heading p {color:#f0dfe9;}
-      .ticket-time {display:flex;align-items:center;gap:.7rem;margin-top:1rem;font:650 clamp(1.1rem,4.5vw,1.75rem)/1.2 system-ui;font-variant-numeric:tabular-nums;}
-      .ticket-time span {color:var(--apricot);}
-      .ticket-total>span:last-child {font-size:1.25rem;}
-      #received-progress .current .dot,#client-list .current .dot {box-shadow:inset 0 0 0 4px white,0 0 0 3px #e9cbbd;}
-    }
+    #received-progress .current .dot, #client-list .current .dot { box-shadow:inset 0 0 0 4px #fff, 0 0 0 3px #FFD3E3; }
+    #conf-summary, #confirmation > .bg-white, #confirmation .rounded-2xl.bg-white { border-radius:24px; }
   </style>
 </head>
 <body class="min-h-screen">
@@ -155,7 +169,7 @@
       <section class="studio-band booking-intro space-y-2">
         
         <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Book your makeup session</h1>
-        <p class="text-sm text-slate-600 max-w-md mx-auto">Choose a package and an available time. Your deposit is due after studio approval.</p>
+        <p class="text-sm">Choose a package and an available time. Your deposit is due after studio approval.</p>
         <a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline pt-1"><i data-lucide="instagram" class="w-4 h-4"></i> See my work on Instagram</a>
       </section>
 
@@ -791,7 +805,7 @@
       const finish = fromMin(toMin(start) + currentDuration());
       const ticketHeader = `<header class="ticket-heading studio-band"><h3>${esc(selPkg.name)}</h3><p>${esc(fmtDate(selDate))}</p>
         <div class="ticket-time"><time>${esc(fmtTime(start))}</time><span aria-label="to">→</span><time>${esc(fmtTime(finish))}</time></div></header>`;
-      $('review-card').innerHTML = ticketHeader + rows.filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
+      $('review-card').innerHTML = ticketHeader + '<div class="perf" style="margin-top:0"></div><div style="height:.2rem"></div>' + rows.filter(([, value]) => value).map(([k, v]) => `<div class="flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 min-w-0 break-words font-medium">${esc(v)}</span></div>`).join('') +
         `<div class="ticket-total flex gap-3"><span class="w-24 shrink-0 text-slate-500 text-xs pt-0.5">Estimated total</span><span class="flex-1 font-bold text-blush-700">${esc(fmtRM(estimate()))}<span class="block text-[11px] font-normal text-slate-500">Travel fee to be confirmed based on venue before deposit.</span></span></div>`;
     }
 
