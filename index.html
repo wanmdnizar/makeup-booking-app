@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Makeup by Nureen — Boutique Booking & Receipt Studio</title>
   <meta name="theme-color" content="#BE185D" />
 
@@ -158,19 +158,43 @@
     }
     .agenda-gap,.agenda-note {border-left:3px solid #ddd1db;padding:.45rem .8rem;margin:.35rem 0;font-size:.82rem;color:#5e5260;}
     .agenda-note {background:#f7f4f7;border-radius:.35rem;}
+
+    @media screen {
+      .editing-page {overflow:hidden;}
+      .editing-page #mobile-nav {visibility:hidden;}
+      .work-page:not(.hidden) {position:fixed; inset:var(--work-top,0px) 0 auto; height:var(--work-height,100dvh); z-index:40; background:var(--paper); display:flex; justify-content:center; overflow:hidden; padding:0;}
+      .work-page>div:first-child, #request-editor:not(.hidden) .work-form {width:100%;max-width:48rem;max-height:none;height:100%;display:flex;flex-direction:column;border:0;border-radius:0;box-shadow:none;background:white;}
+      #request-editor:not(.hidden) {width:100%;max-width:none;margin:0;max-height:none;border:0;border-radius:0;align-items:stretch;}
+      .work-page .work-form,#request-edit-form {display:flex;flex-direction:column;min-height:0;flex:1;max-width:48rem;background:white;}
+      .work-scroll {min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;scroll-padding:1rem;}
+      #request-editor .work-scroll {padding:.5rem 1rem 1rem;}
+      #edit-request-title {padding:1rem;border-bottom:1px solid var(--rule);}
+      .work-page .work-footer {flex:none;margin:0;display:flex;justify-content:flex-end;align-items:center;gap:.65rem;background:white;border-top:1px solid var(--rule);padding:.65rem 1rem max(.65rem,env(safe-area-inset-bottom));}
+      .work-footer button {min-height:44px;}
+      #confirm-modal>div {max-height:var(--work-height,90dvh);overflow:auto;}
+      @media(max-width:767px){
+        .work-page .work-scroll {padding:1rem;}
+        .work-page input:not([type=checkbox]),.work-page select,.work-page textarea,#confirm-modal input {font-size:16px;}
+        .work-page .grid {min-width:0;} .work-page input,.work-page select {min-width:0;max-width:100%;}
+        .work-page .work-footer button[type=submit]{flex:1;}
+        #receipt-modal,#import-modal {inset:var(--work-top,0px) 0 auto;height:var(--work-height,100dvh);padding:0;}
+        #receipt-modal>div,#import-modal>div {height:100%;max-height:100%;border-radius:0;}
+        #import-footer {flex-shrink:0;padding-bottom:max(.8rem,env(safe-area-inset-bottom));}
+      }
+      @media(max-width:390px){.work-scroll .grid-cols-3 {grid-template-columns:1fr;}}
+    }
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
 
-  <dialog id="request-editor" aria-labelledby="edit-request-title">
+  <section id="request-editor" class="work-page hidden" aria-labelledby="edit-request-title">
     <form id="request-edit-form">
       <h2 id="edit-request-title" class="font-bold text-xl">Edit pending request</h2>
-      <div id="request-edit-fields"></div>
+      <div class="work-scroll"><div id="request-edit-fields"></div>
       <p id="request-edit-error" role="alert" class="text-sm text-red-700 mt-2"></p>
-      <div class="editor-actions"><button type="button" onclick="document.getElementById('request-editor').close()">Cancel</button><button class="rounded-xl bg-blush-700 text-white px-4 py-2" type="submit">Save changes</button></div>
+      </div><div class="editor-actions work-footer"><button type="button" onclick="closeWorkPage('request-editor')">Cancel</button><button class="rounded-xl bg-blush-700 text-white px-4 py-2" type="submit">Save changes</button></div>
     </form>
-  </dialog>
-  <dialog id="booking-sheet"><button class="sheet-close desk-btn" onclick="this.parentNode.close()">Close</button><h2 id="sheet-title"></h2><div id="sheet-body"></div></dialog>
+  </section>
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
@@ -810,7 +834,7 @@
   </nav>
 
   <!-- ==================== MODAL 1: ADD / EDIT BOOKING ==================== -->
-  <div id="booking-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-40 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+  <div id="booking-modal" class="work-page hidden" aria-labelledby="booking-modal-title">
     <div class="bg-white w-full max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl border border-blush-200 max-h-[92vh] flex flex-col overflow-hidden">
       <div class="px-6 py-4 border-b border-blush-200/70 flex items-center justify-between bg-gradient-to-r from-blush-100 to-blush-50">
         <div>
@@ -822,8 +846,8 @@
         </button>
       </div>
 
-      <form id="booking-form" onsubmit="handleSaveBooking(event)" class="p-6 overflow-y-auto space-y-4">
-        <input type="hidden" id="book-id">
+      <form id="booking-form" onsubmit="handleSaveBooking(event)" class="work-form"><div class="work-scroll p-6 space-y-4">
+        <input type="hidden" id="book-id"><details id="booking-actions" hidden><summary>More booking actions</summary><div class="desk-actions" id="booking-action-list"></div></details>
 
         <div id="conflict-alert-box" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5">
           <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
@@ -916,7 +940,7 @@
           <textarea id="book-notes" rows="2" placeholder="Skin type, outfit color, soft glam look, sensitive eyes..." class="w-full px-3.5 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
         </div>
 
-        <div class="pt-2 flex items-center justify-end gap-2.5">
+        </div><div class="work-footer">
           <button type="button" onclick="closeBookingModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
           <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 text-white text-xs font-bold shadow-md shadow-blush-200 transition">Save Booking</button>
         </div>
@@ -925,7 +949,7 @@
   </div>
 
   <!-- ==================== MODAL 2: PACKAGE EDITOR ==================== -->
-  <div id="package-modal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-40 hidden items-center justify-center p-4">
+  <div id="package-modal" class="work-page hidden" aria-labelledby="package-modal-title">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-blush-200 overflow-hidden">
       <div class="px-6 py-4 border-b border-blush-200/70 flex items-center justify-between bg-blush-50">
         <h3 id="package-modal-title" class="font-serif font-bold text-lg text-charcoal">Add Service Package</h3>
@@ -933,7 +957,7 @@
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <form id="package-form" onsubmit="handleSavePackage(event)" class="p-6 space-y-4">
+      <form id="package-form" onsubmit="handleSavePackage(event)" class="work-form"><div class="work-scroll p-6 space-y-4">
         <input type="hidden" id="pkg-id">
         <div>
           <label class="block text-xs font-semibold text-charcoal mb-1">Package Name *</label>
@@ -958,7 +982,7 @@
           </div>
         </div>
         <p class="text-[11px] text-slate-400">Duration is used to stop double bookings on the public calendar. Editing a package never changes receipts that were already created.</p>
-        <div class="flex justify-end gap-2 pt-2">
+        </div><div class="work-footer">
           <button type="button" onclick="closePackageModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
           <button type="submit" class="px-5 py-2 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold">Save Package</button>
         </div>
@@ -1452,17 +1476,43 @@
       byId('today-inbox').textContent='Review requests ('+open+')';
     }
     function reminderKey(b) { return b.eventDate+' '+b.startTime; }
-    function openSheet(b) {
-      const sheet=byId('booking-sheet');
-      byId('sheet-title').textContent=b.clientName;
-      byId('sheet-body').innerHTML='<p>'+esc(b.packageName)+'</p><dl>'+[
-        ['Session',formatDisplayDate(b.eventDate)+' · '+formatDisplayTime(b.startTime)+' – '+formatDisplayTime(b.endTime)],
-        ['Venue',b.venue],['Ready by',b.readyBy&&formatDisplayTime(b.readyBy)],['Quote',formatRM(b.subtotal)],['Payment',payLabel(b)],['Paid',formatRM(b.depositPaid)],['Balance',formatRM(b.balanceDue)],['Notes',b.notes]
-      ].filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl><div class="desk-actions">'+taskButton(depositMet(b)?'Edit appointment':'Record deposit','edit',b.id,'primary')+'<a class="desk-btn" href="'+esc(mapsUrl(b.venue))+'" rel="noopener" target="_blank">Open Maps ↗</a>'+taskButton('WhatsApp','wa',b.id)+'</div><details><summary>More actions</summary><div class="desk-actions">'+[['Edit booking','edit'],['Receipt / PDF','receipt'],['Copy reminder','copy'],['Google Calendar','google'],['Download calendar file','ics'],['Mark fully paid','paid'],['Delete booking','delete']].map(([l,a])=>taskButton(l,a,b.id)).join('')+'</div></details>';
-      if (!sheet.open) sheet.showModal();
+    let activeWorkPage = '';
+    let workTrigger;
+    let workScroll = 0;
+    function fitEditor() {
+      const viewport = window.visualViewport;
+      if (viewport && viewport.scale === 1) {
+        document.documentElement.style.setProperty('--work-height',viewport.height+'px');
+        document.documentElement.style.setProperty('--work-top',viewport.offsetTop+'px');
+      }
     }
+    window.visualViewport?.addEventListener('resize',fitEditor);
+    window.visualViewport?.addEventListener('scroll',fitEditor);
+    function openWorkPage(id) {
+      if (!activeWorkPage) {workTrigger=document.activeElement; workScroll=window.scrollY;}
+      else if (activeWorkPage!==id) byId(activeWorkPage).classList.add('hidden');
+      activeWorkPage=id;
+      const page=byId(id);
+      fitEditor();
+      byId('app-shell').inert=true;
+      byId('mobile-nav').inert=true;
+      document.body.classList.add('editing-page');
+      page.classList.remove('hidden');
+      const scroller=page.querySelector('.work-scroll');
+      if(scroller)scroller.scrollTop=0;
+      const title=page.querySelector('h2,h3'); title.tabIndex=-1; title.focus({preventScroll:true});
+    }
+    window.closeWorkPage = function(id) {
+      byId(id).classList.add('hidden');
+      if(activeWorkPage!==id)return;
+      activeWorkPage='';
+      byId('app-shell').inert=false;
+      byId('mobile-nav').inert=false;
+      document.body.classList.remove('editing-page');
+      workTrigger?.focus({preventScroll:true});window.scrollTo({top:workScroll,behavior:'instant'});
+    };
     const jobActions={
-      details:openSheet,wa:b=>quickWhatsAppClient(b.id),edit:b=>openBookingModal(null,b.id),
+      details:b=>openBookingModal(null,b.id),wa:b=>quickWhatsAppClient(b.id),edit:b=>openBookingModal(null,b.id),
       receipt:b=>openReceiptModal(b.id),copy:b=>copyReminder(b.id),google:b=>openGoogleCalendar(b.id),
       ics:b=>downloadBookingICS(b.id),paid:b=>markFullyPaid(b.id),delete:b=>confirmDeleteBooking(b.id),
       remind:b=>quickReminderWhatsApp(b.id),
@@ -1479,7 +1529,8 @@
       if (!button) return;
       const b=appState.bookings.find(row=>row.id===button.dataset.key);
       if (!b) return;
-      if(byId('booking-sheet').open) byId('booking-sheet').close();
+
+      if(button.closest('#booking-actions') && ['receipt','delete','paid'].includes(button.dataset.operation)) closeBookingModal();
       try { await jobActions[button.dataset.operation](b); }
       catch { showToast('Action could not be completed. Refresh and try again.','error'); }
     });
@@ -1691,6 +1742,7 @@
           }
           tx.set(requestRef, {
             status: 'approved',
+            approvedTotal:booking.subtotal, approvedTravel:options.travelFee, depositRequired:booking.depositRequired??null, depositDue:booking.depositDue||'',
             bookingId: booking.id,
             handledAt: serverTimestamp()
           }, { merge: true });
@@ -1744,7 +1796,7 @@
 
     function resetLocalState() {
       publicSettingsDirty=false;
-      if(byId('booking-sheet').open)byId('booking-sheet').close();
+      if(activeWorkPage) closeWorkPage(activeWorkPage);
       appState.settings = { ...DEFAULT_SETTINGS };
       appState.packages = DEFAULT_PACKAGES.map(p => ({ ...p }));
       appState.bookings = [];
@@ -2862,7 +2914,6 @@
     // BOOKING MODAL & FIRESTORE + APPS SCRIPT SAVE/DELETE
     // =========================================================================
     window.openBookingModal = function(preselectedDate = null, editBookingId = null) {
-      const modal = document.getElementById('booking-modal');
       const pkgSelect = document.getElementById('book-package');
 
       pkgSelect.innerHTML = appState.packages.map(p =>
@@ -2904,18 +2955,21 @@
         }
       }
 
+      const tools = byId('booking-actions');
+      tools.hidden = !editBookingId;
+      tools.open=false;
+      if(editBookingId) {
+        const booking=appState.bookings.find(b=>b.id===editBookingId);
+        byId('booking-action-list').innerHTML='<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(booking.venue))+'">Open Maps ↗</a>'+
+          [['WhatsApp','wa'],['Receipt / PDF','receipt'],['Copy reminder','copy'],['Google Calendar','google'],['Download calendar file','ics'],['Mark fully paid','paid'],['Delete booking','delete']].map(([label,action])=>taskButton(label,action,booking.id)).join('');
+      }
       recalculateBookingTotals();
       checkBookingConflicts();
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      openWorkPage('booking-modal');
       lucide.createIcons();
     };
 
-    window.closeBookingModal = function() {
-      const modal = document.getElementById('booking-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    };
+    window.closeBookingModal = () => closeWorkPage('booking-modal');
 
     window.handlePackageSelectChange = function() {
       const select = document.getElementById('book-package');
@@ -3115,7 +3169,6 @@
     }
 
     window.openPackageModal = function(pkgId = null) {
-      const modal = document.getElementById('package-modal');
       if (pkgId) {
         const p = appState.packages.find(item => item.id === pkgId);
         if (!p) return;
@@ -3132,15 +3185,10 @@
         document.getElementById('package-form').reset();
         document.getElementById('pkg-id').value = '';
       }
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      openWorkPage('package-modal');
     };
 
-    window.closePackageModal = function() {
-      const modal = document.getElementById('package-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    };
+    window.closePackageModal = () => closeWorkPage('package-modal');
 
     window.handleSavePackage = async function(event) {
       event.preventDefault();
@@ -3704,7 +3752,7 @@
 
     window.requestWA = function(id, kind) {
       const r = appState.requests.find(x => x.id === id);
-      if (r) requestWhatsApp(r, kind);
+      if (r) requestWhatsApp(r, kind, r.approvedTotal, r.approvedTravel);
     };
 
     function isTravelCharge(addon) {
@@ -3729,7 +3777,7 @@
       const services=appState.packages.filter(p=>!p.addon);
       byId('request-edit-fields').insertAdjacentHTML('beforeend','<details><summary>Change quoted services</summary><label><input type="checkbox" name="replaceServices"> Replace services using the current catalogue</label><label>Package<select name="selectedBase">'+services.map(p=>'<option value="'+esc(p.id)+'" '+(p.id===r.packageId?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label>'+extras.map(p=>'<label><input type="checkbox" name="selectedExtras" value="'+esc(p.id)+'" '+((r.addons||[]).some(a=>a.id===p.id || a.name===p.name)?'checked':'')+'>'+esc(p.name)+'</label>').join('')+'</details>');
       document.getElementById('request-edit-error').textContent = '';
-      document.getElementById('request-editor').showModal();
+      openWorkPage('request-editor');
     };
     document.getElementById('request-edit-form').onsubmit = async event=>{
       event.preventDefault();
@@ -3760,7 +3808,7 @@
           if (!snap.exists() || snap.data().status!=='pending' || (snap.data().revision||0)!==(target.revision||0)) throw new Error('stale');
           tx.update(ref,{...fields, allergyStatus:fields.allergies?'yes':'none', revision:(target.revision||0)+1});
         });
-        document.getElementById('request-editor').close(); showToast('Request updated.');
+        closeWorkPage('request-editor'); showToast('Request updated.');
       } catch { error.textContent='Could not save. Check your connection and reopen the latest request.'; }
       finally { btn.disabled = false; }
     };
@@ -3811,7 +3859,7 @@
           <label class="text-xs font-semibold">Final travel fee (RM)
             <input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2)}" class="w-24 ml-1 border border-blush-200 rounded-lg p-2">
           </label>
-          <button onclick="approveRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="check" class="w-3.5 h-3.5"></i> Approve</button>
+          <button id="approve-${id}" data-service="${preview?preview.serviceTotal:'NaN'}" onclick="approveRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="check" class="w-3.5 h-3.5"></i> Approve</button>
           <button onclick="declineRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="x" class="w-3.5 h-3.5"></i> Decline</button>
           <button onclick="requestWA('${id}','chat')" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp</button>
           <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Maps</a>
@@ -3845,6 +3893,7 @@
           ? pending.map(requestCardHTML).join('')
           : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p></div>';
         for(const [id,value] of drafts){const el=byId(id);if(el)el.value=value;}
+        pending.forEach(r=>refreshApprovalPrice(r.id));
         if(focused)byId(focused)?.focus({preventScroll:true});
       }
       document.getElementById('req-handled-count').textContent = handled.length ? `(${handled.length})` : '';
@@ -3856,6 +3905,7 @@
           <div class="flex items-center gap-2 shrink-0">
             <span class="px-2 py-0.5 rounded-full font-bold ${label === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(label)}</span>
           ${r.guest === true ? `<button onclick="replaceGuestLink('${esc(r.id)}')" class="text-xs underline">Replace private link</button>` : ''}
+            ${label==='approved' && r.approvedTotal!=null ? `<button onclick="requestWA('${esc(r.id)}','approve')" class="desk-btn">Send approval via WhatsApp</button>` : ''}
             ${label === 'declined' ? `<button onclick="restoreRequest('${esc(r.id)}')" class="font-semibold text-blush-700 underline">Restore</button>` : ''}
             <button onclick="deleteRequest('${esc(r.id)}')" class="p-1 text-red-500 font-bold" aria-label="Delete request" title="Delete">✕</button>
           </div>
@@ -3905,7 +3955,21 @@
       );
     };
 
-    window.approveRequest = function(id) {
+    const approvalsSaving=new Set();
+    function refreshApprovalPrice(id) {
+      const button=byId('approve-'+id);
+      if(!button)return;
+      const travel=byId('travel-'+id)?.valueAsNumber;
+      const base=Number(button.dataset.service);
+      button.textContent=Number.isFinite(travel) && Number.isFinite(base)?'Approve · '+formatRM(base+travel):'Approve';
+      button.disabled=approvalsSaving.has(id);
+      if(button.disabled)button.textContent='Approving…';
+    }
+    byId('requests-pending').addEventListener('input',event=>{
+      if(event.target.id.startsWith('travel-'))refreshApprovalPrice(event.target.id.slice(7));
+    });
+    window.approveRequest = async function(id) {
+      if(approvalsSaving.has(id))return;
       const r = appState.requests.find(x => x.id === id);
       if (!r || r.status !== 'pending') return;
       if (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites) {
@@ -3931,13 +3995,10 @@
       const finish=minutes(r.startTime)+quote.duration;
       if(finish>=1440 || (r.readyBy && finish>minutes(r.readyBy))){showToast('The catalogue duration does not fit the ready-by time. Edit the request first.','error');return;}
       const clash=requestClash(revised);
-      const original=r.originalEstimate??(num(r.packagePrice)+(r.addons||[]).reduce((sum,a)=>sum+num(a.price),0));
-      openConfirmModal(
-        'Approve this request?',
-        (clash ? `Current schedule check: ${clash} ` : '') + `Submitted estimate: ${formatRM(original)} for ${r.originalDuration??r.durationMins} min. Current catalogue: ${quote.duration} min. Required deposit: ${formatRM(depositRequired)}${depositDue ? ' by '+depositDue : ''}. Final quote: ${formatRM(finalTotal)}, including ${formatRM(travel)} for travel. The app will recheck the time conflict and your ${maxBookingsPerDay()}-booking daily limit before saving. This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)}.`,
-        async () => {
-          if (!currentUser || !db) return;
-          try {
+      if(clash){showToast(clash,'error');return;}
+      if(!currentUser || !db)return;
+      approvalsSaving.add(id); refreshApprovalPrice(id);
+      try {
             const receiptNo = await allocateReceiptNo();
             const bid = 'bk_' + Date.now() + '_' + Math.random().toString(16).slice(2, 8);
             const notes = [
@@ -3967,15 +4028,12 @@
               enforceSlotConflict: true,
               enforceBlockedDate: true
             });
-            showToast('Approved! Booking created. Send the client a WhatsApp next.');
-            requestWhatsApp({...r,depositRequired,depositDue}, 'approve', finalTotal, travel);
-          } catch (err) {
-            console.error(err);
-            showToast(capacityErrorMessage(err), 'error');
-          }
-        },
-        'Approve'
-      );
+        showToast('Booking approved.');
+      } catch (err) {
+        console.error(err); showToast(capacityErrorMessage(err),'error');
+      } finally {
+        approvalsSaving.delete(id); refreshApprovalPrice(id);
+      }
     };
 
     window.declineRequest = function(id) {
@@ -4564,6 +4622,7 @@
         ['confirm-modal', window.closeConfirmModal],
         ['receipt-modal', window.closeReceiptModal],
         ['import-modal', window.closeImportModal],
+        ['request-editor', ()=>closeWorkPage('request-editor')],
         ['booking-modal', window.closeBookingModal],
         ['package-modal', window.closePackageModal]
       ];
