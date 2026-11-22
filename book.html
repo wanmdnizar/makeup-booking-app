@@ -217,24 +217,22 @@
         <div id="time-wrap" class="hidden space-y-3">
           <div>
             <label for="f-time" class="block text-sm font-semibold mb-1">Makeup start time *</label>
-            <select id="f-time" class="field"></select>
+            <select id="f-time" class="field" aria-describedby="time-hint"></select>
             <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
           </div>
           <div>
-            <label for="f-ready" class="block text-sm font-semibold mb-1">Event / ready-by time <span class="font-normal text-slate-500">(optional)</span></label>
+            <label for="f-ready" class="block text-sm font-semibold mb-1">What time do you need to be ready? <span class="font-normal text-slate-500">(optional)</span></label>
             <input type="time" id="f-ready" class="field">
-            <p class="text-xs text-slate-500 mt-1">Your selected session must finish by this time on the same day.</p>
           </div>
         </div>
           <div>
-            <label class="block text-sm font-semibold mb-1" for="f-venue">Event / makeup location *</label>
+            <label class="block text-sm font-semibold mb-1" for="f-venue">Makeup location *</label>
             <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
             <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
           <div>
             <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
-            <p class="text-xs text-slate-500 mt-1">In Google Maps, open the place, tap Share and copy the link. It helps us plan travel time.</p>
             <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
         </div>
@@ -567,7 +565,7 @@
     }
 
     function renderProgress() {
-      const labels = ['Package', 'Visit', 'Details', 'Review'];
+      const labels = ['Package', 'Appointment', 'Details', 'Review'];
       $('flow').classList.toggle('compact-intro', step > 1);
       $('progress').innerHTML = labels.map((label,i) => {
         const n=i+1;
@@ -700,7 +698,9 @@
       const keep = sel.value;
       sel.innerHTML = '<option value="">Select a start time</option>' + starts.map(t => `<option value="${fromMin(t)}">${fmtTime(fromMin(t))} – ${fmtTime(fromMin(t + dur))}</option>`).join('');
       if (keep && starts.includes(toMin(keep))) sel.value = keep;
-      $('time-hint').innerHTML = '<strong>Session length</strong> '+esc(fmtDur(dur))+'<br>Available times include travel buffers.';
+      const travelMinutes = BUFFER();
+      $('time-hint').innerHTML = '<strong>Session duration</strong> · '+esc(fmtDur(dur))+
+        (travelMinutes > 0 ? '<br>We allow '+esc(travelMinutes)+' minutes between appointments for travel.' : '');
       $('time-wrap').classList.remove('hidden');
     }
 
