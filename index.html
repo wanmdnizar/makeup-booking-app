@@ -250,6 +250,19 @@
     .request-context { margin-top:.7rem; padding:.7rem .85rem; border-radius:14px; background:var(--paper); font-size:.78rem; }
     .request-context p { padding:.15rem 0; margin:0; overflow-wrap:anywhere; }
     .link-btn { font-size:.76rem; font-weight:650; color:var(--rose); text-decoration:underline; text-underline-offset:.2em; }
+    /* Handled requests: one compact row, actions open underneath (no sideways overflow on phones) */
+    #requests-pending,#requests-handled{min-width:0;max-width:100%}
+    .handled-row{border-radius:12px;background:#FFF8FB;border:1px solid var(--rule);font-size:.8rem;min-width:0}
+    .handled-row>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto 1rem;align-items:center;gap:.6rem;min-height:48px;padding:.55rem .75rem;cursor:pointer}
+    .handled-row>summary::-webkit-details-marker{display:none}
+    .handled-row>summary::after{content:"\25BE";color:var(--muted);font-size:.8rem;transition:transform .15s}
+    .handled-row[open]>summary::after{transform:rotate(180deg)}
+    .handled-row .h-name{font-weight:650;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .handled-row .h-name small{font-weight:400;color:var(--muted);margin-left:.3rem}
+    .handled-row .h-date{color:var(--muted)}
+    .handled-actions{display:flex;flex-wrap:wrap;gap:.45rem;padding:0 .75rem .75rem}
+    .handled-actions .desk-btn,.handled-actions .danger-link{min-height:40px}
+    .handled-actions .danger-link{display:inline-flex;align-items:center;padding:0 .6rem;color:#b91c1c;font-weight:650;background:none;border:0;cursor:pointer}
     .approval { margin:.8rem 0 0; padding:1rem 1.1rem 1.1rem; background:linear-gradient(180deg,var(--paper),#FFEDF4); border-top:1.5px dashed #F2C2D6; }
     .approval-title { font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--rose-600); margin:0 0 .6rem; }
     .approval-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
@@ -4009,20 +4022,25 @@
         if(focused)byId(focused)?.focus({preventScroll:true});
       }
       document.getElementById('req-handled-count').textContent = handled.length ? `(${handled.length})` : '';
-      document.getElementById('requests-handled').innerHTML = handled.length ? handled.map(r => {
+      const handledBox = document.getElementById('requests-handled');
+      const openRows = new Set(Array.from(handledBox.querySelectorAll('details[open][data-rid]'), d => d.dataset.rid));
+      handledBox.innerHTML = handled.length ? '<div class="grid gap-2">' + handled.map(r => {
         const label = r.status === 'pending' ? 'expired' : r.status;
+        const rid = esc(r.id);
         return `
-        <div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-blush-50/50 text-xs">
-          <div class="min-w-0"><p class="font-semibold text-charcoal truncate">${esc(r.clientName)} <span class="text-slate-400 font-normal">${esc(r.ref)}</span></p><p class="text-slate-500">${esc(formatDisplayDate(r.eventDate))}</p></div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="px-2 py-0.5 rounded-full font-bold ${label === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(label)}</span>
-          ${r.guest === true ? `<button onclick="replaceGuestLink('${esc(r.id)}')" class="link-btn">New tracking link</button>` : ''}
-            ${label==='approved' && r.approvedTotal!=null ? `<button onclick="requestWA('${esc(r.id)}','approve')" class="desk-btn">Send approval via WhatsApp</button>` : ''}
-            ${label === 'declined' ? `<button onclick="restoreRequest('${esc(r.id)}')" class="font-semibold text-blush-700 underline">Restore</button>` : ''}
-            <button onclick="deleteRequest('${esc(r.id)}')" class="p-1 text-red-500 font-bold" aria-label="Delete request" title="Delete">✕</button>
+        <details class="handled-row" data-rid="${rid}"${openRows.has(r.id) ? ' open' : ''}>
+          <summary>
+            <span style="min-width:0"><span class="h-name block">${esc(r.clientName)}<small>${esc(r.ref)}</small></span><span class="h-date block">${esc(formatDisplayDate(r.eventDate))}</span></span>
+            <span class="px-2 py-0.5 rounded-full font-bold text-xs ${label === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(label)}</span>
+          </summary>
+          <div class="handled-actions">
+            ${label==='approved' && r.approvedTotal!=null ? `<button type="button" onclick="requestWA('${rid}','approve')" class="desk-btn">Send approval via WhatsApp</button>` : ''}
+            ${r.guest === true ? `<button type="button" onclick="replaceGuestLink('${rid}')" class="desk-btn">New tracking link</button>` : ''}
+            ${label === 'declined' ? `<button type="button" onclick="restoreRequest('${rid}')" class="desk-btn">Restore</button>` : ''}
+            <button type="button" onclick="deleteRequest('${rid}')" class="danger-link">Delete</button>
           </div>
-        </div>`;
-      }).join('') + `<button onclick="clearHandledRequests()" class="mt-2 w-full py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold">Delete all handled requests (${handledAll.length})</button>` : '<p class="text-xs text-slate-400">Nothing yet.</p>';
+        </details>`;
+      }).join('') + `</div><p class="mt-3 text-center"><button type="button" onclick="clearHandledRequests()" class="link-btn" style="color:#b91c1c">Delete all handled requests (${handledAll.length})</button></p>` : '<p class="text-xs text-slate-400">Nothing yet.</p>';
     }
 
     window.deleteRequest = function(id) {
