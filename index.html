@@ -421,7 +421,7 @@
           <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn is-active"><i aria-hidden="true" data-lucide="sun"></i>Today</button>
           <button onclick="switchTab('schedule')" data-tab="schedule" class="nav-btn"><i aria-hidden="true" data-lucide="calendar-days"></i>Schedule</button>
           <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn"><i aria-hidden="true" data-lucide="inbox"></i>Requests <span id="req-badge" class="badge hidden">0</span></button>
-          <button onclick="switchTab('money')" data-tab="money" class="nav-btn"><i aria-hidden="true" data-lucide="wallet"></i>Money</button>
+          <button onclick="switchTab('money')" data-tab="money" class="nav-btn"><i aria-hidden="true" data-lucide="wallet"></i>Finances</button>
           <button onclick="switchTab('studio')" data-tab="studio" class="nav-btn"><i aria-hidden="true" data-lucide="sparkles"></i>Studio</button>
         </nav>
 
@@ -445,7 +445,7 @@
       <!-- ==================== SCHEDULE (day / week / month / list) ==================== -->
       <section id="tab-schedule" class="tab-content hidden space-y-4">
         <div class="page-head">
-          <div><p class="eyebrow">Schedule</p><h1>Bookings</h1><p class="quiet" id="range-heading"></p></div>
+          <div><h1>Schedule</h1><p class="quiet" id="range-heading"></p></div>
           <div class="seg" id="sched-seg" role="group" aria-label="Schedule view">
             <button type="button" data-view="day" onclick="setSchedView('day')">Day</button>
             <button type="button" data-view="week" onclick="setSchedView('week')">Week</button>
@@ -501,7 +501,7 @@
 
       <!-- ==================== REQUESTS ==================== -->
       <section id="tab-requests" class="tab-content hidden space-y-5">
-        <div class="page-head"><div><p class="eyebrow">Inbox</p><h1>Requests</h1><p class="quiet">From your public booking page. Approving one creates the booking and blocks that time.</p></div></div>
+        <div class="page-head"><div><h1>Requests</h1><p class="quiet">From your public booking page. Approving one creates the booking and blocks that time.</p></div></div>
         <div id="requests-pending" class="space-y-4"></div>
         <details class="desk-card">
           <summary class="font-semibold cursor-pointer" style="color:var(--rose-deep)">Handled requests <span id="req-handled-count" class="quiet"></span></summary>
@@ -511,7 +511,7 @@
 
       <!-- ==================== MONEY (overview + expenses) ==================== -->
       <section id="tab-money" class="tab-content hidden space-y-5">
-        <div class="page-head"><div><p class="eyebrow">Finance</p><h1>Money</h1></div>
+        <div class="page-head"><div><h1>Finances</h1></div>
           <div class="seg" id="money-seg"><button type="button" data-view="overview" onclick="setMoneyView('overview')" class="is-on">Overview</button><button type="button" data-view="expenses" onclick="setMoneyView('expenses')">Expenses</button></div>
         </div>
         <div id="money-overview" class="space-y-5">
@@ -588,7 +588,7 @@
 
       <!-- ==================== STUDIO (profile / packages / booking page / data) ==================== -->
       <section id="tab-studio" class="tab-content hidden space-y-5">
-        <div class="page-head"><div><p class="eyebrow">Settings</p><h1>Studio</h1></div>
+        <div class="page-head"><div><h1>Studio</h1></div>
           <div class="seg" id="studio-seg">
             <button type="button" data-view="profile" onclick="setStudioView('profile')" class="is-on">Profile</button>
             <button type="button" data-view="packages" onclick="setStudioView('packages')">Packages</button>
@@ -684,9 +684,8 @@
                 <details class="hours-card"><summary>Weekly working hours</summary><label><input type="checkbox" id="custom-hours"> Use custom weekday hours</label><div id="weekday-hours"></div></details>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-semibold text-charcoal mb-1">Travel buffer (minutes)</label>
+                    <label class="block text-xs font-semibold text-charcoal mb-1" for="pub-buffer">Travel time between appointments (minutes)</label>
                     <input type="number" id="pub-buffer" min="0" max="480" step="15" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
-                    <p class="text-[11px] text-slate-400 mt-1">Gap kept after each job.</p>
                   </div>
                   <div>
                     <label class="block text-xs font-semibold text-charcoal mb-1">Earliest booking (days ahead)</label>
@@ -802,7 +801,7 @@
     <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn is-active"><i data-lucide="sun"></i><span>Today</span></button>
     <button onclick="switchTab('schedule')" data-tab="schedule" class="mobile-nav-btn"><i data-lucide="calendar-days"></i><span>Schedule</span></button>
     <button onclick="switchTab('requests')" data-tab="requests" class="mobile-nav-btn"><i data-lucide="inbox"></i><span>Requests</span><span id="req-badge-m" class="badge hidden">0</span></button>
-    <button onclick="switchTab('money')" data-tab="money" class="mobile-nav-btn"><i data-lucide="wallet"></i><span>Money</span></button>
+    <button onclick="switchTab('money')" data-tab="money" class="mobile-nav-btn"><i data-lucide="wallet"></i><span>Finances</span></button>
     <button onclick="switchTab('studio')" data-tab="studio" class="mobile-nav-btn"><i data-lucide="sparkles"></i><span>Studio</span></button>
   </nav>
 
@@ -946,7 +945,7 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Duration (minutes)</label>
+            <label class="block text-xs font-semibold text-charcoal mb-1" for="pkg-duration">Session duration (minutes)</label>
             <input type="number" id="pkg-duration" min="0" step="15" placeholder="120" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
           <div class="flex flex-col justify-end gap-2 text-xs text-charcoal pb-1">
@@ -954,7 +953,7 @@
             <label class="flex items-center gap-2"><input type="checkbox" id="pkg-hidden" class="accent-pink-600"> Hide from public page</label>
           </div>
         </div>
-        <p class="text-[11px] text-slate-400">Duration is used to stop double bookings on the public calendar. Editing a package never changes receipts that were already created.</p>
+        <p class="text-[11px] text-slate-400">Available start times use the package duration plus any selected add-ons.</p>
         </div><div class="work-footer">
           <button type="button" onclick="closePackageModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
           <button type="submit" class="px-5 py-2 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold">Save Package</button>
