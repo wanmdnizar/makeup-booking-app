@@ -30,18 +30,10 @@
           },
           colors: {
             blush: {
-              50: '#FFF8FA',
-              100: '#FFF0F5',
-              200: '#FFE0EC',
-              300: '#FFC2D9',
-              400: '#FF94BD',
-              500: '#F45B96',
-              600: '#E13275',
-              700: '#BE185D',
-              800: '#9D174D',
-              900: '#831843',
+              50: '#FFF8FB', 100: '#FFE8F0', 200: '#FFD3E3', 300: '#FFA8C8', 400: '#FF7FAE',
+              500: '#EC4C8D', 600: '#DB2F73', 700: '#BE185D', 800: '#9D174D', 900: '#831843',
             },
-            charcoal: '#231F20'
+            charcoal: '#2B1B22'
           }
         }
       }
@@ -49,144 +41,269 @@
   </script>
 
   <style>
-    body {
-      background-color: #FFF8FA;
-      color: #231F20;
-      -webkit-tap-highlight-color: transparent;
+    /* =====================================================================
+       MAKEUP BY NUREEN — PINK TICKET THEME (admin app)
+       One palette, one set of components. Change colours in :root only.
+       ===================================================================== */
+    :root {
+      --rose:#BE185D; --rose-600:#DB2F73; --rose-500:#EC4C8D; --rose-deep:#831843; --rose-ink:#4A0F2B;
+      --grad:linear-gradient(135deg,#EC4C8D 0%,#D1286F 45%,#9D174D 100%);
+      --bg:#FFF3F7; --paper:#FFF8FB; --card:#FFFFFF; --ink:#2B1B22; --muted:#7D6571;
+      --rule:#F6D9E5; --petal:#FFE8F0; --petal-2:#FFD3E3; --peach:#FFDCCB;
+      --ok:#0F7B54; --ok-bg:#DDF6EA; --warn:#A1520A; --warn-bg:#FFEBCF; --bad:#BE123C; --bad-bg:#FFE1E7; --info:#9D174D; --info-bg:#FFE0EC;
+      --shadow:0 12px 32px -20px rgba(190,24,93,.55);
+      --shadow-sm:0 2px 8px -4px rgba(190,24,93,.25);
     }
-    .glass-header {
-      background: rgba(255, 248, 250, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    #receipt-printable-area { background: #ffffff; color: #231F20; }
+    html { scroll-behavior:smooth; }
+    body { background-color:var(--bg); background-image:radial-gradient(ellipse 70% 38% at 100% 0%,#FFDCEA 0,transparent 70%); background-attachment:fixed; color:var(--ink); -webkit-tap-highlight-color:transparent; font-feature-settings:"tnum"; }
+    .hidden { display:none !important; }
+    [hidden] { display:none !important; }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+    #receipt-printable-area { background:#fff; color:#231F20; }
+    :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid var(--rose-500); outline-offset:2px; }
 
-    @media screen {
-      body { background: #f6f5f3; color:#242026; }
-      :is(header,.glass-header) { background:rgba(255,255,255,.94); border-color:#dad6d8; }
-      :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid #904465; outline-offset:3px; }
-      .tab-content .rounded-3xl.bg-white, #flow .bg-white.rounded-3xl, #confirmation > .bg-white, #client-panel {
-        border-radius:1.1rem; border-color:#dedadc; box-shadow:0 2px 7px #21162008;
-      }
-      :is(h1,h2,h3).font-serif { font-family:'Inter',system-ui,sans-serif; letter-spacing:-.035em; }
-      .field { border-color:#d6d1d4; border-radius:.7rem; }
-    }
+    /* ---------- header ---------- */
+    .glass-header { background:rgba(255,255,255,.88); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-bottom:1px solid var(--rule); }
 
-    @media screen {
-      #auth-screen { background:radial-gradient(ellipse at top right,#e9dbe3,transparent 55%),#f5f4f2; }
-      #auth-screen > div { box-shadow:0 12px 40px #35243210; border-color:#dcd5d9; }
-      #app-shell nav .nav-btn { border-radius:.55rem; }
-      #tab-dashboard > .bg-gradient-to-br { background:linear-gradient(110deg,#2e2630,#493341); box-shadow:0 4px 16px #2d203013; }
-      #app-shell .nav-btn { min-height:2.25rem; }
-      #app-shell .bg-gradient-to-r.text-white { background-image:none; background-color:#803456; }
-      #tab-requests .rounded-3xl { border-radius:1rem; }
-      #app-shell .tab-content h2 { letter-spacing:-.04em; }
-      #tab-requests article { border-color:#d8d3d7; }
+    /* ---------- navigation ---------- */
+    .nav-btn { display:flex; align-items:center; gap:.65rem; width:100%; padding:.7rem .85rem; border-radius:16px; font-size:.86rem; font-weight:600; color:var(--muted); transition:background .15s,color .15s,transform .1s; text-align:left; white-space:nowrap; }
+    .nav-btn:hover { background:var(--petal); color:var(--rose-deep); }
+    .nav-btn svg { width:1.15rem; height:1.15rem; flex-shrink:0; }
+    .nav-btn.is-active { background:var(--grad); color:#fff; box-shadow:0 8px 18px -10px rgba(190,24,93,.9); }
+    .nav-btn .badge { margin-left:auto; min-width:1.35rem; padding:.05rem .4rem; border-radius:999px; background:var(--rose); color:#fff; font-size:.68rem; font-weight:700; text-align:center; }
+    .nav-btn.is-active .badge { background:#fff; color:var(--rose); }
+    #studio-rail { display:none; }
+    @media (min-width:768px) {
+      #studio-rail { display:flex; flex-direction:column; gap:.3rem; position:fixed; left:0; top:4rem; bottom:0; width:11.5rem; padding:1.2rem .8rem; background:rgba(255,255,255,.7); backdrop-filter:blur(10px); border-right:1px solid var(--rule); z-index:20; }
+      #app-shell main { margin-left:11.5rem; padding:1.8rem clamp(1rem,3vw,3rem) 3rem; }
+      #mobile-nav { display:none !important; }
     }
-    #request-editor { width:min(32rem,calc(100% - 2rem)); margin:auto; padding:1.4rem; max-height:85vh; border:1px solid #dedadc; border-radius:1rem; color:#242026; }
-    #request-editor::backdrop { background:#241b235c; }
-    #request-editor label { display:grid; gap:.25rem; font-size:.82rem; font-weight:600; margin-top:.7rem; }
-    #request-editor input,#request-editor textarea { border:1px solid #ccc5c9; border-radius:.65rem; padding:.6rem; font:inherit; width:100%; }
+    #app-shell main { max-width:80rem; }
+    #app-shell header > div { max-width:80rem; }
+    #mobile-nav { position:fixed; left:.7rem; right:.7rem; bottom:max(.6rem,env(safe-area-inset-bottom)); z-index:30; display:flex; justify-content:space-between; gap:.15rem; padding:.4rem; background:rgba(255,255,255,.94); backdrop-filter:blur(14px); border:1px solid var(--rule); border-radius:26px; box-shadow:0 14px 34px -14px rgba(157,23,77,.55); }
+    .mobile-nav-btn { position:relative; flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:.15rem; padding:.45rem .1rem; border-radius:20px; color:#9B8390; font-size:.64rem; font-weight:600; transition:all .15s; }
+    .mobile-nav-btn svg { width:1.3rem; height:1.3rem; }
+    .mobile-nav-btn.is-active { background:var(--grad); color:#fff; box-shadow:0 8px 16px -8px rgba(190,24,93,.85); }
+    .mobile-nav-btn .badge { position:absolute; top:.1rem; right:.7rem; min-width:1rem; height:1rem; padding:0 .25rem; border-radius:999px; background:var(--rose-deep); color:#fff; font-size:.6rem; line-height:1rem; text-align:center; }
+    .editing-page { overflow:hidden; }
+    .editing-page #mobile-nav { visibility:hidden; }
+
+    /* ---------- page furniture ---------- */
+    .page-head { display:flex; align-items:flex-end; justify-content:space-between; gap:.8rem; flex-wrap:wrap; margin-bottom:.2rem; }
+    .page-head h1 { font:800 clamp(1.9rem,5vw,2.7rem)/1.05 Inter,system-ui,sans-serif; letter-spacing:-.045em; color:var(--rose-ink); }
+    .eyebrow { font-size:.7rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--rose-600); margin-bottom:.25rem; }
+    .quiet { font-size:.86rem; color:var(--muted); margin:.3rem 0; }
+    .desk-card { background:var(--card); border:1px solid var(--rule); border-radius:24px; padding:clamp(1rem,2.5vw,1.6rem); box-shadow:var(--shadow-sm); }
+    .desk-card > h2, .card-title { font-size:1.02rem; font-weight:750; color:var(--rose-ink); margin-bottom:.7rem; letter-spacing:-.01em; }
+    .desk-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:1rem; align-items:start; }
+    @media (max-width:767px) { .desk-layout { grid-template-columns:1fr; } }
+    .desk-actions { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+    .desk-top { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
+
+    .desk-btn { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; border:1px solid var(--petal-2); border-radius:14px; padding:.58rem .95rem; background:#fff; color:var(--rose-deep); font-size:.83rem; font-weight:650; cursor:pointer; transition:background .15s,transform .1s,box-shadow .15s; text-decoration:none; }
+    .desk-btn:hover { background:var(--petal); }
+    .desk-btn:active { transform:scale(.97); }
+    .desk-btn.primary { background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 8px 18px -10px rgba(190,24,93,.9); }
+    .desk-btn.primary:hover { filter:brightness(1.05); }
+    .desk-btn.danger { color:var(--bad); border-color:#F9C4D0; }
+    .desk-btn.danger:hover { background:var(--bad-bg); }
+    .desk-btn svg { width:1rem; height:1rem; }
+
+    .seg { display:inline-flex; gap:.2rem; padding:.25rem; background:var(--petal); border-radius:999px; max-width:100%; overflow-x:auto; }
+    .seg button { padding:.45rem .95rem; border-radius:999px; font-size:.8rem; font-weight:650; color:var(--rose-deep); white-space:nowrap; transition:all .15s; }
+    .seg button.is-on { background:#fff; color:var(--rose); box-shadow:0 2px 8px -3px rgba(190,24,93,.5); }
+    .chip { padding:.42rem .85rem; border-radius:999px; font-size:.78rem; font-weight:650; background:#fff; border:1px solid var(--petal-2); color:var(--rose-deep); white-space:nowrap; transition:all .15s; }
+    .chip:hover { background:var(--petal); }
+    .chip.is-on { background:var(--rose); color:#fff; border-color:var(--rose); }
+
+    .pill { display:inline-block; padding:.22rem .6rem; border-radius:999px; font-size:.68rem; font-weight:700; letter-spacing:.01em; white-space:nowrap; }
+    .pill.ok { background:var(--ok-bg); color:var(--ok); }
+    .pill.warn { background:var(--warn-bg); color:var(--warn); }
+    .pill.bad { background:var(--bad-bg); color:var(--bad); }
+    .pill.info { background:var(--info-bg); color:var(--info); }
+    .pill.muted { background:#F4EAEF; color:var(--muted); }
+    .ticket-top .pill { background:rgba(255,255,255,.22); color:#fff; }
+
+    /* to-do banners on Today */
+    .todo-stack { display:grid; gap:.6rem; }
+    .todo { display:flex; align-items:center; justify-content:space-between; gap:.8rem; padding:.85rem 1rem; border-radius:18px; font-size:.84rem; font-weight:600; }
+    .todo.rose { background:var(--grad); color:#fff; box-shadow:var(--shadow); }
+    .todo.rose .desk-btn { background:#fff; color:var(--rose); border:0; }
+    .todo.soft { background:var(--petal); color:var(--rose-deep); border:1px solid var(--petal-2); }
+    .todo.peach { background:var(--peach); color:#7A3512; }
+    .todo p { margin:0; line-height:1.45; }
+
+    /* ---------- ticket (hero + detail) ---------- */
+    .ticket { position:relative; background:#fff; border-radius:28px; overflow:hidden; border:1px solid var(--rule); box-shadow:var(--shadow); }
+    .ticket-top { position:relative; padding:1.3rem 1.4rem 1.7rem; color:#fff; background:var(--grad); overflow:hidden; }
+    .ticket-top::before { content:""; position:absolute; right:-3.5rem; top:-3.5rem; width:11rem; height:11rem; border-radius:50%; background:rgba(255,255,255,.12); }
+    .ticket-top::after { content:""; position:absolute; right:2.5rem; bottom:-4.5rem; width:9rem; height:9rem; border-radius:50%; background:rgba(255,255,255,.08); }
+    .ticket-top > * { position:relative; z-index:1; }
+    .ticket-top h1, .ticket-top h2 { font:800 clamp(1.4rem,4vw,2rem)/1.15 Inter,system-ui,sans-serif; letter-spacing:-.04em; margin:.9rem 0 .2rem; overflow-wrap:anywhere; }
+    .ticket-top p { color:#FFE3EE; font-size:.88rem; margin:.15rem 0; overflow-wrap:anywhere; }
+    .eyebrow-l { font-size:.7rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#FFD3E3; }
+    .route { display:flex; align-items:center; gap:.8rem; margin-top:1rem; }
+    .route time { display:block; font:800 clamp(1.3rem,5vw,1.9rem)/1 Inter,system-ui,sans-serif; letter-spacing:-.04em; }
+    .route small { display:block; margin-top:.25rem; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:#FFD3E3; }
+    .route-line { flex:1; position:relative; display:flex; justify-content:center; align-items:center; height:1.4rem; min-width:3rem; }
+    .route-line::before { content:""; position:absolute; left:0; right:0; top:50%; border-top:2px dashed rgba(255,255,255,.6); }
+    .route-line::after { content:""; position:absolute; inset:50% 0 auto 0; height:0; }
+    .route-line span { position:relative; z-index:1; background:#C3226B; padding:.12rem .6rem; border-radius:999px; font-size:.72rem; font-weight:700; }
+    .perf { position:relative; height:0; margin:0 1.4rem; border-top:2px dashed #F2C2D6; }
+    .perf::before, .perf::after { content:""; position:absolute; top:-14px; width:26px; height:26px; border-radius:50%; background:var(--bg); border:1px solid var(--rule); }
+    .perf::before { left:calc(-1.4rem - 13px); clip-path:inset(0 0 0 50%); }
+    .perf::after { right:calc(-1.4rem - 13px); clip-path:inset(0 50% 0 0); }
+    .ticket-body { padding:1.2rem 1.4rem 1.4rem; }
+    .ticket-pills { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.9rem; }
+
+    /* booking detail */
+    .mini-rows { margin:0; }
+    .mini-rows > div { display:grid; grid-template-columns:6.5rem minmax(0,1fr); gap:.7rem; padding:.6rem 0; border-bottom:1px solid #FBE6EE; font-size:.88rem; }
+    .mini-rows dt { color:var(--muted); } .mini-rows dd { margin:0; font-weight:600; overflow-wrap:anywhere; }
+    .money-strip { margin:1rem 0; padding:1rem; border-radius:20px; background:var(--paper); border:1px solid var(--rule); }
+    .money-strip .nums { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; text-align:left; }
+    .money-strip small { display:block; font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .money-strip b { font-size:1.05rem; font-weight:800; letter-spacing:-.02em; }
+    .money-strip .bal b { color:var(--rose); }
+    .bar { height:.5rem; border-radius:999px; background:var(--petal-2); overflow:hidden; margin-top:.8rem; }
+    .bar > i { display:block; height:100%; border-radius:999px; background:var(--grad); }
+    .tool-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr)); gap:.5rem; margin-top:1rem; padding-top:1rem; border-top:1px dashed #F2C2D6; }
+    .pay-form { margin-top:.9rem; padding:1rem; border-radius:18px; background:var(--petal); }
+    .desk-field { display:grid; gap:.3rem; font-size:.78rem; font-weight:650; color:var(--rose-deep); }
+    .desk-field input, .hours-card input:not([type=checkbox]), #request-editor select, #request-editor input, #request-editor textarea { border:1px solid var(--petal-2); border-radius:12px; padding:.55rem .65rem; min-width:0; max-width:100%; width:100%; background:#fff; font:inherit; font-weight:500; color:var(--ink); }
+    .desk-field input:focus, #request-editor input:focus { outline:none; border-color:var(--rose-500); box-shadow:0 0 0 3px rgba(236,76,141,.18); }
+
+    /* ---------- list rows ---------- */
+    .jobline { background:#fff; border:1px solid var(--rule); border-radius:18px; display:grid; grid-template-columns:5.2rem minmax(0,1fr) auto; align-items:center; text-align:left; gap:.8rem; padding:.75rem .85rem; width:100%; margin-bottom:.5rem; transition:transform .12s,box-shadow .15s,border-color .15s; }
+    .jobline:hover { transform:translateY(-1px); box-shadow:var(--shadow-sm); border-color:var(--petal-2); }
+    .jobline time { font-size:.78rem; font-weight:750; color:var(--rose); background:var(--petal); border-radius:12px; padding:.5rem .3rem; text-align:center; }
+    .jobline strong, .jobline small { display:block; overflow-wrap:anywhere; }
+    .jobline strong { font-weight:700; font-size:.93rem; }
+    .jobline small { color:var(--muted); font-size:.78rem; margin-top:.1rem; }
+    @media(max-width:767px){ .jobline { grid-template-columns:4.6rem minmax(0,1fr); } .jobline .pill { grid-column:2; justify-self:start; } }
+    .remind-row { margin-bottom:.4rem; }
+    .remind-row .desk-actions { margin:.1rem 0 .6rem; }
+    .agenda-day + .agenda-day { border-top:1px solid var(--rule); margin-top:1rem; padding-top:1rem; }
+    .agenda-day h3 { font-weight:750; border-left:4px solid var(--rose-500); padding-left:.65rem; margin-bottom:.6rem; color:var(--rose-ink); }
+    .agenda-gap, .agenda-note { border-left:3px solid var(--petal-2); padding:.4rem .8rem; margin:.35rem 0; font-size:.8rem; color:var(--muted); }
+    .agenda-note { background:var(--paper); border-radius:.5rem; }
+    .appointment-row { display:grid; grid-template-columns:7.5rem minmax(0,1fr); gap:.6rem; overflow-wrap:anywhere; }
+
+    /* ---------- calendar grid (day / week) ---------- */
+    #week-scroll { overflow-x:auto; max-height:70vh; overscroll-behavior:contain; }
+    .week-grid { display:grid; grid-template-columns:3.15rem repeat(var(--cols),minmax(4.5rem,1fr)); }
+    .day-cap { position:sticky; top:0; z-index:3; font-size:.76rem; text-align:center; padding:.7rem .1rem; background:#fff; border-bottom:1px solid var(--rule); font-weight:700; color:var(--rose-deep); }
+    .week-grid time { display:block; height:58px; color:var(--muted); font:500 .7rem/1.4 ui-monospace,monospace; }
+    .day-track { height:var(--height); position:relative; border-left:1px solid var(--rule); background:repeating-linear-gradient(to bottom,#F6DCE7 0 1px,transparent 1px 29px,#FBEEF3 29px 30px,transparent 30px 58px); cursor:crosshair; }
+    .slot { position:absolute; left:1px; right:2px; border-radius:8px; padding:4px 5px; overflow:hidden; font:600 .7rem/1.35 Inter,system-ui; text-align:left; overflow-wrap:anywhere; }
+    .slot.saved { background:linear-gradient(135deg,#FFD3E3,#FFBFD6); border-left:4px solid var(--rose); color:var(--rose-ink); cursor:pointer; }
+    .slot.proposed, .pending-line { background:#fff; border:1.5px dashed var(--rose-500); color:var(--rose-deep); }
+    .slot.buffer, .slot.closed { background:repeating-linear-gradient(135deg,#FBEFF4 0 4px,#F4DFE8 4px 5px); color:#9B7A89; pointer-events:none; }
+    .desk-btn.pending-line { width:100%; justify-content:flex-start; margin:.25rem 0; }
+    @media(max-width:767px){ #week-scroll { overflow:visible; max-height:none; } }
+
+    /* month grid */
+    .cal-head { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:.4rem; }
+    #calendar-days-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:.3rem; }
+    .cal-day { aspect-ratio:1/1; max-height:4.6rem; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.2rem; font-size:.88rem; font-weight:600; color:var(--ink); transition:all .12s; }
+    .cal-day:hover { background:var(--petal); }
+    .cal-day.has-jobs { background:var(--paper); font-weight:700; }
+    .cal-day.is-today { box-shadow:inset 0 0 0 2px var(--rose-500); color:var(--rose); }
+    .cal-day.is-selected { background:var(--grad); color:#fff; box-shadow:none; }
+    .cal-dots { display:flex; gap:.18rem; }
+    .cal-dots i { width:.38rem; height:.38rem; border-radius:50%; background:#16A06A; }
+    .cal-dots i.dep { background:#F59E0B; } .cal-dots i.un { background:var(--rose); }
+    .cal-day.is-selected .cal-dots i { box-shadow:0 0 0 1.5px #fff; }
+    .legend { display:flex; flex-wrap:wrap; gap:.4rem 1rem; margin-top:1rem; padding-top:.8rem; border-top:1px dashed #F2C2D6; font-size:.74rem; color:var(--muted); }
+    .legend span { display:inline-flex; align-items:center; gap:.35rem; }
+    .legend i { width:.55rem; height:.55rem; border-radius:50%; background:#16A06A; } .legend i.dep { background:#F59E0B; } .legend i.un { background:var(--rose); }
+
+    /* ---------- money ---------- */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr)); gap:.75rem; }
+    .kpi { background:#fff; border:1px solid var(--rule); border-radius:22px; padding:1rem 1.05rem; box-shadow:var(--shadow-sm); }
+    .kpi small { display:block; font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .kpi b { display:block; font-size:clamp(1.15rem,3vw,1.5rem); font-weight:800; letter-spacing:-.03em; margin-top:.35rem; overflow-wrap:anywhere; }
+    .kpi p { font-size:.72rem; color:var(--muted); margin:.15rem 0 0; }
+    .kpi.hero { background:var(--grad); color:#fff; border:0; box-shadow:var(--shadow); }
+    .kpi.hero small, .kpi.hero p { color:#FFD9E8; }
+    .period { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem; }
+    .period-nav { display:flex; align-items:center; gap:.25rem; }
+    .period-nav button { padding:.5rem; border-radius:12px; color:var(--rose-deep); } .period-nav button:hover { background:var(--petal); }
+    .period-nav span { font-weight:750; min-width:9rem; text-align:center; color:var(--rose-ink); }
+
+    /* ---------- requests ---------- */
+    .req-card { background:#fff; border:1px solid var(--rule); border-radius:26px; box-shadow:var(--shadow-sm); overflow:hidden; }
+    .req-head { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:.9rem; padding:1.1rem 1.1rem .8rem; align-items:start; }
+    .dateblock { width:3.7rem; text-align:center; padding:.45rem 0; border-radius:18px; background:var(--grad); color:#fff; box-shadow:0 8px 16px -10px rgba(190,24,93,.9); }
+    .dateblock span { display:block; font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.85; }
+    .dateblock b { display:block; font-size:1.5rem; font-weight:800; line-height:1.1; }
+    .req-meta { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; }
+    .req-meta .ref { font:600 .72rem ui-monospace,monospace; color:var(--muted); letter-spacing:.06em; }
+    .req-main h3 { font-size:1.12rem; font-weight:800; letter-spacing:-.025em; margin:.3rem 0 .1rem; color:var(--rose-ink); overflow-wrap:anywhere; }
+    .req-time { font-size:.84rem; font-weight:650; color:var(--rose); margin:0; }
+    .req-venue { font-size:.8rem; color:var(--muted); margin:.2rem 0 0; display:flex; gap:.3rem; align-items:flex-start; overflow-wrap:anywhere; }
+    .req-venue svg { width:.9rem; height:.9rem; flex-shrink:0; margin-top:.1rem; }
+    .req-amount { text-align:right; }
+    .req-amount small { display:block; font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .req-amount b { font-size:1.05rem; font-weight:800; color:var(--rose-ink); white-space:nowrap; }
+    .req-service { margin:0 1.1rem; padding:.7rem .85rem; border-radius:16px; background:var(--paper); font-size:.84rem; color:var(--ink); }
+    .req-service .chips { display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.4rem; }
+    .req-service .chips span { padding:.15rem .55rem; border-radius:999px; background:var(--petal); color:var(--rose-deep); font-size:.72rem; font-weight:650; }
+    .alert-line { margin:.6rem 1.1rem 0; padding:.55rem .8rem; border-radius:14px; background:var(--bad-bg); color:var(--bad); font-size:.8rem; font-weight:650; }
+    .alert-line.warn { background:var(--warn-bg); color:var(--warn); }
+    .req-more { margin:.6rem 1.1rem 0; font-size:.84rem; }
+    .req-more summary { cursor:pointer; font-weight:650; color:var(--rose); padding:.35rem 0; list-style:none; }
+    .req-more summary::-webkit-details-marker { display:none; }
+    .req-more summary::after { content:" ▾"; }
+    .req-more[open] summary::after { content:" ▴"; }
+    .request-context { margin-top:.7rem; padding:.7rem .85rem; border-radius:14px; background:var(--paper); font-size:.78rem; }
+    .request-context p { padding:.15rem 0; margin:0; overflow-wrap:anywhere; }
+    .link-btn { font-size:.76rem; font-weight:650; color:var(--rose); text-decoration:underline; text-underline-offset:.2em; }
+    .approval { margin:.8rem 0 0; padding:1rem 1.1rem 1.1rem; background:linear-gradient(180deg,var(--paper),#FFEDF4); border-top:1.5px dashed #F2C2D6; }
+    .approval-title { font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--rose-600); margin:0 0 .6rem; }
+    .approval-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
+    @media(max-width:560px){ .approval-grid { grid-template-columns:1fr 1fr; } .approval-grid label:nth-child(3) { grid-column:1/-1; } .req-head { grid-template-columns:auto minmax(0,1fr); } .req-amount { grid-column:2; text-align:left; } }
+    .quick-dep { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; margin-top:.6rem; font-size:.74rem; color:var(--muted); }
+    .approval-actions { display:flex; gap:.5rem; margin-top:.9rem; }
+    .approval-actions .primary { flex:1; padding:.8rem 1rem; font-size:.9rem; }
+    .req-tools { display:flex; flex-wrap:wrap; gap:.4rem; padding:.7rem 1.1rem 1rem; background:#FFEDF4; }
+    .req-tools .desk-btn { padding:.42rem .75rem; font-size:.78rem; border-radius:12px; }
+
+    /* ---------- studio ---------- */
+    .hours-card { display:grid; gap:.5rem; padding:.9rem; border:1px solid var(--rule); border-radius:16px; background:var(--paper); }
+    .hours-card summary { cursor:pointer; font-weight:650; color:var(--rose-deep); }
+    .hours-line { display:grid; grid-template-columns:2.5rem 1fr 1fr 1fr; gap:.3rem; margin:.4rem 0; align-items:center; font-size:.8rem; }
+    @media(max-width:767px){ .hours-line { grid-template-columns:2rem 4rem 1fr 1fr; } }
+    .studio-stack { display:grid; gap:1rem; max-width:52rem; }
+
+    /* ---------- full-page editors (booking, package, request) ---------- */
+    #request-editor { color:var(--ink); }
+    #request-editor label { display:grid; gap:.25rem; font-size:.82rem; font-weight:650; margin-top:.7rem; color:var(--rose-deep); }
     #request-editor .editor-actions { display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; }
-    :root { --plum:#612e50; --ink:#261f29; --paper:#faf9f7; --rule:#dedade; --muted:#665d66; }
-    @media screen {
-      #app-shell main {max-width:86rem;}
-      #app-shell header>div {max-width:86rem;}
-      #app-shell header nav {background:#f4f1f3;border:none;}
-      #app-shell header .nav-btn {padding-inline:.75rem;}
-      #tab-dashboard .desk-top h1,#tab-calendar .desk-top h1 {font:650 clamp(2rem,5vw,3.3rem)/1.05 Inter,system-ui;letter-spacing:-.065em;}
-      .desk-top,.desk-actions {display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;}
-      .desk-actions {justify-content:flex-start;}
-      .desk-top p,.quiet {font-size:.86rem;color:var(--muted);margin:.45rem 0;}
-      .desk-top {margin-bottom:1.2rem;}
-      .desk-layout {display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr);gap:1rem;}
-      .desk-card,.visit,.request-context {background:white;border:1px solid var(--rule);border-radius:18px;padding:clamp(1rem,2.5vw,1.75rem);}
-      .desk-card h2,.visit h3 {font-size:1rem;font-weight:650;margin-bottom:.6rem;}
-      .desk-card summary,.hours-card summary,#sheet-body summary {cursor:pointer;font-weight:600;}
-      .visit {background:#302633;color:#fff;border:0;}
-      .visit h3 {color:#e7cbdb;font-size:.85rem;}
-      .visit h2 {font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.12;letter-spacing:-.04em;font-weight:630;margin:.35rem 0;}
-      .visit p {color:#f0e6ed;font-size:.9rem;margin:.3rem 0;}
-      .visit-time {font:600 1rem ui-monospace,monospace;}
-      .visit .desk-actions {margin-top:1rem;}
-      .desk-btn {border:1px solid #d8d2d6;border-radius:9px;padding:.52rem .83rem;background:#fff;color:#392d37;font-size:.83rem;font-weight:600;cursor:pointer;}
-      .desk-btn:hover,.jobline:hover {background:#f3eef1;}
-      .desk-btn.primary {background:var(--plum);color:white;}
-      .jobline {background:white;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:5.1rem minmax(0,1fr) auto;align-items:center;text-align:left;gap:.6rem;padding:.78rem .2rem;width:100%;}
-      .jobline time {font-size:.81rem;font-variant-numeric:tabular-nums;font-weight:650;}
-      .jobline strong,.jobline small {display:block;overflow-wrap:anywhere;}
-      .jobline small {color:var(--muted);font-size:.78rem;}
-      .jobline em {font:600 .69rem/1.25 Inter,system-ui;color:#6c4661;background:#f4edf2;border-radius:.5rem;padding:.35rem .5rem;}
-      .remind-row .desk-actions {margin:.55rem 0;}
-      #week-scroll {overflow-x:auto;max-height:70vh;overscroll-behavior:contain;}
-      .week-grid {display:grid;grid-template-columns:3.15rem repeat(var(--cols),minmax(4.5rem,1fr));}
-      .day-cap {position:sticky;top:0;z-index:3;font-size:.76rem;text-align:center;padding:.7rem .1rem;background:#faf8fa;border-bottom:1px solid var(--rule);font-weight:650;}
-      .week-grid time {display:block;height:58px;color:var(--muted);font:500 .7rem/1.4 ui-monospace,monospace;}
-      .day-track {height:var(--height);position:relative;border-left:1px solid var(--rule);background:repeating-linear-gradient(to bottom,#e9e3e7 0 1px,transparent 1px 29px,#f2eff1 29px 30px,transparent 30px 58px);cursor:crosshair;}
-      .slot {position:absolute;left:1px;right:2px;border-radius:5px;padding:3px;overflow:hidden;font:550 .7rem/1.35 Inter,system-ui;text-align:left;overflow-wrap:anywhere;}
-      .slot.saved {background:#e7dce7;border-left:3px solid #7d5476;color:#3f2e40;cursor:pointer;}
-      .slot.proposed,.pending-line {background:#fff9ed;border:1px dashed #b48538;color:#644313;}
-      .slot.buffer,.slot.closed {background:repeating-linear-gradient(135deg,#f1eff1 0 4px,#e6e2e6 4px 5px);color:#625764;pointer-events:none;}
-      #booking-sheet {margin:0 0 0 auto;height:100dvh;max-height:none;width:min(26rem,95vw);padding:1.5rem;border:0;color:var(--ink);}
-      #booking-sheet::backdrop {background:#20182166;}
-      #booking-sheet h2 {font-size:1.65rem;font-weight:650;letter-spacing:-.04em;margin:1.6rem 0 .2rem;}
-      #booking-sheet dl>div {display:grid;grid-template-columns:4.5rem 1fr;border-bottom:1px solid var(--rule);gap:.5rem;padding:.6rem 0;}
-      #booking-sheet dt {color:var(--muted);} #booking-sheet dd {overflow-wrap:anywhere;}
-      #sheet-body .desk-actions,#sheet-body details {margin-top:1rem;}
-      .sheet-close {float:right;}
-      .request-context {flex-basis:100%;font-size:.8rem;padding:.8rem;} .request-context p {padding:.3rem;}
-      .hours-card {display:grid;gap:.5rem;padding:.9rem;border:1px solid var(--rule);border-radius:12px;}
-      .hours-line {display:grid;grid-template-columns:2.5rem 1fr 1fr 1fr;gap:.3rem;margin:.4rem 0;align-items:center;font-size:.8rem;}
-      .desk-field {display:grid;gap:.3rem;font-size:.8rem;font-weight:600;}
-      .desk-field input,.hours-card input:not([type=checkbox]),#request-editor select {border:1px solid var(--rule);border-radius:.55rem;padding:.45rem;min-width:0;max-width:100%;background:white;}
-      @media(max-width:767px) {
-        .desk-layout {grid-template-columns:1fr;}
-        #booking-sheet {width:100%;height:auto;max-height:88dvh;margin:auto 0 0;border-radius:20px 20px 0 0;padding-bottom:max(1.5rem,env(safe-area-inset-bottom));}
-        .jobline {grid-template-columns:4.6rem minmax(0,1fr);} .jobline em {grid-column:2;justify-self:start;}
-        .hours-line {grid-template-columns:2rem 4rem 1fr 1fr;}
-      }
+    .work-page:not(.hidden) { position:fixed; inset:var(--work-top,0px) 0 auto; height:var(--work-height,100dvh); z-index:40; background:var(--paper); display:flex; justify-content:center; overflow:hidden; padding:0; }
+    .work-page > div:first-child, #request-editor:not(.hidden) .work-form { width:100%; max-width:48rem; max-height:none; height:100%; display:flex; flex-direction:column; border:0; border-radius:0; box-shadow:none; background:#fff; }
+    #request-editor:not(.hidden) { width:100%; max-width:none; margin:0; max-height:none; border:0; border-radius:0; align-items:stretch; }
+    .work-page .work-form, #request-edit-form { display:flex; flex-direction:column; min-height:0; flex:1; max-width:48rem; background:#fff; }
+    .work-scroll { min-height:0; flex:1; overflow:auto; overscroll-behavior:contain; scroll-padding:1rem; }
+    #request-editor .work-scroll { padding:.5rem 1rem 1rem; }
+    #edit-request-title { padding:1rem; border-bottom:1px solid var(--rule); color:var(--rose-ink); }
+    .work-page .work-footer { flex:none; margin:0; display:flex; justify-content:flex-end; align-items:center; gap:.65rem; background:#fff; border-top:1px solid var(--rule); padding:.65rem 1rem max(.65rem,env(safe-area-inset-bottom)); }
+    .work-footer button { min-height:44px; }
+    #confirm-modal > div { max-height:var(--work-height,90dvh); overflow:auto; }
+    @media(max-width:767px){
+      .work-page .work-scroll { padding:1rem; }
+      .work-page input:not([type=checkbox]), .work-page select, .work-page textarea, #confirm-modal input { font-size:16px; }
+      .work-page .grid { min-width:0; } .work-page input, .work-page select { min-width:0; max-width:100%; }
+      .work-page .work-footer button[type=submit] { flex:1; }
+      #receipt-modal, #import-modal { inset:var(--work-top,0px) 0 auto; height:var(--work-height,100dvh); padding:0; }
+      #receipt-modal > div, #import-modal > div { height:100%; max-height:100%; border-radius:0; }
+      #import-footer { flex-shrink:0; padding-bottom:max(.8rem,env(safe-area-inset-bottom)); }
     }
+    @media(max-width:390px){ .work-scroll .grid-cols-3 { grid-template-columns:1fr; } }
 
-    @media screen and (min-width:768px) {
-      #studio-rail {position:fixed;left:0;top:4rem;bottom:0;width:10.7rem;display:flex;flex-direction:column;align-items:stretch;padding:1.35rem .7rem;background:#fcfafb;border:0;border-right:1px solid #ddd8dc;border-radius:0;z-index:20;}
-      #studio-rail .nav-btn {display:flex;align-items:center;gap:.6rem;text-align:left;min-height:2.65rem;border-radius:.7rem;white-space:nowrap;padding:.55rem .6rem;font-size:.83rem;}
-      #studio-rail .nav-btn.bg-white {background:#eee4eb;color:#552847;box-shadow:none;}
-      #studio-rail .nav-btn svg {width:1.05rem;height:1.05rem;flex-shrink:0;}
-      #app-shell main {margin-left:10.7rem;margin-right:auto;padding:2rem clamp(1rem,3vw,3rem);}
-    }
-    .agenda-gap,.agenda-note {border-left:3px solid #ddd1db;padding:.45rem .8rem;margin:.35rem 0;font-size:.82rem;color:#5e5260;}
-    .agenda-note {background:#f7f4f7;border-radius:.35rem;}
-
-    @media screen {
-      .editing-page {overflow:hidden;}
-      .editing-page #mobile-nav {visibility:hidden;}
-      .work-page:not(.hidden) {position:fixed; inset:var(--work-top,0px) 0 auto; height:var(--work-height,100dvh); z-index:40; background:var(--paper); display:flex; justify-content:center; overflow:hidden; padding:0;}
-      .work-page>div:first-child, #request-editor:not(.hidden) .work-form {width:100%;max-width:48rem;max-height:none;height:100%;display:flex;flex-direction:column;border:0;border-radius:0;box-shadow:none;background:white;}
-      #request-editor:not(.hidden) {width:100%;max-width:none;margin:0;max-height:none;border:0;border-radius:0;align-items:stretch;}
-      .work-page .work-form,#request-edit-form {display:flex;flex-direction:column;min-height:0;flex:1;max-width:48rem;background:white;}
-      .work-scroll {min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;scroll-padding:1rem;}
-      #request-editor .work-scroll {padding:.5rem 1rem 1rem;}
-      #edit-request-title {padding:1rem;border-bottom:1px solid var(--rule);}
-      .work-page .work-footer {flex:none;margin:0;display:flex;justify-content:flex-end;align-items:center;gap:.65rem;background:white;border-top:1px solid var(--rule);padding:.65rem 1rem max(.65rem,env(safe-area-inset-bottom));}
-      .work-footer button {min-height:44px;}
-      #confirm-modal>div {max-height:var(--work-height,90dvh);overflow:auto;}
-      @media(max-width:767px){
-        .work-page .work-scroll {padding:1rem;}
-        .work-page input:not([type=checkbox]),.work-page select,.work-page textarea,#confirm-modal input {font-size:16px;}
-        .work-page .grid {min-width:0;} .work-page input,.work-page select {min-width:0;max-width:100%;}
-        .work-page .work-footer button[type=submit]{flex:1;}
-        #receipt-modal,#import-modal {inset:var(--work-top,0px) 0 auto;height:var(--work-height,100dvh);padding:0;}
-        #receipt-modal>div,#import-modal>div {height:100%;max-height:100%;border-radius:0;}
-        #import-footer {flex-shrink:0;padding-bottom:max(.8rem,env(safe-area-inset-bottom));}
-      }
-      @media(max-width:390px){.work-scroll .grid-cols-3 {grid-template-columns:1fr;}}
-    }
-    .appointment-row {display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.6rem;overflow-wrap:anywhere;}
-    .agenda-day + .agenda-day {border-top:1px solid var(--rule);margin-top:1rem;padding-top:1rem;}
-    .agenda-day h3 {font-weight:700;}
-    @media(max-width:767px){#week-scroll{overflow:visible;max-height:none;} #tab-calendar .desk-top{flex-wrap:wrap;} #mobile-nav .mobile-nav-btn{min-width:0;padding-inline:.2rem;}}
+    #app-shell :is(h1,h2,h3,h4).font-serif:not(#header-brand-name) { font-family:Inter,system-ui,sans-serif; letter-spacing:-.025em; }
+    #app-shell input[type=text], #app-shell input[type=number], #app-shell input[type=date], #app-shell input[type=time], #app-shell input[type=tel], #app-shell input[type=email], #app-shell select, #app-shell textarea { border-radius:12px; }
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
@@ -300,306 +417,129 @@
     </header>
 
         <!-- Desktop Navigation -->
-        <nav aria-label="Studio navigation" id="studio-rail" class="hidden md:flex items-center gap-1 bg-blush-100/90 p-1 rounded-full border border-blush-200/70">
-          <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm"><i aria-hidden="true" data-lucide="sun"></i>Today</button>
-          <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="inbox"></i>Requests <span id="req-badge" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blush-700 text-white text-[10px] font-bold">0</span></button>
-          <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="calendar-days"></i>Calendar</button>
-          <button onclick="switchTab('bookings')" data-tab="bookings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="book-open"></i>Bookings</button>
-          <button onclick="switchTab('reports')" data-tab="reports" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="bar-chart-2"></i>Reports</button>
-          <button onclick="switchTab('packages')" data-tab="packages" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="sparkles"></i>Packages</button>
-          <button onclick="switchTab('expenses')" data-tab="expenses" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="receipt"></i>Expenses</button>
-          <button onclick="switchTab('settings')" data-tab="settings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="settings"></i>Settings</button>
+        <nav aria-label="Studio navigation" id="studio-rail">
+          <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn is-active"><i aria-hidden="true" data-lucide="sun"></i>Today</button>
+          <button onclick="switchTab('schedule')" data-tab="schedule" class="nav-btn"><i aria-hidden="true" data-lucide="calendar-days"></i>Schedule</button>
+          <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn"><i aria-hidden="true" data-lucide="inbox"></i>Requests <span id="req-badge" class="badge hidden">0</span></button>
+          <button onclick="switchTab('money')" data-tab="money" class="nav-btn"><i aria-hidden="true" data-lucide="wallet"></i>Money</button>
+          <button onclick="switchTab('studio')" data-tab="studio" class="nav-btn"><i aria-hidden="true" data-lucide="sparkles"></i>Studio</button>
         </nav>
 
-    <!-- Main Content Area -->
-    <main class="max-w-5xl mx-auto px-4 pt-5 space-y-6">
+    <main class="px-4 pt-5 space-y-6">
 
-      <!-- ==================== TAB 1: DASHBOARD ==================== -->
-      <section id="tab-dashboard" class="tab-content space-y-6">
-        <div class="desk-top"><div><h1>Today</h1><p id="desk-date"></p></div><button id="today-inbox" class="desk-btn" onclick="switchTab('requests')">Review requests</button></div>
-        <div class="desk-layout"><div class="visit"><h3>Next appointment</h3><div id="next-visit"></div></div>
-        <section class="desk-card"><h2>Today’s agenda</h2><div id="today-list"></div></section></div>
+      <!-- ==================== TODAY ==================== -->
+      <section id="tab-dashboard" class="tab-content space-y-5">
+        <div class="page-head"><div><p class="eyebrow" id="welcome-title">Welcome back!</p><h1>Today</h1><p class="quiet" id="desk-date"></p></div></div>
+        <div class="todo-stack">
+          <div id="req-banner" class="todo rose hidden"><p id="req-banner-text"></p><button onclick="switchTab('requests')" class="desk-btn">Review</button></div>
+          <div id="needs-price-banner" class="todo soft hidden"><p id="needs-price-text"></p><button onclick="reviewNeedsPrice()" class="desk-btn">Review</button></div>
+          <div id="backup-reminder" class="todo peach hidden"><p id="backup-reminder-text">Download a backup.</p><button onclick="exportJSON()" class="desk-btn">Back up now</button></div>
+        </div>
+        <div class="desk-layout">
+          <div id="next-visit"></div>
+          <section class="desk-card"><h2>Today’s agenda</h2><div id="today-list"></div></section>
+        </div>
         <section class="desk-card"><h2>Tomorrow’s reminders</h2><div id="tomorrow-list"></div></section>
-        </section><section id="tab-reports" class="tab-content hidden"><h1 class="font-serif text-2xl font-bold">Studio reports</h1><div class="space-y-6 mt-4">
+      </section>
 
-        <!-- New booking requests -->
-        <div id="req-banner" class="hidden p-3.5 rounded-2xl bg-blush-700 text-white text-sm flex items-center justify-between gap-3 shadow-sm">
-          <p id="req-banner-text" class="font-semibold"></p>
-          <button onclick="switchTab('requests')" class="shrink-0 px-3.5 py-1.5 rounded-xl bg-white text-blush-800 text-xs font-bold">Review</button>
-        </div>
-
-        <!-- Backup reminder -->
-        <div id="backup-reminder" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between gap-3">
-          <div class="flex items-start gap-2.5">
-            <i data-lucide="database-backup" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
-            <p id="backup-reminder-text" class="leading-relaxed">Download a backup.</p>
-          </div>
-          <button onclick="exportJSON()" class="shrink-0 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold transition">Back up now</button>
-        </div>
-
-        <!-- Jobs that still need a price -->
-        <div id="needs-price-banner" class="hidden p-3.5 rounded-2xl bg-blush-50 border border-blush-300 text-blush-900 text-xs flex items-center justify-between gap-3">
-          <p id="needs-price-text" class="leading-relaxed font-medium"></p>
-          <button onclick="reviewNeedsPrice()" class="shrink-0 px-3 py-1.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white font-semibold transition">Review</button>
-        </div>
-
-        <!-- Welcome / Quick Summary Banner -->
-        <div class="bg-gradient-to-br from-blush-800 via-blush-700 to-blush-600 rounded-3xl p-5 sm:p-6 text-white shadow-lg shadow-blush-200/80 relative overflow-hidden">
-          <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 id="welcome-title" class="font-serif text-2xl sm:text-3xl font-bold">Welcome back!</h2>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button onclick="switchTab('calendar')" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-xs font-semibold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 transition">
-                <i data-lucide="calendar" class="w-4 h-4"></i> View Schedule
-              </button>
-              <button onclick="openBookingModal()" class="bg-white text-blush-900 hover:bg-blush-50 text-xs font-bold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 shadow-sm transition">
-                <i data-lucide="sparkles" class="w-4 h-4 text-blush-600"></i> Book Client
-              </button>
-            </div>
+      <!-- ==================== SCHEDULE (day / week / month / list) ==================== -->
+      <section id="tab-schedule" class="tab-content hidden space-y-4">
+        <div class="page-head">
+          <div><p class="eyebrow">Schedule</p><h1>Bookings</h1><p class="quiet" id="range-heading"></p></div>
+          <div class="seg" id="sched-seg" role="group" aria-label="Schedule view">
+            <button type="button" data-view="day" onclick="setSchedView('day')">Day</button>
+            <button type="button" data-view="week" onclick="setSchedView('week')">Week</button>
+            <button type="button" data-view="month" onclick="setSchedView('month')">Month</button>
+            <button type="button" data-view="list" onclick="setSchedView('list')">List</button>
           </div>
         </div>
-
-        <!-- Period selector -->
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-1">
-            <button id="dash-prev" onclick="shiftDashMonth(-1)" class="p-2 rounded-xl hover:bg-blush-100 text-slate-600 transition" aria-label="Previous month"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-            <span id="dash-period-label" class="font-serif font-bold text-charcoal text-base min-w-[9rem] text-center">This month</span>
-            <button id="dash-next" onclick="shiftDashMonth(1)" class="p-2 rounded-xl hover:bg-blush-100 text-slate-600 transition" aria-label="Next month"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-          </div>
-          <div class="flex gap-1.5">
-            <button id="dash-seg-month" onclick="setDashAll(false)" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white">Month</button>
-            <button id="dash-seg-all" onclick="setDashAll(true)" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200">All time</button>
-          </div>
+        <div id="sched-nav" class="desk-actions">
+          <button class="desk-btn" aria-label="Previous period" onclick="navPeriod(-1)">‹</button>
+          <button class="desk-btn" onclick="navPeriod(0)">Today</button>
+          <button class="desk-btn" aria-label="Next period" onclick="navPeriod(1)">›</button>
         </div>
-
-        <!-- KPI Cards Grid -->
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-500">Total Booked</span>
-              <div class="w-8 h-8 rounded-xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
-            </div>
-            <p id="kpi-total-revenue" class="text-lg sm:text-xl font-bold text-charcoal">RM 0.00</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Gross job value</p>
+        <section id="sched-grid" class="desk-card"><div id="week-scroll"></div></section>
+        <section id="sched-month" class="desk-card hidden">
+          <div class="cal-head"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
+          <div id="calendar-days-grid"></div>
+          <div class="legend"><span><i></i>Fully paid</span><span><i class="dep"></i>Deposit paid</span><span><i class="un"></i>Unpaid</span><span>Tap a date to open that day</span></div>
+        </section>
+        <section id="sched-list" class="hidden space-y-3">
+          <div class="desk-card space-y-3">
+            <div><h2 id="bookings-list-title" class="card-title" style="margin:0">Upcoming Bookings</h2><p id="bookings-list-subtitle" class="quiet" style="margin:.2rem 0 0"></p></div>
+            <input type="search" id="booking-search-input" oninput="renderBookingsList()" placeholder="Search client, venue, package or receipt…" class="w-full px-4 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1"><button onclick="setBookingFilter('upcoming')" data-filter="upcoming" class="chip filter-pill is-on">Upcoming</button><button onclick="setBookingFilter('week')" data-filter="week" class="chip filter-pill">Next 7 days</button><button onclick="setBookingFilter('awaitdeposit')" data-filter="awaitdeposit" class="chip filter-pill">Awaiting deposit</button><button onclick="setBookingFilter('remaining')" data-filter="remaining" class="chip filter-pill">Balance remaining</button><button onclick="setBookingFilter('noprice')" data-filter="noprice" class="chip filter-pill">Needs price</button><button onclick="setBookingFilter('paid')" data-filter="paid" class="chip filter-pill">Fully paid</button><button onclick="setBookingFilter('past')" data-filter="past" class="chip filter-pill">Past</button><button onclick="setBookingFilter('all')" data-filter="all" class="chip filter-pill">All</button></div>
           </div>
+          <div id="bookings-cards-container"></div>
+        </section>
+      </section>
 
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-500">Collected</span>
-              <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
-            </div>
-            <p id="kpi-total-collected" class="text-lg sm:text-xl font-bold text-emerald-600">RM 0.00</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Deposits &amp; full paid</p>
+      <!-- ==================== BOOKING DETAIL ==================== -->
+      <section id="tab-appointment" class="tab-content hidden space-y-4" style="max-width:44rem">
+        <button class="desk-btn" id="back-to-schedule">← Back</button>
+        <article class="ticket">
+          <header class="ticket-top">
+            <span class="pill" id="ap-pill"></span>
+            <h1 id="appointment-name"></h1>
+            <p id="appointment-package"></p>
+            <div class="route" id="ap-route"></div>
+            <p id="ap-date" style="margin-top:.9rem"></p>
+          </header>
+          <div class="perf"></div>
+          <div class="ticket-body">
+            <dl class="mini-rows" id="appointment-summary"></dl>
+            <div class="money-strip" id="ap-money"></div>
+            <div id="appointment-primary" class="desk-actions"></div>
+            <form id="payment-entry" hidden class="pay-form">
+              <label class="desk-field">Total received to date (RM)<input name="received" type="number" min="0.01" step="0.01" required></label>
+              <button class="desk-btn primary" style="margin-top:.6rem">Save payment</button>
+            </form>
+            <div class="tool-row" id="appointment-more"></div>
           </div>
+        </article>
+      </section>
 
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-500">Balance Due</span>
-              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
-            </div>
-            <p id="kpi-pending-balance" class="text-lg sm:text-xl font-bold text-amber-600">RM 0.00</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">To collect from clients</p>
-          </div>
-
-          <div class="bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-500">Net Profit</span>
-              <div class="w-8 h-8 rounded-xl bg-blush-100 text-blush-800 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
-            </div>
-            <p id="kpi-net-profit" class="text-lg sm:text-xl font-bold text-blush-800">RM 0.00</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Collected minus expenses</p>
-          </div>
-
-          <div class="col-span-2 lg:col-span-1 bg-white p-4 rounded-3xl border border-blush-200/80 shadow-sm flex lg:block items-center justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1 lg:mb-2">
-                <span class="text-xs font-semibold text-slate-500">Upcoming Jobs</span>
-                <div class="hidden lg:flex w-8 h-8 rounded-xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="calendar-check" class="w-4 h-4"></i></div>
-              </div>
-              <p id="kpi-upcoming-count" class="text-xl font-bold text-charcoal">0</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Scheduled sessions</p>
-            </div>
-            <div class="lg:hidden w-10 h-10 rounded-2xl bg-blush-100 text-blush-700 flex items-center justify-center"><i data-lucide="calendar-check" class="w-5 h-5"></i></div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-2 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="font-serif font-bold text-charcoal text-lg">Upcoming Appointments</h3>
-                <p class="text-xs text-slate-500">Your next scheduled glam &amp; bridal sessions</p>
-              </div>
-              <button onclick="switchTab('calendar')" class="text-xs font-semibold text-blush-700 hover:text-blush-900 flex items-center gap-1">
-                See All <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-            <div id="dashboard-upcoming-list" class="space-y-3"></div>
-          </div>
-
-          <div class="bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-4">
-                <div>
-                  <h3 class="font-serif font-bold text-charcoal text-lg">Balances to Collect</h3>
-                  <p id="dashboard-balances-total" class="text-xs text-slate-500">Nothing outstanding</p>
-                </div>
-                <button onclick="switchTab('bookings'); setBookingFilter('awaitdeposit')" class="text-xs font-semibold text-blush-700 hover:text-blush-900">See all</button>
-              </div>
-              <div id="dashboard-balances-list" class="space-y-2.5"></div>
-            </div>
-            <button onclick="openBookingModal()" class="mt-5 w-full py-2.5 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200/80 text-blush-800 text-xs font-semibold transition flex items-center justify-center gap-1.5">
-              <i data-lucide="plus-circle" class="w-4 h-4"></i> Create Quote / Booking
-            </button>
-          </div>
-        </div>
-      </div></section>
-
-      <!-- ==================== TAB 2: CALENDAR & JOBS ==================== -->
-      <!-- ==================== TAB: BOOKING REQUESTS ==================== -->
+      <!-- ==================== REQUESTS ==================== -->
       <section id="tab-requests" class="tab-content hidden space-y-5">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 class="font-serif font-bold text-2xl text-charcoal">Booking Requests</h2>
-            <p class="text-xs text-slate-500">Requests sent from your public booking page. Approving one creates the booking and blocks that time.</p>
-          </div>
-          <button onclick="copyPublicLink()" class="px-3.5 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-800 text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="link" class="w-4 h-4"></i> Copy booking page link
-          </button>
-        </div>
+        <div class="page-head"><div><p class="eyebrow">Inbox</p><h1>Requests</h1><p class="quiet">From your public booking page. Approving one creates the booking and blocks that time.</p></div></div>
         <div id="requests-pending" class="space-y-4"></div>
-        <details class="bg-white rounded-3xl border border-blush-200/80 p-4 shadow-sm">
-          <summary class="text-sm font-semibold text-charcoal cursor-pointer">Handled requests <span id="req-handled-count" class="text-slate-400 font-normal"></span></summary>
+        <details class="desk-card">
+          <summary class="font-semibold cursor-pointer" style="color:var(--rose-deep)">Handled requests <span id="req-handled-count" class="quiet"></span></summary>
           <div id="requests-handled" class="mt-3 space-y-2"></div>
         </details>
       </section>
 
-      <section id="tab-calendar" class="tab-content hidden space-y-6">
-        <section class="desk-card"><div class="desk-top"><div><h1>Calendar</h1><p id="range-heading"></p></div><div class="desk-actions"><button class="desk-btn" aria-label="Previous period" onclick="moveRange(-1)">‹</button><button class="desk-btn" onclick="moveRange(0)">Today</button><button class="desk-btn" aria-label="Next period" onclick="moveRange(1)">›</button><select class="desk-btn" id="range-mode" aria-label="Calendar view" onchange="setRange(this.value)"><option value="day">Day</option><option value="week">Week</option></select></div></div><div id="week-scroll"></div></section>
-        <details class="desk-card"><summary>Month calendar</summary>
-          <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm self-start">
-            <div class="flex items-center justify-between mb-4">
-              <h3 id="calendar-month-year" class="font-serif font-bold text-lg text-charcoal">November 2026</h3>
-              <div class="flex items-center gap-1.5">
-                <button onclick="changeMonth(-1)" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Previous Month" aria-label="Previous month">
-                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                </button>
-                <button onclick="goToToday()" class="px-2.5 py-1.5 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold transition">Today</button>
-                <button onclick="changeMonth(1)" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Next Month" aria-label="Next month">
-                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 uppercase mb-2">
-              <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
-            </div>
-
-            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-center"></div>
-
-            <div class="mt-4 pt-3 border-t border-blush-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Fully Paid</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Deposit Paid</div>
-              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Unpaid</div>
-              <button id="clear-date-filter-btn" onclick="clearDateFilter()" class="hidden text-blush-700 font-semibold underline">Show All Dates</button>
-            </div>
-          </div>
-
-        </details>
-      </section>
-      <section id="tab-appointment" class="tab-content hidden space-y-4">
-        <button class="desk-btn" id="back-to-schedule">Back</button>
-        <article class="desk-card"><h1 class="font-serif text-2xl font-bold" id="appointment-name"></h1>
-          <div id="appointment-summary" class="space-y-2 my-4"></div>
-          <div id="appointment-primary" class="desk-actions"></div>
-          <form id="payment-entry" hidden class="mt-4">
-            <label class="desk-field">Total received to date (RM)<input name="received" type="number" min="0.01" step="0.01" required></label>
-            <button class="desk-btn primary mt-2">Save payment</button>
-          </form>
-          <details class="mt-4"><summary class="cursor-pointer font-semibold">More actions</summary>
-            <div class="desk-actions mt-3" id="appointment-more"></div>
-          </details>
-        </article>
-      </section>
-      <section id="tab-bookings" class="tab-content hidden space-y-4">
-          <div class="space-y-4">
-            <div class="bg-white rounded-3xl border border-blush-200/80 p-4 sm:p-5 shadow-sm space-y-3">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h3 id="bookings-list-title" class="font-serif font-bold text-charcoal text-lg">All Client Bookings</h3>
-                  <p id="bookings-list-subtitle" class="text-xs text-slate-500">Tap any booking for receipt/PDF, WhatsApp or calendar export</p>
-                </div>
-                <div class="flex flex-wrap gap-2 sm:shrink-0">
-                  <button onclick="openImportModal()" class="bg-white hover:bg-blush-50 text-blush-800 border border-blush-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition" title="Import existing bookings from a Google Calendar .ics file">
-                    <i data-lucide="upload" class="w-4 h-4"></i> Import .ics
-                  </button>
-                  <button onclick="exportUpcomingICS()" class="bg-blush-50 hover:bg-blush-100 text-blush-800 border border-blush-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition" title="Download all upcoming jobs as a calendar file">
-                    <i data-lucide="calendar-plus" class="w-4 h-4"></i> Export .ics
-                  </button>
-                  <button onclick="openBookingModal(selectedCalendarDate)" class="bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center justify-center gap-1.5 transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Add Job
-                  </button>
-                </div>
-              </div>
-
-              <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
-                <div class="relative flex-1">
-                  <i data-lucide="search" class="w-4 h-4 text-blush-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                  <input type="text" id="booking-search-input" oninput="renderBookingsList()" placeholder="Search client, venue, or package..." class="w-full pl-9 pr-3 py-2 text-xs bg-blush-50/60 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white transition">
-                </div>
-                <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-                  <button onclick="setBookingFilter('upcoming')" data-filter="upcoming" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap">Upcoming</button>
-                  <button onclick="setBookingFilter('week')" data-filter="week" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Next 7 days</button>
-                  <button onclick="setBookingFilter('awaitdeposit')" data-filter="awaitdeposit" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Awaiting deposit</button>
-                  <button onclick="setBookingFilter('remaining')" data-filter="remaining" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Balance remaining</button>
-                  <button onclick="setBookingFilter('noprice')" data-filter="noprice" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Needs price</button>
-                  <button onclick="setBookingFilter('paid')" data-filter="paid" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Fully Paid</button>
-                  <button onclick="setBookingFilter('past')" data-filter="past" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Past</button>
-                  <button onclick="setBookingFilter('all')" data-filter="all" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">All</button>
-                </div>
-              </div>
-            </div>
-
-            <button id="list-clear-date" class="desk-btn hidden" onclick="clearDateFilter()">Show all dates</button>
-            <div id="bookings-cards-container" class="space-y-3"></div>
-          </div>
-      </section>
-
-      <!-- ==================== TAB 3: PACKAGES & ADD-ONS ==================== -->
-      <section id="tab-packages" class="tab-content hidden space-y-6">
-        <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <div>
-              <h2 class="font-serif font-bold text-xl text-charcoal">Service Packages &amp; Rates</h2>
-              <p class="text-xs text-slate-500">Customize your makeup packages and default pricing in MYR (RM)</p>
-            </div>
-            <button onclick="openPackageModal()" class="bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition">
-              <i data-lucide="plus" class="w-4 h-4"></i> Add New Package
-            </button>
-          </div>
-          <div id="packages-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <!-- ==================== MONEY (overview + expenses) ==================== -->
+      <section id="tab-money" class="tab-content hidden space-y-5">
+        <div class="page-head"><div><p class="eyebrow">Finance</p><h1>Money</h1></div>
+          <div class="seg" id="money-seg"><button type="button" data-view="overview" onclick="setMoneyView('overview')" class="is-on">Overview</button><button type="button" data-view="expenses" onclick="setMoneyView('expenses')">Expenses</button></div>
         </div>
-      </section>
-
-      <!-- ==================== TAB 4: EXPENSES & PROFIT ==================== -->
-      <section id="tab-expenses" class="tab-content hidden space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-sm">
-            <span class="text-xs font-semibold text-slate-500">Total Collected Revenue</span>
-            <p id="exp-kpi-collected" class="text-2xl font-bold text-emerald-600 mt-1">RM 0.00</p>
+        <div id="money-overview" class="space-y-5">
+          <div class="period">
+            <div class="period-nav">
+              <button id="dash-prev" onclick="shiftDashMonth(-1)" aria-label="Previous month"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+              <span id="dash-period-label">This month</span>
+              <button id="dash-next" onclick="shiftDashMonth(1)" aria-label="Next month"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+            <div class="seg"><button id="dash-seg-month" onclick="setDashAll(false)" class="is-on">Month</button><button id="dash-seg-all" onclick="setDashAll(true)">All time</button></div>
           </div>
-          <div class="bg-white p-5 rounded-3xl border border-blush-200/80 shadow-sm">
-            <span class="text-xs font-semibold text-slate-500">Total Business Expenses</span>
-            <p id="exp-kpi-expenses" class="text-2xl font-bold text-red-600 mt-1">RM 0.00</p>
+          <div class="kpi-grid">
+            <div class="kpi hero"><small>Net profit</small><b id="kpi-net-profit">RM 0.00</b><p>Collected minus expenses</p></div>
+            <div class="kpi"><small>Total booked</small><b id="kpi-total-revenue">RM 0.00</b><p>Gross job value</p></div>
+            <div class="kpi"><small>Collected</small><b id="kpi-total-collected" style="color:var(--ok)">RM 0.00</b><p>Deposits &amp; full payments</p></div>
+            <div class="kpi"><small>Balance due</small><b id="kpi-pending-balance" style="color:var(--warn)">RM 0.00</b><p>To collect from clients</p></div>
+            <div class="kpi"><small>Expenses</small><b id="kpi-expenses" style="color:var(--bad)">RM 0.00</b><p>Business costs logged</p></div>
           </div>
-          <div class="bg-gradient-to-r from-blush-700 to-blush-600 p-5 rounded-3xl text-white shadow-md shadow-blush-200">
-            <span class="text-xs font-semibold text-blush-100">Net Take-Home Profit</span>
-            <p id="exp-kpi-net" class="text-2xl font-bold mt-1">RM 0.00</p>
-          </div>
+          <section class="desk-card">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div><h2 class="card-title" style="margin:0">Balances to collect</h2><p id="dashboard-balances-total" class="quiet" style="margin:.2rem 0 0">Nothing outstanding</p></div>
+              <button onclick="openBookingsList('deposit')" class="desk-btn">See all</button>
+            </div>
+            <div id="dashboard-balances-list" class="space-y-2.5"></div>
+          </section>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div id="money-expenses" class="hidden">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm self-start">
             <h3 class="font-serif font-bold text-charcoal text-lg mb-1">Log Business Expense</h3>
             <p class="text-xs text-slate-500 mb-4">Track makeup restocks, lashes, disposables &amp; petrol/mileage</p>
@@ -637,20 +577,26 @@
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h3 class="font-serif font-bold text-charcoal text-lg">Expense History</h3>
-                <p class="text-xs text-slate-500">All recorded business deductions</p>
+                <p id="exp-history-total" class="text-xs text-slate-500">All recorded business deductions</p>
               </div>
             </div>
             <div id="expenses-list-container" class="space-y-2.5"></div>
           </div>
         </div>
+        </div>
       </section>
 
-      <!-- ==================== TAB 5: SETTINGS & REPORTS ==================== -->
-      <section class="tab-content hidden desk-card" id="tab-more"><h2>More</h2><div class="desk-actions"><button class="desk-btn" onclick="switchTab('reports')">Reports</button><button class="desk-btn" onclick="switchTab('packages')">Packages</button><button class="desk-btn" onclick="switchTab('expenses')">Expenses</button><button class="desk-btn" onclick="switchTab('settings')">Settings</button></div></section>
-      <section id="tab-settings" class="tab-content hidden space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-          <div class="lg:col-span-7 bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
+      <!-- ==================== STUDIO (profile / packages / booking page / data) ==================== -->
+      <section id="tab-studio" class="tab-content hidden space-y-5">
+        <div class="page-head"><div><p class="eyebrow">Settings</p><h1>Studio</h1></div>
+          <div class="seg" id="studio-seg">
+            <button type="button" data-view="profile" onclick="setStudioView('profile')" class="is-on">Profile</button>
+            <button type="button" data-view="packages" onclick="setStudioView('packages')">Packages</button>
+            <button type="button" data-view="page" onclick="setStudioView('page')">Booking page</button>
+            <button type="button" data-view="data" onclick="setStudioView('data')">Data</button>
+          </div>
+        </div>
+        <div id="studio-profile" class="studio-stack"><div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
             <h2 class="font-serif font-bold text-xl text-charcoal mb-1">Boutique Profile &amp; Receipt Branding</h2>
             <p class="text-xs text-slate-500 mb-5">Synced to Firestore and applied automatically to your receipts and header.</p>
 
@@ -709,52 +655,20 @@
                 <i data-lucide="save" class="w-4 h-4"></i> Save Business Profile
               </button>
             </form>
-          </div>
-
-          <div class="lg:col-span-5 space-y-6">
-            <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
-              <div>
-                <h3 class="font-serif font-bold text-charcoal text-lg">Backup &amp; Export</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Your data lives in your private cloud account. Keep an extra copy by downloading a backup every so often and saving it in Google Drive or emailing it to yourself.</p>
-                <p id="last-backup-text" class="text-[11px] font-semibold text-blush-700 mt-1.5"></p>
-              </div>
-
-              <button onclick="exportJSON()" class="w-full p-3.5 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-900 flex items-center justify-between transition">
-                <div class="flex items-center gap-3 text-left">
-                  <div class="w-9 h-9 rounded-xl bg-blush-700 text-white flex items-center justify-center shrink-0"><i data-lucide="database-backup" class="w-4 h-4"></i></div>
-                  <div>
-                    <p class="text-xs font-bold">Download Full Backup (JSON)</p>
-                    <p class="text-[11px] text-blush-700">Bookings, packages, expenses &amp; profile</p>
-                  </div>
-                </div>
-                <i data-lucide="download" class="w-4 h-4 text-blush-700"></i>
-              </button>
-
-              <label class="w-full p-3.5 rounded-2xl bg-white hover:bg-blush-50 border border-blush-200 text-charcoal flex items-center justify-between cursor-pointer transition">
-                <div class="flex items-center gap-3 text-left">
-                  <div class="w-9 h-9 rounded-xl bg-charcoal text-white flex items-center justify-center shrink-0"><i data-lucide="upload" class="w-4 h-4"></i></div>
-                  <div>
-                    <p class="text-xs font-bold">Restore from Backup</p>
-                    <p class="text-[11px] text-slate-500">Adds missing items, never deletes anything</p>
-                  </div>
-                </div>
-                <i data-lucide="folder-open" class="w-4 h-4 text-slate-600"></i>
-                <input type="file" accept=".json,application/json" onchange="importJSON(event)" class="hidden">
-              </label>
-
-              <button onclick="exportCSV()" class="w-full p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 flex items-center justify-between transition">
-                <div class="flex items-center gap-3 text-left">
-                  <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></div>
-                  <div>
-                    <p class="text-xs font-bold">Export Bookings to CSV / Excel</p>
-                    <p class="text-[11px] text-emerald-700">For SSM tax filing &amp; income tracking</p>
-                  </div>
-                </div>
-                <i data-lucide="download" class="w-4 h-4 text-emerald-700"></i>
-              </button>
+          </div></div>
+        <div id="studio-packages" class="hidden"><div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <h2 class="font-serif font-bold text-xl text-charcoal">Service Packages &amp; Rates</h2>
+              <p class="text-xs text-slate-500">Customize your makeup packages and default pricing in MYR (RM)</p>
             </div>
-
-            <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
+            <button onclick="openPackageModal()" class="bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add New Package
+            </button>
+          </div>
+          <div id="packages-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div></div>
+        <div id="studio-page" class="studio-stack hidden"><div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
               <div>
                 <h3 class="font-serif font-bold text-charcoal text-lg">Public Booking Page</h3>
                 <p class="text-xs text-slate-500 mt-0.5">What clients see at your booking page. Only packages, availability and these texts are public. Client details never are.</p>
@@ -822,17 +736,61 @@
                 </div>
                 <div id="blocked-list" class="space-y-1.5"></div>
               </div>
-            </div>
+            </div></div>
+        <div id="studio-data" class="studio-stack hidden">
+          <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-4">
+              <div>
+                <h3 class="font-serif font-bold text-charcoal text-lg">Backup &amp; Export</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Your data lives in your private cloud account. Keep an extra copy by downloading a backup every so often and saving it in Google Drive or emailing it to yourself.</p>
+                <p id="last-backup-text" class="text-[11px] font-semibold text-blush-700 mt-1.5"></p>
+              </div>
 
-            <div class="bg-white rounded-3xl border border-red-200 p-5 shadow-sm space-y-3">
+              <button onclick="exportJSON()" class="w-full p-3.5 rounded-2xl bg-blush-50 hover:bg-blush-100 border border-blush-200 text-blush-900 flex items-center justify-between transition">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-9 h-9 rounded-xl bg-blush-700 text-white flex items-center justify-center shrink-0"><i data-lucide="database-backup" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="text-xs font-bold">Download Full Backup (JSON)</p>
+                    <p class="text-[11px] text-blush-700">Bookings, packages, expenses &amp; profile</p>
+                  </div>
+                </div>
+                <i data-lucide="download" class="w-4 h-4 text-blush-700"></i>
+              </button>
+
+              <label class="w-full p-3.5 rounded-2xl bg-white hover:bg-blush-50 border border-blush-200 text-charcoal flex items-center justify-between cursor-pointer transition">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-9 h-9 rounded-xl bg-charcoal text-white flex items-center justify-center shrink-0"><i data-lucide="upload" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="text-xs font-bold">Restore from Backup</p>
+                    <p class="text-[11px] text-slate-500">Adds missing items, never deletes anything</p>
+                  </div>
+                </div>
+                <i data-lucide="folder-open" class="w-4 h-4 text-slate-600"></i>
+                <input type="file" accept=".json,application/json" onchange="importJSON(event)" class="hidden">
+              </label>
+
+              <button onclick="exportCSV()" class="w-full p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 flex items-center justify-between transition">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="text-xs font-bold">Export Bookings to CSV / Excel</p>
+                    <p class="text-[11px] text-emerald-700">For SSM tax filing &amp; income tracking</p>
+                  </div>
+                </div>
+                <i data-lucide="download" class="w-4 h-4 text-emerald-700"></i>
+              </button>
+            </div>
+          <div class="bg-white rounded-3xl border border-blush-200/80 p-5 sm:p-6 shadow-sm space-y-3">
+            <div><h3 class="font-serif font-bold text-charcoal text-lg">Calendar import &amp; export</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Bring existing Google Calendar bookings in, or export upcoming jobs to any calendar app.</p></div>
+            <div class="desk-actions"><button onclick="openImportModal()" class="desk-btn"><i data-lucide="upload"></i> Import .ics</button><button onclick="exportUpcomingICS()" class="desk-btn"><i data-lucide="calendar-plus"></i> Export upcoming .ics</button></div>
+          </div>
+          <div class="bg-white rounded-3xl border border-red-200 p-5 shadow-sm space-y-3">
               <h3 class="font-bold text-charcoal text-sm">Clear Bookings &amp; Expenses</h3>
               <p class="text-xs text-slate-500">Removes all bookings and expense records from Firebase. Your business profile and packages stay intact.</p>
               <button onclick="openConfirmClearModal()" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold transition flex items-center gap-1.5">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All Bookings &amp; Expenses
               </button>
             </div>
-          </div>
-
         </div>
       </section>
 
@@ -840,19 +798,12 @@
   </div>
 
   <!-- Mobile Bottom Navigation Bar -->
-  <nav id="mobile-nav" style="padding-bottom:max(0.375rem, env(safe-area-inset-bottom))" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-blush-200 z-30 px-2 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(190,24,93,0.06)]">
-    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-blush-700">
-      <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[10px] font-semibold mt-0.5">Today</span>
-    </button>
-    <button onclick="switchTab('requests')" data-tab="requests" class="mobile-nav-btn relative flex flex-col items-center py-1 px-2 text-slate-400">
-      <i data-lucide="inbox" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Requests</span>
-      <span id="req-badge-m" class="hidden absolute top-0 right-0 min-w-[16px] h-4 px-1 rounded-full bg-blush-700 text-white text-[9px] font-bold flex items-center justify-center">0</span>
-    </button>
-    <button onclick="switchTab('calendar')" data-tab="calendar" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
-      <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Calendar</span>
-    </button>
-    <button onclick="switchTab('bookings')" data-tab="bookings" class="mobile-nav-btn flex flex-col items-center py-1 px-2"><i data-lucide="book-open"></i><span class="text-[10px]">Bookings</span></button>
-    <button onclick="switchTab('more')" data-tab="more" class="mobile-nav-btn flex flex-col items-center py-1 px-2"><i data-lucide="more-horizontal"></i><span class="text-[10px]">More</span></button>
+  <nav id="mobile-nav" class="hidden" aria-label="Main">
+    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn is-active"><i data-lucide="sun"></i><span>Today</span></button>
+    <button onclick="switchTab('schedule')" data-tab="schedule" class="mobile-nav-btn"><i data-lucide="calendar-days"></i><span>Schedule</span></button>
+    <button onclick="switchTab('requests')" data-tab="requests" class="mobile-nav-btn"><i data-lucide="inbox"></i><span>Requests</span><span id="req-badge-m" class="badge hidden">0</span></button>
+    <button onclick="switchTab('money')" data-tab="money" class="mobile-nav-btn"><i data-lucide="wallet"></i><span>Money</span></button>
+    <button onclick="switchTab('studio')" data-tab="studio" class="mobile-nav-btn"><i data-lucide="sparkles"></i><span>Studio</span></button>
   </nav>
 
   <!-- ==================== MODAL 1: ADD / EDIT BOOKING ==================== -->
@@ -1191,7 +1142,7 @@
       </div>
 
       <div id="import-footer" class="hidden px-5 py-3.5 border-t border-blush-200/70 bg-white flex items-center justify-between gap-2.5">
-        <p class="text-[11px] text-slate-500 hidden sm:block">Imported bookings start with RM 0.00 so you can add prices &amp; deposits.</p>
+        <p class="text-[11px] text-slate-500 max-sm:hidden">Imported bookings start with RM 0.00 so you can add prices &amp; deposits.</p>
         <div class="flex items-center gap-2.5 ml-auto">
           <button onclick="closeImportModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
           <button id="import-confirm-btn" onclick="importSelectedEvents()" class="px-5 py-2.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold shadow-md shadow-blush-200 transition disabled:opacity-40 disabled:cursor-not-allowed">Import</button>
@@ -1481,21 +1432,27 @@
       if (!b.balanceDue) return 'Paid in full';
       return depositMet(b)?'Balance remaining':'Awaiting deposit';
     }
-    function taskButton(label,action,id,cls='') {
-      return '<button type="button" class="desk-btn '+cls+'" data-operation="'+action+'" data-key="'+esc(id)+'">'+esc(label)+'</button>';
+    function taskButton(label,action,id,cls='',icon='') {
+      return '<button type="button" class="desk-btn '+cls+'" data-operation="'+action+'" data-key="'+esc(id)+'">'+(icon?'<i data-lucide="'+icon+'"></i>':'')+esc(label)+'</button>';
     }
+    function payKind(b) {
+      const label=payLabel(b);
+      return label==='Paid in full'?'ok':label==='Awaiting deposit'?'warn':label==='Quote pending'?'muted':'info';
+    }
+    function payPill(b) { return '<span class="pill '+payKind(b)+'">'+esc(payLabel(b))+'</span>'; }
+    function durLabel(a,b) { const m=Math.max(0,minutes(b)-minutes(a)); return m>=60?Math.floor(m/60)+'h'+(m%60?' '+(m%60)+'m':''):m+'m'; }
     function compactJob(b) {
-      return '<button class="jobline" data-operation="details" data-key="'+esc(b.id)+'"><time>'+esc(formatDisplayTime(b.startTime))+'</time><span><strong>'+esc(b.clientName)+'</strong><small>'+esc(b.packageName)+' · '+esc(b.venue)+'</small></span><em>'+esc(payLabel(b))+'</em></button>';
+      return '<button class="jobline" data-operation="details" data-key="'+esc(b.id)+'"><time>'+esc(formatDisplayTime(b.startTime))+'</time><span><strong>'+esc(b.clientName)+'</strong><small>'+esc(b.packageName)+(b.venue?' · '+esc(b.venue):'')+'</small></span>'+payPill(b)+'</button>';
     }
     function drawToday() {
       const today=localDateStr(), now=new Date();
       const jobs=dayJobs(today), next=jobs.find(b=>minutes(b.endTime)>now.getHours()*60+now.getMinutes());
       byId('desk-date').textContent=formatDisplayDate(today);
-      byId('next-visit').innerHTML=next?'<div class="visit-time">'+esc(formatDisplayTime(next.startTime))+' – '+esc(formatDisplayTime(next.endTime))+'</div><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+' · '+esc(next.venue)+'</p><p>'+(next.readyBy?'Ready by '+esc(formatDisplayTime(next.readyBy))+' · ':'')+esc(payLabel(next))+'</p><div class="desk-actions"><a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>'+taskButton('WhatsApp','wa',next.id)+taskButton('Booking details','details',next.id)+'</div>':'<h2>No more appointments today</h2><p>Your next scheduled day is available in Calendar.</p>';
+      byId('next-visit').innerHTML=next?
+        '<div class="ticket"><div class="ticket-top"><span class="eyebrow-l">Next appointment</span><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+(next.venue?' · '+esc(next.venue):'')+'</p><div class="route"><div><time>'+esc(formatDisplayTime(next.startTime))+'</time><small>Start</small></div><div class="route-line"><span>'+esc(durLabel(next.startTime,next.endTime))+'</span></div><div><time>'+esc(formatDisplayTime(next.endTime))+'</time><small>Finish</small></div></div></div><div class="perf"></div><div class="ticket-body"><div class="ticket-pills">'+payPill(next)+(next.readyBy?'<span class="pill muted">Ready by '+esc(formatDisplayTime(next.readyBy))+'</span>':'')+'</div><div class="desk-actions">'+(next.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>':'')+taskButton('WhatsApp','wa',next.id)+taskButton('Details','details',next.id,'primary')+'</div></div></div>':
+        '<div class="ticket"><div class="ticket-top"><span class="eyebrow-l">Next appointment</span><h2>No more appointments today</h2><p>Your next booked day is in Schedule.</p></div></div>';
       byId('today-list').innerHTML=jobs.map(compactJob).join('')||'<p class="quiet">No appointments booked for today.</p>';
       byId('tomorrow-list').innerHTML=dayJobs(offsetDate(today,1)).map(b=>'<div class="remind-row">'+compactJob(b)+'<div class="desk-actions">'+taskButton('Open reminder','remind',b.id)+taskButton(b.remindedFor===reminderKey(b)?'Sent · undo':'Mark sent','sent',b.id)+'</div></div>').join('')||'<p class="quiet">No appointments tomorrow.</p>';
-      const open=appState.requests.filter(r=>r.status==='pending' && r.eventDate>=today).length;
-      byId('today-inbox').textContent='Review requests ('+open+')';
     }
     function reminderKey(b) { return b.eventDate+' '+b.startTime; }
     let activeWorkPage = '';
@@ -1540,7 +1497,6 @@
       appointmentOrigin = document.querySelector('.tab-content:not(.hidden)').id.slice(4);
       activeAppointment = b.id;
       byId('payment-entry').hidden = true;
-      byId('tab-appointment').querySelector('details').open = false;
       switchTab('appointment');
     }
     function renderAppointment() {
@@ -1548,23 +1504,27 @@
       const b = appState.bookings.find(row => row.id === activeAppointment);
       byId('appointment-name').textContent = b?.clientName || 'Booking unavailable';
       if (!b) {
-        for (const id of ['appointment-summary','appointment-primary','appointment-more']) byId(id).replaceChildren();
+        for (const id of ['appointment-summary','appointment-primary','appointment-more','ap-money','ap-route']) byId(id).replaceChildren();
+        for (const id of ['ap-pill','appointment-package','ap-date']) byId(id).textContent = '';
         byId('payment-entry').hidden = true;
         return;
       }
-      const rows = [['Session', b.packageName], ['Date', formatDisplayDate(b.eventDate)],
-        ['Time', formatDisplayTime(b.startTime)+' – '+formatDisplayTime(b.endTime)], ['Venue',b.venue],
-        ['WhatsApp',b.clientPhone],['Total received',formatRM(b.depositPaid)],['Balance',formatRM(b.balanceDue)]];
-      byId('appointment-summary').innerHTML = rows.filter(([,v])=>v).map(([k,v])=>
-        '<p class="appointment-row"><strong>'+esc(k)+'</strong><span>'+esc(v)+'</span></p>').join('');
-      byId('appointment-primary').innerHTML = (b.balanceDue>0?taskButton('Record deposit','deposit',b.id):'')+
-        (b.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b.venue))+'">Open Maps ↗</a>':'')+
-        (b.clientPhone?taskButton('WhatsApp','wa',b.id):'');
-      const actions = [['Edit booking','edit'],['Copy reminder','copy'],['Google Calendar','google'],
-        ['Download calendar file','ics'],['Receipt / PDF','receipt']];
-      if (b.balanceDue>0) actions.push(['Mark fully paid','paid']);
-      actions.push(['Delete booking','delete']);
-      byId('appointment-more').innerHTML = actions.map(([label,action])=>taskButton(label,action,b.id)).join('');
+      const pill = byId('ap-pill'); pill.textContent = payLabel(b);
+      byId('appointment-package').textContent = b.packageName + (b.receiptNo ? ' · ' + b.receiptNo : '');
+      byId('ap-date').textContent = formatDisplayDate(b.eventDate);
+      byId('ap-route').innerHTML = '<div><time>'+esc(formatDisplayTime(b.startTime))+'</time><small>Start</small></div><div class="route-line"><span>'+esc(durLabel(b.startTime,b.endTime))+'</span></div><div><time>'+esc(formatDisplayTime(b.endTime))+'</time><small>Finish</small></div>';
+      const rows = [['Venue', b.venue], ['WhatsApp', b.clientPhone], ['Ready by', b.readyBy ? formatDisplayTime(b.readyBy) : ''],
+        ['Deposit', b.depositRequired!=null ? formatRM(b.depositRequired)+(b.depositDue && !depositMet(b) ? ' · due '+formatDisplayDate(b.depositDue) : '') : ''],
+        ['Notes', b.notes]];
+      byId('appointment-summary').innerHTML = rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('');
+      const pct = b.subtotal>0 ? Math.min(100, Math.round(b.depositPaid/b.subtotal*100)) : 0;
+      byId('ap-money').innerHTML = '<div class="nums"><div><small>Total</small><b>'+esc(formatRM(b.subtotal))+'</b></div><div><small>Received</small><b style="color:var(--ok)">'+esc(formatRM(b.depositPaid))+'</b></div><div class="bal"><small>Balance</small><b>'+esc(formatRM(b.balanceDue))+'</b></div></div><div class="bar" aria-hidden="true"><i style="width:'+pct+'%"></i></div>';
+      byId('appointment-primary').innerHTML = (b.balanceDue>0?taskButton('Record payment','deposit',b.id,'primary','wallet'):'')+
+        (b.balanceDue>0 && b.subtotal>0?taskButton('Paid in full','paid',b.id,'','check'):'')+
+        (b.clientPhone?taskButton('WhatsApp','wa',b.id,'','message-circle'):'')+
+        (b.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b.venue))+'"><i data-lucide="map-pin"></i>Maps</a>':'');
+      byId('appointment-more').innerHTML = taskButton('Edit booking','edit',b.id,'','pencil')+taskButton('Receipt & calendar','receipt',b.id,'','file-text')+
+        taskButton('Copy reminder','copy',b.id,'','copy')+taskButton('Delete','delete',b.id,'danger','trash-2');
     }
     byId('back-to-schedule').onclick = () => switchTab(appointmentOrigin);
     function openPayment(b) {
@@ -1625,10 +1585,34 @@
     matchMedia('(max-width: 767px)').addEventListener('change',()=>drawSchedule());
     window.moveRange=n=>{deskDate=n===0?localDateStr():offsetDate(deskDate,n*(rangeMode==='day'?1:7)); drawSchedule();};
     window.setRange=mode=>{rangeMode=mode;drawSchedule();};
+    let schedView = rangeMode;
+    window.setSchedView = function(view) {
+      schedView = view;
+      if (view==='day' || view==='week') rangeMode = view;
+      byId('sched-grid').classList.toggle('hidden', !(view==='day' || view==='week'));
+      byId('sched-month').classList.toggle('hidden', view!=='month');
+      byId('sched-list').classList.toggle('hidden', view!=='list');
+      byId('sched-nav').classList.toggle('hidden', view==='list');
+      document.querySelectorAll('#sched-seg button').forEach(btn=>{
+        const on = btn.dataset.view===view; btn.classList.toggle('is-on',on); btn.setAttribute('aria-pressed',on);
+      });
+      if (view==='month') renderCalendar(); else if (view==='list') { byId('range-heading').textContent=''; renderBookingsList(); } else drawSchedule();
+    };
+    window.navPeriod = function(n) {
+      if (schedView==='month') { n===0 ? goToToday() : changeMonth(n); } else moveRange(n);
+    };
+    window.setMoneyView = function(view) {
+      byId('money-overview').classList.toggle('hidden', view!=='overview');
+      byId('money-expenses').classList.toggle('hidden', view!=='expenses');
+      document.querySelectorAll('#money-seg button').forEach(btn=>btn.classList.toggle('is-on',btn.dataset.view===view));
+    };
+    window.setStudioView = function(view) {
+      for (const v of ['profile','packages','page','data']) byId('studio-'+v).classList.toggle('hidden', v!==view);
+      document.querySelectorAll('#studio-seg button').forEach(btn=>btn.classList.toggle('is-on',btn.dataset.view===view));
+    };
     function drawSchedule() {
       const days=rangeMode==='day'?[deskDate]:Array.from({length:7},(_,i)=>offsetDate(deskDate,i-(new Date(deskDate+'T12:00:00').getDay()+6)%7));
-      byId('range-heading').textContent=days.length===1?formatDisplayDate(deskDate):formatDisplayDate(days[0])+' – '+formatDisplayDate(days[6]);
-      byId('range-mode').value=rangeMode;
+      if (schedView==='day' || schedView==='week') byId('range-heading').textContent=days.length===1?formatDisplayDate(deskDate):formatDisplayDate(days[0])+' – '+formatDisplayDate(days[6]);
       const entries=days.flatMap(date=>dayJobs(date));
       const pending=appState.requests.filter(r=>r.status==='pending' && days.includes(r.eventDate));
       if(rangeMode==='day' || matchMedia('(max-width: 767px)').matches){
@@ -2167,6 +2151,7 @@
         appState.requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderRequests();
         renderDashboard();
+        lucide.createIcons();
       }, (err) => {
         console.warn('Requests listener:', err);
         if (err && err.code === 'permission-denied') {
@@ -2317,27 +2302,21 @@
     // =========================================================================
     // NAVIGATION & RENDERING
     // =========================================================================
-    window.switchTab = function(tabName) {
+    const TAB_ALIAS = {calendar:['schedule','week'],bookings:['schedule','list'],reports:['money','overview'],expenses:['money','expenses'],packages:['studio','packages'],settings:['studio','profile'],more:['dashboard']};
+    window.switchTab = function(tabName, sub) {
+      const alias = TAB_ALIAS[tabName];
+      if (alias) { sub = sub || alias[1]; tabName = alias[0]; }
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.className = (btn.dataset.tab === tabName || (tabName==='appointment' && btn.dataset.tab===appointmentOrigin))
-          ? 'nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm'
-          : 'nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all';
+      const navTab = tabName === 'appointment' ? appointmentOrigin : tabName;
+      document.querySelectorAll('[data-tab]').forEach(btn => {
+        const on = btn.dataset.tab === navTab;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-current', on ? 'page' : 'false');
       });
-
-      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-        btn.setAttribute('aria-current',btn.dataset.tab===tabName?'page':'false');
-        if (btn.dataset.tab === tabName || (tabName==='appointment' && btn.dataset.tab===appointmentOrigin) || (btn.dataset.tab==='more' && ['settings','expenses','packages','reports'].includes(tabName))) {
-          btn.classList.remove('text-slate-400');
-          btn.classList.add('text-blush-700');
-        } else {
-          btn.classList.add('text-slate-400');
-          btn.classList.remove('text-blush-700');
-        }
-      });
-
+      if (tabName === 'schedule') setSchedView(sub || schedView);
+      if (tabName === 'money') setMoneyView(sub || 'overview');
+      if (tabName === 'studio') setStudioView(sub || 'profile');
       refreshAllViews();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -2476,8 +2455,7 @@
     };
 
     window.reviewNeedsPrice = function() {
-      switchTab('bookings');
-      setBookingFilter('noprice');
+      openBookingsList('noprice');
     };
 
     function daysUntil(dateStr) {
@@ -2507,13 +2485,7 @@
     function dateBlockHTML(dateStr, muted) {
       const [y, m, d] = dateStr.split('-').map(Number);
       const dt = new Date(y, m - 1, d);
-      const wd = dt.toLocaleDateString('en-MY', { weekday: 'short' });
-      const mon = dt.toLocaleDateString('en-MY', { month: 'short' });
-      return `<div class="w-14 shrink-0 rounded-2xl ${muted ? 'bg-slate-100 text-slate-600' : 'bg-blush-50 text-blush-900 border border-blush-200'} text-center py-1.5">
-        <div class="text-[10px] font-semibold uppercase tracking-wide opacity-80">${esc(wd)}</div>
-        <div class="text-xl font-bold leading-none my-0.5">${d}</div>
-        <div class="text-[10px] font-semibold uppercase opacity-80">${esc(mon)}</div>
-      </div>`;
+      return `<div class="dateblock"><span>${esc(dt.toLocaleDateString('en-MY', { weekday: 'short' }))}</span><b>${d}</b><span>${esc(dt.toLocaleDateString('en-MY', { month: 'short' }))}</span></div>`;
     }
 
     function monthLabel(ym) {
@@ -2621,17 +2593,15 @@
       document.getElementById('kpi-total-collected').textContent = formatRM(totalCollected);
       document.getElementById('kpi-pending-balance').textContent = formatRM(pendingBalance);
       document.getElementById('kpi-net-profit').textContent = formatRM(netProfit);
-      document.getElementById('kpi-upcoming-count').textContent = upcomingJobs.length;
+      document.getElementById('kpi-expenses').textContent = formatRM(totalExpenses);
 
       // Period selector
       const isAll = dashPeriod === 'all';
       document.getElementById('dash-period-label').textContent = isAll ? 'All time' : monthLabel(dashPeriod);
       document.getElementById('dash-prev').classList.toggle('invisible', isAll);
       document.getElementById('dash-next').classList.toggle('invisible', isAll);
-      const on = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white';
-      const off = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200';
-      document.getElementById('dash-seg-month').className = isAll ? off : on;
-      document.getElementById('dash-seg-all').className = isAll ? on : off;
+      document.getElementById('dash-seg-month').classList.toggle('is-on', !isAll);
+      document.getElementById('dash-seg-all').classList.toggle('is-on', isAll);
 
       // New booking requests
       const pendingReq = appState.requests.filter(r => r.status === 'pending' && r.eventDate >= todayStr).length;
@@ -2663,36 +2633,6 @@
         npBanner.classList.remove('hidden');
       } else {
         npBanner.classList.add('hidden');
-      }
-
-      // Upcoming list
-      const upContainer = document.getElementById('dashboard-upcoming-list');
-      if (upcomingJobs.length === 0) {
-        upContainer.innerHTML = `
-          <div class="text-center py-8 bg-blush-50/70 rounded-2xl border border-dashed border-blush-200">
-            <p class="text-xs text-slate-500">No upcoming sessions scheduled yet.</p>
-            <button onclick="openBookingModal()" class="mt-2 text-xs font-bold text-blush-700 hover:underline">+ Add First Booking</button>
-          </div>`;
-      } else {
-        upContainer.innerHTML = upcomingJobs.slice(0, 5).map((b, i) => {
-          const chip = relativeDayChip(b.eventDate);
-          return `
-          <div class="p-3 rounded-2xl ${i === 0 ? 'bg-blush-50 border-blush-300' : 'bg-white border-blush-100'} border flex items-center gap-3">
-            ${dateBlockHTML(b.eventDate, false)}
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${chip.cls}">${esc(chip.text)}</span>
-                <span class="text-[11px] text-slate-500 font-medium">${esc(formatDisplayTime(b.startTime))}</span>
-              </div>
-              <p class="font-bold text-sm text-charcoal truncate mt-0.5">${esc(b.clientName)}</p>
-              <p class="text-[11px] text-slate-500 truncate">${esc(b.packageName)}${b.venue ? ' • ' + esc(b.venue) : ''}</p>
-            </div>
-            <div class="text-right shrink-0 space-y-1">
-              ${getStatusBadgeHTML(b.status)}
-              <div><button onclick="openReceiptModal('${esc(b.id)}')" class="text-[11px] font-semibold text-blush-700 hover:text-blush-900 underline">Receipt</button></div>
-            </div>
-          </div>`;
-        }).join('');
       }
 
       // Balances to collect
@@ -2738,47 +2678,19 @@
     function renderCalendar() {
       const year = currentCalendarDate.getFullYear();
       const month = currentCalendarDate.getMonth();
-
-      document.getElementById('calendar-month-year').textContent =
-        new Date(year, month, 1).toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
-
+      if (schedView === 'month') byId('range-heading').textContent = new Date(year, month, 1).toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
       const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const todayStr = localDateStr();
-
       let html = '';
-      for (let i = 0; i < firstDayIndex; i++) html += `<div class="h-11"></div>`;
-
+      for (let i = 0; i < firstDayIndex; i++) html += '<div></div>';
       for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayBookings = appState.bookings.filter(b => b.eventDate === dateStr);
-        const isSelected = selectedCalendarDate === dateStr;
-        const isToday = todayStr === dateStr;
-
-        let dotsHtml = '';
-        if (dayBookings.length > 0) {
-          dotsHtml = `<div class="flex justify-center gap-0.5 mt-0.5">` +
-            dayBookings.slice(0, 3).map(b => {
-              const color = b.status === 'Fully Paid' ? 'bg-emerald-500' : (b.status === 'Deposit Paid' ? 'bg-amber-500' : 'bg-red-500');
-              return `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'ring-1 ring-white ' : ''}${color}"></span>`;
-            }).join('') + `</div>`;
-        }
-
-        const baseBtnClass = isSelected
-          ? 'bg-blush-700 text-white font-bold shadow-sm'
-          : isToday
-            ? 'bg-blush-100 text-blush-900 font-bold border border-blush-300'
-            : dayBookings.length > 0
-              ? 'bg-blush-50/70 hover:bg-blush-100 text-charcoal font-semibold'
-              : 'hover:bg-blush-50 text-slate-600';
-
-        html += `
-          <button onclick="selectCalendarDate('${dateStr}')" class="h-11 rounded-xl flex flex-col items-center justify-center text-xs transition ${baseBtnClass}">
-            <span>${day}</span>
-            ${dotsHtml}
-          </button>`;
+        const jobs = appState.bookings.filter(b => b.eventDate === dateStr);
+        const cls = 'cal-day' + (deskDate === dateStr ? ' is-selected' : '') + (todayStr === dateStr ? ' is-today' : '') + (jobs.length ? ' has-jobs' : '');
+        const dots = jobs.length ? '<span class="cal-dots">' + jobs.slice(0, 3).map(b => '<i class="' + (b.status === 'Fully Paid' ? '' : b.status === 'Deposit Paid' ? 'dep' : 'un') + '"></i>').join('') + '</span>' : '';
+        html += `<button type="button" onclick="selectCalendarDate('${dateStr}')" class="${cls}" aria-label="${esc(formatDisplayDate(dateStr))}${jobs.length ? ', ' + jobs.length + ' booking' + (jobs.length === 1 ? '' : 's') : ''}"><span>${day}</span>${dots}</button>`;
       }
-
       document.getElementById('calendar-days-grid').innerHTML = html;
     }
 
@@ -2790,45 +2702,29 @@
     window.goToToday = function() {
       const now = new Date();
       currentCalendarDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      selectedCalendarDate = null;
-      document.getElementById('clear-date-filter-btn').classList.add('hidden');
+      deskDate = localDateStr();
       renderCalendar();
-      renderBookingsList();
     };
 
     window.selectCalendarDate = function(dateStr) {
-      if (selectedCalendarDate === dateStr) {
-        clearDateFilter();
-        return;
-      }
-      selectedCalendarDate = dateStr;
-      switchTab('bookings');
-      document.getElementById('clear-date-filter-btn').classList.remove('hidden');
-      renderCalendar();
-      renderBookingsList();
-    };
-
-    window.clearDateFilter = function() {
-      selectedCalendarDate = null;
-      document.getElementById('clear-date-filter-btn').classList.add('hidden');
-      renderCalendar();
-      renderBookingsList();
+      deskDate = dateStr;
+      setSchedView('day');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.setBookingFilter = function(filter) {
-
       activeBookingFilter = filter;
-      document.querySelectorAll('.filter-pill').forEach(btn => {
-        btn.className = btn.dataset.filter === filter
-          ? 'filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap'
-          : 'filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap';
-      });
+      document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.toggle('is-on', btn.dataset.filter === filter));
       renderBookingsList();
+    };
+
+    window.openBookingsList = function(filter) {
+      switchTab('schedule', 'list');
+      setBookingFilter(filter);
     };
 
     function bookingCardHTML(b) { return compactJob(b); }
     function renderBookingsList() {
-      byId('list-clear-date').classList.toggle('hidden',!selectedCalendarDate);
       const search = (document.getElementById('booking-search-input').value || '').toLowerCase();
       const todayStr = localDateStr();
       const weekEndDate = new Date();
@@ -2875,7 +2771,7 @@
         container.innerHTML = `
           <div class="bg-white rounded-3xl border border-blush-200/80 p-8 text-center">
             <p class="text-sm font-semibold text-charcoal">No bookings match this view</p>
-            <p class="text-xs text-slate-400 mt-1">Try another filter, or click "+ Add Job" or "Import .ics" to add client sessions.</p>
+            <p class="text-xs text-slate-400 mt-1">Try another filter, or tap "New Booking" at the top to add a client session.</p>
           </div>`;
         return;
       }
@@ -3512,13 +3408,19 @@
     window.replaceGuestLink = function(id) {
       const r = appState.requests.find(row=>row.id===id && row.guest===true);
       if (!r) return;
-      openConfirmModal('Issue a replacement link?', 'The previous link will stop working. Share the replacement privately with the client after checking their identity.', async ()=>{
+      openConfirmModal('Send a new tracking link?', 'Use this only if the client lost their link. The old link stops working and a new private one is created, ready to send on WhatsApp.', async ()=>{
         const secret = Array.from(crypto.getRandomValues(new Uint8Array(32)), n=>n.toString(16).padStart(2,'0')).join('');
         try {
           await setDoc(doc(db,'guestKeys',id),{secret, creator:currentUser.uid});
-          window.prompt('Copy this private booking link for the client.', publicPageUrl()+'#manage='+id+'.'+secret);
-        } catch { showToast('Could not replace the link. Please try again.','error'); }
-      },'Replace link');
+        } catch { showToast('Could not create the new link. Please try again.','error'); return; }
+        const url = publicPageUrl()+'#manage='+id+'.'+secret;
+        const phone = formatMYWhatsAppNumber(r.phone);
+        const msg = `Hi ${r.clientName}! Here is your new private link to track your booking (${r.ref}) with ${appState.settings.businessName}:\n\n${url}`;
+        openConfirmModal('New link ready', phone ? `Tap to send it to ${r.clientName} on WhatsApp.` : 'This client has no phone number. Tap to copy the link instead.', ()=>{
+          if (phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+          else copyTextToClipboard(url, 'New link copied. Send it to the client privately.');
+        }, phone ? 'Open WhatsApp' : 'Copy link');
+      },'Create new link');
     };
 
     window.copyPublicLink = function() {
@@ -3902,57 +3804,77 @@
     function requestCardHTML(r) {
       const id = esc(r.id);
       let preview;
-      try{preview=catalogueQuote(r,appState.packages);}catch{}
-      const previewRequest=preview?{...r,durationMins:preview.duration}:r;
+      try { preview = catalogueQuote(r, appState.packages); } catch {}
+      const previewRequest = preview ? { ...r, durationMins: preview.duration } : r;
       const clash = requestClash(previewRequest);
       const addons = Array.isArray(r.addons) ? r.addons : [];
-      const total = num(r.packagePrice) + addons.reduce((t, a) => t + num(a.price), 0);
+      const total = r.originalEstimate ?? (num(r.packagePrice) + addons.reduce((t, a) => t + num(a.price), 0));
       const mapHref = r.mapLink && /^https?:\/\//.test(r.mapLink) ? r.mapLink : mapsUrl(r.venue || '');
       const waze = 'https://waze.com/ul?q=' + encodeURIComponent(r.venue || '');
       const mood = r.moodboardLink && /^https?:\/\//.test(r.moodboardLink)
-        ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blush-700 font-semibold underline"><i data-lucide="image" class="w-3.5 h-3.5"></i> View moodboard</a>` : '';
+        ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="link-btn">Open moodboard ↗</a>` : '';
+      const travelDefault = addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2);
+      const details = [['Phone', r.phone], ['Email', r.email], ['Notes', r.notes], ['Check', preview ? 'Catalogue price ' + formatRM(preview.serviceTotal) + ' · ' + preview.duration + ' min' : 'Review services in Edit before approving']]
+        .filter(([, v]) => v).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
       return `
-      <article id="request-${id}" class="bg-white rounded-3xl border border-blush-300 shadow-sm p-4 space-y-3">
-        <div class="flex gap-3">
+      <article id="request-${id}" class="req-card">
+        <header class="req-head">
           ${dateBlockHTML(r.eventDate, false)}
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Pending</span>
-              <span class="text-[11px] font-semibold text-slate-400">${esc(r.ref)}</span>
-            </div>
-            <h4 class="font-serif font-bold text-base text-charcoal mt-1">${esc(r.clientName)}</h4>
-            <p class="text-xs font-semibold text-slate-700">${esc(formatDisplayTime(r.startTime))} – ${esc(formatDisplayTime(requestEndTime(r)))}${r.readyBy ? ` • ready by ${esc(formatDisplayTime(r.readyBy))}` : ''}</p>
-            <p class="text-xs text-slate-500 mt-0.5 break-words">${esc(r.venue)}</p>
+          <div class="req-main">
+            <div class="req-meta"><span class="pill warn">Pending</span><span class="ref">${esc(r.ref)}</span></div>
+            <h3>${esc(r.clientName)}</h3>
+            <p class="req-time">${esc(formatDisplayTime(r.startTime))} – ${esc(formatDisplayTime(requestEndTime(previewRequest)))}${r.readyBy ? ` · ready by ${esc(formatDisplayTime(r.readyBy))}` : ''}</p>
+            <p class="req-venue"><i data-lucide="map-pin"></i><span>${esc(r.venue)}</span></p>
+          </div>
+          <div class="req-amount"><small>Estimate</small><b>${esc(formatRM(total))}</b></div>
+        </header>
+        <div class="req-service"><b>${esc(r.packageName)}</b>${num(r.pax) > 1 ? ' · ' + esc(r.pax) + ' pax' : ''}
+          ${addons.length ? `<div class="chips">${addons.map(a => `<span>${esc(a.name)}</span>`).join('')}</div>` : ''}
+        </div>
+        ${r.allergyStatus === 'yes' ? `<p class="alert-line">⚠ Allergies: ${esc(r.allergies)}</p>` : ''}
+        ${clash ? `<p class="alert-line warn">${esc(clash)}</p>` : ''}
+        <details class="req-more">
+          <summary>Client details &amp; schedule that day</summary>
+          <dl class="mini-rows">${details}</dl>
+          ${mood ? `<p style="margin:.5rem 0">${mood}</p>` : ''}
+          <div class="request-context"><b>Already booked on this date</b>${dayJobs(r.eventDate).map(b => '<p>' + esc(formatDisplayTime(b.startTime) + ' – ' + formatDisplayTime(b.endTime) + ' · ' + b.clientName) + '</p>').join('') || '<p>No confirmed appointments.</p>'}</div>
+          ${r.guest === true ? `<p style="margin:.7rem 0 .2rem"><button type="button" onclick="replaceGuestLink('${id}')" class="link-btn">Client lost their tracking link? Send a new one</button></p>` : ''}
+        </details>
+        <div class="approval">
+          <p class="approval-title">Approve this booking</p>
+          <div class="approval-grid">
+            <label class="desk-field">Travel fee (RM)<input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${travelDefault}"></label>
+            <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
+            <label class="desk-field">Deposit due by<input id="due-${id}" type="date" max="${esc(r.eventDate)}"></label>
+          </div>
+          <div class="quick-dep"><span>Quick deposit:</span>
+            <button type="button" class="chip" onclick="setDepositPct('${id}',30)">30%</button>
+            <button type="button" class="chip" onclick="setDepositPct('${id}',50)">50%</button>
+            <button type="button" class="chip" onclick="setDepositPct('${id}',100)">Full</button>
+            <button type="button" class="chip" onclick="setDepositPct('${id}',0)">Waive</button>
+          </div>
+          <div class="approval-actions">
+            <button id="approve-${id}" data-service="${preview ? preview.serviceTotal : 'NaN'}" onclick="approveRequest('${id}')" class="desk-btn primary"><i data-lucide="check"></i> Approve</button>
+            <button onclick="declineRequest('${id}')" class="desk-btn danger"><i data-lucide="x"></i> Decline</button>
           </div>
         </div>
-        ${clash ? `<p class="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">⚠ ${esc(clash)}</p>` : ''}
-        <div class="rounded-2xl bg-blush-50/70 px-3 py-2.5 text-xs space-y-1">
-          <p class="font-bold text-blush-900">${esc(r.packageName)} <span class="font-normal text-slate-500">• ${esc(r.pax)} pax</span></p>
-          ${addons.length ? `<p class="text-slate-600">Add-ons: ${esc(addons.map(a => a.name).join(', '))}</p>` : ''}
-          <p class="text-slate-600">Submitted estimate: <b>${esc(formatRM(r.originalEstimate??total))}</b></p>
-          <p class="text-slate-600">${preview?'Catalogue before travel: '+esc(formatRM(preview.serviceTotal))+' · '+esc(preview.duration)+' min':'Review services in Edit request before approval.'}</p>
-          ${r.allergyStatus === 'yes' ? `<p class="text-red-700 font-semibold">Allergies: ${esc(r.allergies)}</p>` : '<p class="text-slate-500">No allergies reported</p>'}
-          ${r.notes ? `<p class="text-slate-600 italic">"${esc(r.notes)}"</p>` : ''}
-          <p class="text-slate-500">${esc(r.phone)}${r.email ? ' • ' + esc(r.email) : ''}</p>
-          ${mood ? `<p>${mood}</p>` : ''}
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          ${r.guest === true ? `<button onclick="replaceGuestLink('${id}')" class="text-xs underline">Replace private link</button>` : ''}
-          <button type="button" onclick="editPendingRequest('${id}')" class="px-3 py-2 rounded-xl border border-blush-200 font-semibold text-xs">Edit request</button>
-          <div class="request-context"><b>Schedule on this date</b><p class="pending-line">Pending · ${esc(r.startTime)}–${esc(requestEndTime(previewRequest))} · ${esc(r.venue)}</p>${dayJobs(r.eventDate).map(b=>'<p>'+esc(b.startTime+'–'+b.endTime+' · '+b.clientName+' · '+b.venue)+'</p>').join('')||'<p>No confirmed appointments.</p>'}</div>
-          <label class="desk-field">Required deposit (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
-          <label class="desk-field">Deposit due (optional)<input id="due-${id}" type="date" max="${esc(r.eventDate)}"></label>
-          <label class="text-xs font-semibold">Final travel fee (RM)
-            <input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2)}" class="w-24 ml-1 border border-blush-200 rounded-lg p-2">
-          </label>
-          <button id="approve-${id}" data-service="${preview?preview.serviceTotal:'NaN'}" onclick="approveRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="check" class="w-3.5 h-3.5"></i> Approve</button>
-          <button onclick="declineRequest('${id}')" class="px-3.5 py-2 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="x" class="w-3.5 h-3.5"></i> Decline</button>
-          <button onclick="requestWA('${id}','chat')" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp</button>
-          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Maps</a>
-          <a href="${esc(waze)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-blush-50 hover:bg-blush-100 text-blush-800 text-xs font-semibold flex items-center gap-1.5"><i data-lucide="navigation" class="w-3.5 h-3.5"></i> Waze</a>
-        </div>
+        <footer class="req-tools">
+          <button type="button" onclick="editPendingRequest('${id}')" class="desk-btn"><i data-lucide="pencil"></i> Edit</button>
+          <button onclick="requestWA('${id}','chat')" class="desk-btn"><i data-lucide="message-circle"></i> WhatsApp</button>
+          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
+          <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a>
+        </footer>
       </article>`;
     }
+
+    window.setDepositPct = function(id, pct) {
+      const button = byId('approve-' + id), travel = byId('travel-' + id)?.valueAsNumber, base = Number(button?.dataset.service);
+      const field = byId('required-' + id);
+      if (!field) return;
+      if (pct === 0) { field.value = '0'; return; }
+      if (!Number.isFinite(base) || !Number.isFinite(travel)) { showToast('Enter the travel fee first.', 'error'); return; }
+      field.value = ((base + travel) * pct / 100).toFixed(2);
+    };
 
     function renderRequests() {
       const box = document.getElementById('requests-pending');
@@ -3975,10 +3897,12 @@
       if (!box.dataset.denied || all.length) {
         const drafts=Array.from(box.querySelectorAll('input[id]'),el=>[el.id,el.value]);
         const focused=box.contains(document.activeElement)?document.activeElement.id:null;
+        const openIds=Array.from(box.querySelectorAll('details.req-more[open]'),d=>d.closest('article').id);
         box.innerHTML = pending.length
           ? pending.map(requestCardHTML).join('')
-          : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p></div>';
+          : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p><button onclick="copyPublicLink()" class="desk-btn primary mt-3">Copy booking page link</button></div>';
         for(const [id,value] of drafts){const el=byId(id);if(el)el.value=value;}
+        openIds.forEach(i=>{const d=byId(i)?.querySelector('details.req-more');if(d)d.open=true;});
         pending.forEach(r=>refreshApprovalPrice(r.id));
         if(focused)byId(focused)?.focus({preventScroll:true});
       }
@@ -3990,7 +3914,7 @@
           <div class="min-w-0"><p class="font-semibold text-charcoal truncate">${esc(r.clientName)} <span class="text-slate-400 font-normal">${esc(r.ref)}</span></p><p class="text-slate-500">${esc(formatDisplayDate(r.eventDate))}</p></div>
           <div class="flex items-center gap-2 shrink-0">
             <span class="px-2 py-0.5 rounded-full font-bold ${label === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${esc(label)}</span>
-          ${r.guest === true ? `<button onclick="replaceGuestLink('${esc(r.id)}')" class="text-xs underline">Replace private link</button>` : ''}
+          ${r.guest === true ? `<button onclick="replaceGuestLink('${esc(r.id)}')" class="link-btn">New tracking link</button>` : ''}
             ${label==='approved' && r.approvedTotal!=null ? `<button onclick="requestWA('${esc(r.id)}','approve')" class="desk-btn">Send approval via WhatsApp</button>` : ''}
             ${label === 'declined' ? `<button onclick="restoreRequest('${esc(r.id)}')" class="font-semibold text-blush-700 underline">Restore</button>` : ''}
             <button onclick="deleteRequest('${esc(r.id)}')" class="p-1 text-red-500 font-bold" aria-label="Delete request" title="Delete">✕</button>
@@ -4247,9 +4171,7 @@
       const totalCollected = appState.bookings.reduce((sum, b) => sum + num(b.depositPaid), 0);
       const totalExpenses = appState.expenses.reduce((sum, e) => sum + num(e.amount), 0);
 
-      document.getElementById('exp-kpi-collected').textContent = formatRM(totalCollected);
-      document.getElementById('exp-kpi-expenses').textContent = formatRM(totalExpenses);
-      document.getElementById('exp-kpi-net').textContent = formatRM(totalCollected - totalExpenses);
+      document.getElementById('exp-history-total').textContent = appState.expenses.length ? `${appState.expenses.length} record${appState.expenses.length === 1 ? '' : 's'} · ${formatRM(totalExpenses)} in total` : 'All recorded business deductions';
 
       const dateInput = document.getElementById('exp-date');
       if (!dateInput.value) dateInput.value = localDateStr();
@@ -4721,6 +4643,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
+      setSchedView(schedView);
       lucide.createIcons();
     });
   </script>
