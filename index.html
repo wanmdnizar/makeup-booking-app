@@ -90,6 +90,74 @@
     #request-editor label { display:grid; gap:.25rem; font-size:.82rem; font-weight:600; margin-top:.7rem; }
     #request-editor input,#request-editor textarea { border:1px solid #ccc5c9; border-radius:.65rem; padding:.6rem; font:inherit; width:100%; }
     #request-editor .editor-actions { display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; }
+    :root { --plum:#612e50; --ink:#261f29; --paper:#faf9f7; --rule:#dedade; --muted:#665d66; }
+    @media screen {
+      #app-shell main {max-width:86rem;}
+      #app-shell header>div {max-width:86rem;}
+      #app-shell header nav {background:#f4f1f3;border:none;}
+      #app-shell header .nav-btn {padding-inline:.75rem;}
+      #tab-dashboard .desk-top h1,#tab-calendar .desk-top h1 {font:650 clamp(2rem,5vw,3.3rem)/1.05 Inter,system-ui;letter-spacing:-.065em;}
+      .desk-top,.desk-actions {display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;}
+      .desk-actions {justify-content:flex-start;}
+      .desk-top p,.quiet {font-size:.86rem;color:var(--muted);margin:.45rem 0;}
+      .desk-top {margin-bottom:1.2rem;}
+      .desk-layout {display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr);gap:1rem;}
+      .desk-card,.visit,.request-context {background:white;border:1px solid var(--rule);border-radius:18px;padding:clamp(1rem,2.5vw,1.75rem);}
+      .desk-card h2,.visit h3 {font-size:1rem;font-weight:650;margin-bottom:.6rem;}
+      .desk-card summary,.hours-card summary,#sheet-body summary {cursor:pointer;font-weight:600;}
+      .visit {background:#302633;color:#fff;border:0;}
+      .visit h3 {color:#e7cbdb;font-size:.85rem;}
+      .visit h2 {font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.12;letter-spacing:-.04em;font-weight:630;margin:.35rem 0;}
+      .visit p {color:#f0e6ed;font-size:.9rem;margin:.3rem 0;}
+      .visit-time {font:600 1rem ui-monospace,monospace;}
+      .visit .desk-actions {margin-top:1rem;}
+      .desk-btn {border:1px solid #d8d2d6;border-radius:9px;padding:.52rem .83rem;background:#fff;color:#392d37;font-size:.83rem;font-weight:600;cursor:pointer;}
+      .desk-btn:hover,.jobline:hover {background:#f3eef1;}
+      .desk-btn.primary {background:var(--plum);color:white;}
+      .jobline {background:white;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:5.1rem minmax(0,1fr) auto;align-items:center;text-align:left;gap:.6rem;padding:.78rem .2rem;width:100%;}
+      .jobline time {font-size:.81rem;font-variant-numeric:tabular-nums;font-weight:650;}
+      .jobline strong,.jobline small {display:block;overflow-wrap:anywhere;}
+      .jobline small {color:var(--muted);font-size:.78rem;}
+      .jobline em {font:600 .69rem/1.25 Inter,system-ui;color:#6c4661;background:#f4edf2;border-radius:.5rem;padding:.35rem .5rem;}
+      .remind-row .desk-actions {margin:.55rem 0;}
+      #week-scroll {overflow-x:auto;max-height:70vh;overscroll-behavior:contain;}
+      .week-grid {display:grid;grid-template-columns:3.15rem repeat(var(--cols),minmax(4.5rem,1fr));}
+      .day-cap {position:sticky;top:0;z-index:3;font-size:.76rem;text-align:center;padding:.7rem .1rem;background:#faf8fa;border-bottom:1px solid var(--rule);font-weight:650;}
+      .week-grid time {display:block;height:58px;color:var(--muted);font:500 .7rem/1.4 ui-monospace,monospace;}
+      .day-track {height:var(--height);position:relative;border-left:1px solid var(--rule);background:repeating-linear-gradient(to bottom,#e9e3e7 0 1px,transparent 1px 29px,#f2eff1 29px 30px,transparent 30px 58px);cursor:crosshair;}
+      .slot {position:absolute;left:1px;right:2px;border-radius:5px;padding:3px;overflow:hidden;font:550 .7rem/1.35 Inter,system-ui;text-align:left;overflow-wrap:anywhere;}
+      .slot.saved {background:#e7dce7;border-left:3px solid #7d5476;color:#3f2e40;cursor:pointer;}
+      .slot.proposed,.pending-line {background:#fff9ed;border:1px dashed #b48538;color:#644313;}
+      .slot.buffer,.slot.closed {background:repeating-linear-gradient(135deg,#f1eff1 0 4px,#e6e2e6 4px 5px);color:#625764;pointer-events:none;}
+      #booking-sheet {margin:0 0 0 auto;height:100dvh;max-height:none;width:min(26rem,95vw);padding:1.5rem;border:0;color:var(--ink);}
+      #booking-sheet::backdrop {background:#20182166;}
+      #booking-sheet h2 {font-size:1.65rem;font-weight:650;letter-spacing:-.04em;margin:1.6rem 0 .2rem;}
+      #booking-sheet dl>div {display:grid;grid-template-columns:4.5rem 1fr;border-bottom:1px solid var(--rule);gap:.5rem;padding:.6rem 0;}
+      #booking-sheet dt {color:var(--muted);} #booking-sheet dd {overflow-wrap:anywhere;}
+      #sheet-body .desk-actions,#sheet-body details {margin-top:1rem;}
+      .sheet-close {float:right;}
+      .request-context {flex-basis:100%;font-size:.8rem;padding:.8rem;} .request-context p {padding:.3rem;}
+      .hours-card {display:grid;gap:.5rem;padding:.9rem;border:1px solid var(--rule);border-radius:12px;}
+      .hours-line {display:grid;grid-template-columns:2.5rem 1fr 1fr 1fr;gap:.3rem;margin:.4rem 0;align-items:center;font-size:.8rem;}
+      .desk-field {display:grid;gap:.3rem;font-size:.8rem;font-weight:600;}
+      .desk-field input,.hours-card input:not([type=checkbox]),#request-editor select {border:1px solid var(--rule);border-radius:.55rem;padding:.45rem;min-width:0;max-width:100%;background:white;}
+      @media(max-width:767px) {
+        .desk-layout {grid-template-columns:1fr;}
+        #booking-sheet {width:100%;height:auto;max-height:88dvh;margin:auto 0 0;border-radius:20px 20px 0 0;padding-bottom:max(1.5rem,env(safe-area-inset-bottom));}
+        .jobline {grid-template-columns:4.6rem minmax(0,1fr);} .jobline em {grid-column:2;justify-self:start;}
+        .hours-line {grid-template-columns:2rem 4rem 1fr 1fr;}
+      }
+    }
+
+    @media screen and (min-width:768px) {
+      #studio-rail {position:fixed;left:0;top:4rem;bottom:0;width:10.7rem;display:flex;flex-direction:column;align-items:stretch;padding:1.35rem .7rem;background:#fcfafb;border:0;border-right:1px solid #ddd8dc;border-radius:0;z-index:20;}
+      #studio-rail .nav-btn {display:flex;align-items:center;gap:.6rem;text-align:left;min-height:2.65rem;border-radius:.7rem;white-space:nowrap;padding:.55rem .6rem;font-size:.83rem;}
+      #studio-rail .nav-btn.bg-white {background:#eee4eb;color:#552847;box-shadow:none;}
+      #studio-rail .nav-btn svg {width:1.05rem;height:1.05rem;flex-shrink:0;}
+      #app-shell main {margin-left:10.7rem;margin-right:auto;padding:2rem clamp(1rem,3vw,3rem);}
+    }
+    .agenda-gap,.agenda-note {border-left:3px solid #ddd1db;padding:.45rem .8rem;margin:.35rem 0;font-size:.82rem;color:#5e5260;}
+    .agenda-note {background:#f7f4f7;border-radius:.35rem;}
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
@@ -102,6 +170,7 @@
       <div class="editor-actions"><button type="button" onclick="document.getElementById('request-editor').close()">Cancel</button><button class="rounded-xl bg-blush-700 text-white px-4 py-2" type="submit">Save changes</button></div>
     </form>
   </dialog>
+  <dialog id="booking-sheet"><button class="sheet-close desk-btn" onclick="this.parentNode.close()">Close</button><h2 id="sheet-title"></h2><div id="sheet-body"></div></dialog>
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
@@ -189,16 +258,6 @@
           </div>
         </div>
 
-        <!-- Desktop Navigation -->
-        <nav class="hidden md:flex items-center gap-1 bg-blush-100/90 p-1 rounded-full border border-blush-200/70">
-          <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm">Dashboard</button>
-          <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Requests <span id="req-badge" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blush-700 text-white text-[10px] font-bold">0</span></button>
-          <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Calendar &amp; Jobs</button>
-          <button onclick="switchTab('packages')" data-tab="packages" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Packages</button>
-          <button onclick="switchTab('expenses')" data-tab="expenses" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Expenses</button>
-          <button onclick="switchTab('settings')" data-tab="settings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all">Settings</button>
-        </nav>
-
         <!-- Primary & Sign-Out Actions -->
         <div class="flex items-center gap-2 shrink-0">
           <button onclick="openBookingModal()" class="bg-gradient-to-r from-blush-700 to-blush-600 hover:from-blush-800 hover:to-blush-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-full shadow-md shadow-blush-200 flex items-center gap-1.5 transition-all">
@@ -212,11 +271,26 @@
       </div>
     </header>
 
+        <!-- Desktop Navigation -->
+        <nav aria-label="Studio navigation" id="studio-rail" class="hidden md:flex items-center gap-1 bg-blush-100/90 p-1 rounded-full border border-blush-200/70">
+          <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-white text-blush-800 shadow-sm"><i aria-hidden="true" data-lucide="sun"></i>Today</button>
+          <button onclick="switchTab('requests')" data-tab="requests" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="inbox"></i>Requests <span id="req-badge" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blush-700 text-white text-[10px] font-bold">0</span></button>
+          <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="calendar-days"></i>Calendar &amp; Jobs</button>
+          <button onclick="switchTab('packages')" data-tab="packages" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="sparkles"></i>Packages</button>
+          <button onclick="switchTab('expenses')" data-tab="expenses" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="receipt"></i>Expenses</button>
+          <button onclick="switchTab('settings')" data-tab="settings" class="nav-btn px-4 py-1.5 rounded-full text-sm font-medium text-slate-600 hover:text-blush-800 transition-all"><i aria-hidden="true" data-lucide="settings"></i>Settings</button>
+        </nav>
+
     <!-- Main Content Area -->
     <main class="max-w-5xl mx-auto px-4 pt-5 space-y-6">
 
       <!-- ==================== TAB 1: DASHBOARD ==================== -->
       <section id="tab-dashboard" class="tab-content space-y-6">
+        <div class="desk-top"><div><h1>Today</h1><p id="desk-date"></p></div><button id="today-inbox" class="desk-btn" onclick="switchTab('requests')">Review requests</button></div>
+        <div class="desk-layout"><div class="visit"><h3>Next appointment</h3><div id="next-visit"></div></div>
+        <section class="desk-card"><h2>Today’s agenda</h2><div id="today-list"></div></section></div>
+        <section class="desk-card"><h2>Tomorrow’s reminders</h2><div id="tomorrow-list"></div></section>
+        <details class="desk-card"><summary>Studio reports &amp; overview</summary><div class="space-y-6 mt-4">
 
         <!-- New booking requests -->
         <div id="req-banner" class="hidden p-3.5 rounded-2xl bg-blush-700 text-white text-sm flex items-center justify-between gap-3 shadow-sm">
@@ -350,7 +424,7 @@
             </button>
           </div>
         </div>
-      </section>
+      </div></details></section>
 
       <!-- ==================== TAB 2: CALENDAR & JOBS ==================== -->
       <!-- ==================== TAB: BOOKING REQUESTS ==================== -->
@@ -372,6 +446,8 @@
       </section>
 
       <section id="tab-calendar" class="tab-content hidden space-y-6">
+        <section class="desk-card"><div class="desk-top"><div><h1>Calendar</h1><p id="range-heading"></p></div><div class="desk-actions"><button class="desk-btn" aria-label="Previous period" onclick="moveRange(-1)">‹</button><button class="desk-btn" onclick="moveRange(0)">Today</button><button class="desk-btn" aria-label="Next period" onclick="moveRange(1)">›</button><select class="desk-btn" id="range-mode" aria-label="Calendar view" onchange="setRange(this.value)"><option value="day">Day</option><option value="week">Week</option></select></div></div><div id="week-scroll"></div></section>
+        <details class="desk-card" id="month-archive"><summary>Month calendar &amp; searchable bookings</summary>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           <div class="lg:col-span-5 bg-white rounded-3xl border border-blush-200/80 p-5 shadow-sm self-start">
@@ -430,7 +506,8 @@
                 <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
                   <button onclick="setBookingFilter('upcoming')" data-filter="upcoming" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-700 text-white whitespace-nowrap">Upcoming</button>
                   <button onclick="setBookingFilter('week')" data-filter="week" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Next 7 days</button>
-                  <button onclick="setBookingFilter('deposit')" data-filter="deposit" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Balance Due</button>
+                  <button onclick="setBookingFilter('awaitdeposit')" data-filter="awaitdeposit" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Awaiting deposit</button>
+                  <button onclick="setBookingFilter('remaining')" data-filter="remaining" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Balance remaining</button>
                   <button onclick="setBookingFilter('noprice')" data-filter="noprice" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Needs price</button>
                   <button onclick="setBookingFilter('paid')" data-filter="paid" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Fully Paid</button>
                   <button onclick="setBookingFilter('past')" data-filter="past" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-blush-100 text-blush-900 hover:bg-blush-200 whitespace-nowrap">Past</button>
@@ -442,7 +519,7 @@
             <div id="bookings-cards-container" class="space-y-3"></div>
           </div>
         </div>
-      </section>
+      </details></section>
 
       <!-- ==================== TAB 3: PACKAGES & ADD-ONS ==================== -->
       <section id="tab-packages" class="tab-content hidden space-y-6">
@@ -524,6 +601,7 @@
       </section>
 
       <!-- ==================== TAB 5: SETTINGS & REPORTS ==================== -->
+      <section class="tab-content hidden desk-card" id="tab-more"><h2>More</h2><div class="desk-actions"><button class="desk-btn" onclick="switchTab('packages')">Packages</button><button class="desk-btn" onclick="switchTab('expenses')">Expenses</button><button class="desk-btn" onclick="switchTab('settings')">Settings</button></div></section>
       <section id="tab-settings" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -644,6 +722,7 @@
               </button>
               <p id="publish-availability-status" class="text-[11px] text-slate-500 text-center" aria-live="polite">Availability syncs automatically when bookings change. Use this button to refresh it now.</p>
               <form id="public-form" onsubmit="savePublicSettings(event)" class="space-y-4">
+                <details class="hours-card"><summary>Weekly working hours</summary><label><input type="checkbox" id="custom-hours"> Use custom weekday hours</label><div id="weekday-hours"></div></details>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-xs font-semibold text-charcoal mb-1">Travel buffer (minutes)</label>
@@ -674,7 +753,7 @@
                   <p class="text-[11px] text-slate-400 mt-1">Only add real reviews, with the client's permission.</p>
                 </div>
                 <button type="submit" class="w-full py-2.5 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-bold transition">Save public page settings</button>
-              </form>
+              </form><form id="block-period" class="hours-card"><h3>Block part of a day</h3><div class="desk-actions"><label>Date<input required name="date" type="date"></label><label>From<input required name="start" type="time"></label><label>Until<input required name="end" type="time"></label><button class="desk-btn">Block time</button></div><div id="partial-blocks"></div></form>
 
               <div class="pt-3 border-t border-blush-100 space-y-2">
                 <p class="text-xs font-semibold text-charcoal">DuitNow QR</p>
@@ -718,24 +797,16 @@
   <!-- Mobile Bottom Navigation Bar -->
   <nav id="mobile-nav" style="padding-bottom:max(0.375rem, env(safe-area-inset-bottom))" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-blush-200 z-30 px-2 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(190,24,93,0.06)]">
     <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-blush-700">
-      <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[10px] font-semibold mt-0.5">Home</span>
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[10px] font-semibold mt-0.5">Today</span>
     </button>
     <button onclick="switchTab('requests')" data-tab="requests" class="mobile-nav-btn relative flex flex-col items-center py-1 px-2 text-slate-400">
       <i data-lucide="inbox" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Requests</span>
       <span id="req-badge-m" class="hidden absolute top-0 right-0 min-w-[16px] h-4 px-1 rounded-full bg-blush-700 text-white text-[9px] font-bold flex items-center justify-center">0</span>
     </button>
     <button onclick="switchTab('calendar')" data-tab="calendar" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
-      <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Schedule</span>
+      <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Calendar</span>
     </button>
-    <button onclick="switchTab('packages')" data-tab="packages" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
-      <i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Packages</span>
-    </button>
-    <button onclick="switchTab('expenses')" data-tab="expenses" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
-      <i data-lucide="receipt" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Expenses</span>
-    </button>
-    <button onclick="switchTab('settings')" data-tab="settings" class="mobile-nav-btn flex flex-col items-center py-1 px-2 text-slate-400">
-      <i data-lucide="settings" class="w-5 h-5"></i><span class="text-[10px] font-medium mt-0.5">Settings</span>
-    </button>
+    <button onclick="switchTab('more')" data-tab="more" class="mobile-nav-btn flex flex-col items-center py-1 px-2"><i data-lucide="more-horizontal"></i><span class="text-[10px]">More</span></button>
   </nav>
 
   <!-- ==================== MODAL 1: ADD / EDIT BOOKING ==================== -->
@@ -821,6 +892,9 @@
               <label class="block text-[11px] font-semibold text-slate-500 mb-1">Subtotal (RM)</label>
               <input type="number" id="book-subtotal" readonly class="w-full px-3 py-2 text-sm font-bold text-charcoal bg-blush-100/80 border border-blush-200 rounded-xl">
             </div>
+            <label class="desk-field">Ready by<input id="book-ready" type="time"></label>
+            <label class="desk-field">Required deposit (RM)<input id="book-required" type="number" min="0" step=".01" placeholder="Legacy policy"></label>
+            <label class="desk-field">Deposit due date<input id="book-due" type="date"></label>
             <div>
               <label class="block text-[11px] font-semibold text-emerald-700 mb-1">Deposit Paid (RM)</label>
               <input type="number" id="book-deposit" step="0.01" min="0" value="0" oninput="recalculateBookingTotals()" class="w-full px-3 py-2 text-sm font-bold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:border-emerald-500">
@@ -1099,6 +1173,7 @@
   </div>
 
   <script type="module">
+    import { minutes,clock,cents,depositMet,fitsHours,catalogueQuote } from './studio-core.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import {
       getAuth,
@@ -1231,6 +1306,8 @@
       return {
         id: String(b.id),
         ...(b.trackingId ? {trackingId:String(b.trackingId)} : {}),
+        readyBy:String(b.readyBy||''), remindedFor:String(b.remindedFor||''),
+        depositRequired:b.depositRequired==null?null:Math.max(0,num(b.depositRequired)), depositDue:String(b.depositDue||''),
         receiptNo: String(b.receiptNo || ''),
         issuedDate: DATE_RE.test(String(b.issuedDate || '')) ? b.issuedDate : '',
         clientName: String(b.clientName || 'Unnamed client'),
@@ -1334,7 +1411,8 @@
         return `The daily booking limit (${maxBookingsPerDay()}) has been reached for that date. Choose another date or change the limit in Settings → Public Booking Page.`;
       }
       if (code === 'daily-time-conflict') return 'That time now overlaps another appointment or does not leave enough travel buffer. Refresh the calendar and choose another time.';
-      if (code === 'daily-date-blocked') return 'That date is blocked in Settings → Public Booking Page. Remove the block before approving this request.';
+      if (code === 'daily-date-blocked') return 'This appointment falls outside working hours or overlaps blocked time. Review the schedule before approval.';
+      if (code === 'catalogue-changed') return 'The catalogue changed. Review the updated price and duration before approving.';
       if (code === 'request-changed') return 'This request changed. Review the latest details and approve again.';
       if (code === 'request-no-longer-pending') return 'This request has already been handled. Refresh the Requests page.';
       if (code === 'booking-not-found') return 'This booking could not be found. Refresh the page and try again.';
@@ -1343,6 +1421,142 @@
       return 'Could not save the booking. Please check your connection and try again.';
     }
 
+    let deskDate=localDateStr();
+    let rangeMode=matchMedia('(max-width: 767px)').matches?'day':'week';
+    const byId=id=>document.getElementById(id);
+    function offsetDate(date,offset) {
+      const d=new Date(date+'T12:00:00'); d.setDate(d.getDate()+offset); return localDateStr(d);
+    }
+    function dayJobs(date) {
+      return appState.bookings.filter(b=>b.eventDate===date).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+    }
+    function payLabel(b) {
+      if (!b.subtotal) return 'Quote pending';
+      if (!b.balanceDue) return 'Paid in full';
+      return depositMet(b)?'Balance remaining':'Awaiting deposit';
+    }
+    function taskButton(label,action,id,cls='') {
+      return '<button type="button" class="desk-btn '+cls+'" data-operation="'+action+'" data-key="'+esc(id)+'">'+esc(label)+'</button>';
+    }
+    function compactJob(b) {
+      return '<button class="jobline" data-operation="details" data-key="'+esc(b.id)+'"><time>'+esc(formatDisplayTime(b.startTime))+'</time><span><strong>'+esc(b.clientName)+'</strong><small>'+esc(b.packageName)+' · '+esc(b.venue)+'</small></span><em>'+esc(payLabel(b))+'</em></button>';
+    }
+    function drawToday() {
+      const today=localDateStr(), now=new Date();
+      const jobs=dayJobs(today), next=jobs.find(b=>minutes(b.endTime)>now.getHours()*60+now.getMinutes());
+      byId('desk-date').textContent=formatDisplayDate(today);
+      byId('next-visit').innerHTML=next?'<div class="visit-time">'+esc(formatDisplayTime(next.startTime))+' – '+esc(formatDisplayTime(next.endTime))+'</div><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+' · '+esc(next.venue)+'</p><p>'+(next.readyBy?'Ready by '+esc(formatDisplayTime(next.readyBy))+' · ':'')+esc(payLabel(next))+'</p><div class="desk-actions"><a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>'+taskButton('WhatsApp','wa',next.id)+taskButton('Booking details','details',next.id)+'</div>':'<h2>No more appointments today</h2><p>Your next scheduled day is available in Calendar.</p>';
+      byId('today-list').innerHTML=jobs.map(compactJob).join('')||'<p class="quiet">No appointments booked for today.</p>';
+      byId('tomorrow-list').innerHTML=dayJobs(offsetDate(today,1)).map(b=>'<div class="remind-row">'+compactJob(b)+'<div class="desk-actions">'+taskButton('Open reminder','remind',b.id)+taskButton(b.remindedFor===reminderKey(b)?'Sent · undo':'Mark sent','sent',b.id)+'</div></div>').join('')||'<p class="quiet">No appointments tomorrow.</p>';
+      const open=appState.requests.filter(r=>r.status==='pending' && r.eventDate>=today).length;
+      byId('today-inbox').textContent='Review requests ('+open+')';
+    }
+    function reminderKey(b) { return b.eventDate+' '+b.startTime; }
+    function openSheet(b) {
+      const sheet=byId('booking-sheet');
+      byId('sheet-title').textContent=b.clientName;
+      byId('sheet-body').innerHTML='<p>'+esc(b.packageName)+'</p><dl>'+[
+        ['Session',formatDisplayDate(b.eventDate)+' · '+formatDisplayTime(b.startTime)+' – '+formatDisplayTime(b.endTime)],
+        ['Venue',b.venue],['Ready by',b.readyBy&&formatDisplayTime(b.readyBy)],['Quote',formatRM(b.subtotal)],['Payment',payLabel(b)],['Paid',formatRM(b.depositPaid)],['Balance',formatRM(b.balanceDue)],['Notes',b.notes]
+      ].filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl><div class="desk-actions">'+taskButton(depositMet(b)?'Edit appointment':'Record deposit','edit',b.id,'primary')+'<a class="desk-btn" href="'+esc(mapsUrl(b.venue))+'" rel="noopener" target="_blank">Open Maps ↗</a>'+taskButton('WhatsApp','wa',b.id)+'</div><details><summary>More actions</summary><div class="desk-actions">'+[['Edit booking','edit'],['Receipt / PDF','receipt'],['Copy reminder','copy'],['Google Calendar','google'],['Download calendar file','ics'],['Mark fully paid','paid'],['Delete booking','delete']].map(([l,a])=>taskButton(l,a,b.id)).join('')+'</div></details>';
+      if (!sheet.open) sheet.showModal();
+    }
+    const jobActions={
+      details:openSheet,wa:b=>quickWhatsAppClient(b.id),edit:b=>openBookingModal(null,b.id),
+      receipt:b=>openReceiptModal(b.id),copy:b=>copyReminder(b.id),google:b=>openGoogleCalendar(b.id),
+      ics:b=>downloadBookingICS(b.id),paid:b=>markFullyPaid(b.id),delete:b=>confirmDeleteBooking(b.id),
+      remind:b=>quickReminderWhatsApp(b.id),
+      sent:async b=>{
+        await runTransaction(db,async tx=>{
+          const ref=userDoc('bookings',b.id), snap=await tx.get(ref);
+          if (!snap.exists() || reminderKey(snap.data())!==reminderKey(b)) throw new Error('Schedule changed');
+          tx.update(ref,{remindedFor:snap.data().remindedFor===reminderKey(b)?'':reminderKey(b)});
+        });
+      }
+    };
+    document.addEventListener('click',async e=>{
+      const button=e.target.closest('[data-operation]');
+      if (!button) return;
+      const b=appState.bookings.find(row=>row.id===button.dataset.key);
+      if (!b) return;
+      if(byId('booking-sheet').open) byId('booking-sheet').close();
+      try { await jobActions[button.dataset.operation](b); }
+      catch { showToast('Action could not be completed. Refresh and try again.','error'); }
+    });
+    window.moveRange=n=>{deskDate=n===0?localDateStr():offsetDate(deskDate,n*(rangeMode==='day'?1:7)); drawSchedule();};
+    window.setRange=mode=>{rangeMode=mode;drawSchedule();};
+    function drawSchedule() {
+      const days=rangeMode==='day'?[deskDate]:Array.from({length:7},(_,i)=>offsetDate(deskDate,i-(new Date(deskDate+'T12:00:00').getDay()+6)%7));
+      byId('range-heading').textContent=days.length===1?formatDisplayDate(deskDate):formatDisplayDate(days[0])+' – '+formatDisplayDate(days[6]);
+      byId('range-mode').value=rangeMode;
+      const entries=days.flatMap(date=>dayJobs(date));
+      const pending=appState.requests.filter(r=>r.status==='pending' && days.includes(r.eventDate));
+      if(rangeMode==='day'){
+        const entriesForDay=[];
+        const add=(t,html)=>entriesForDay.push({t,html});
+        for(const b of entries){
+          add(minutes(b.startTime),compactJob(b));
+          const gap=Number(appState.settings.bufferMins)||0;
+          if(gap>0)add(minutes(b.endTime),'<p class="agenda-gap">'+esc(b.endTime)+'–'+clock(Math.min(1440,minutes(b.endTime)+gap))+' · Travel buffer</p>');
+        }
+        for(const r of pending)add(minutes(r.startTime),'<button class="desk-btn pending-line" data-pending="'+esc(r.id)+'">'+esc(r.startTime+' · Pending · '+r.clientName)+'</button>');
+        for(const b of appState.settings.timeBlocks||[])if(b.date===deskDate)add(minutes(b.start),'<p class="agenda-note">'+esc(b.start+'–'+b.end)+' · Blocked</p>');
+        const work=appState.settings.workingHours?.[new Date(deskDate+'T12:00:00').getDay()];
+        const closed=work?.closed || (appState.settings.blockedDates||[]).some(b=>b.date===deskDate);
+        byId('week-scroll').innerHTML=(closed?'<p class="agenda-note">Closed for online bookings</p>':work?'<p class="quiet">Working hours · '+esc(work.start+'–'+work.end)+'</p>':'')+
+          (entriesForDay.sort((a,b)=>a.t-b.t).map(x=>x.html).join('')||'<p class="quiet">No sessions scheduled.</p>')+
+          '<button type="button" class="desk-btn" id="agenda-new">Add appointment</button>';return;
+      }
+      const buffer=Number(appState.settings.bufferMins)||0;
+      const blocks=(appState.settings.timeBlocks||[]).filter(b=>days.includes(b.date));
+      const starts=[8*60,...blocks.map(b=>minutes(b.start)),...entries.map(b=>minutes(b.startTime)),...pending.map(r=>minutes(r.startTime))];
+      const ends=[18*60,...blocks.map(b=>minutes(b.end)),...entries.map(b=>minutes(b.endTime)+buffer),...pending.map(r=>minutes(requestEndTime(r)))];
+      const start=Math.floor(Math.min(...starts)/60)*60, end=Math.min(1440,Math.ceil(Math.max(...ends)/60)*60);
+      const ticks=Array.from({length:(end-start)/60},(_,i)=>start+i*60);
+      const events=(date)=>{
+        const blocks=(appState.settings.timeBlocks||[]).filter(b=>b.date===date);
+        const items=[...dayJobs(date).map(b=>({s:minutes(b.startTime),e:minutes(b.endTime),b})),...pending.filter(r=>r.eventDate===date).map(r=>({s:minutes(r.startTime),e:minutes(requestEndTime(r)),r}))].sort((a,b)=>a.s-b.s);
+        const band=(s,e,cls,label,attrs='')=>{
+          const lo=Math.max(start,s),hi=Math.min(end,e);if(hi<=lo)return '';
+          return '<'+(attrs?'button':'div')+' class="slot '+cls+'" style="top:'+((lo-start)/60*58)+'px;height:'+((hi-lo)/60*58)+'px" '+attrs+'>'+esc(label)+'</'+(attrs?'button':'div')+'>';
+        };
+        const placed=[];
+        for (const item of items) {
+          let lane=0;while(placed.some(p=>p.lane===lane&&p.e>item.s&&p.s<item.e))lane++;
+          placed.push({...item,lane});
+        }
+        const work=appState.settings.workingHours?.[new Date(date+'T12:00:00').getDay()];
+        const closed=work?.closed || (appState.settings.blockedDates||[]).some(b=>b.date===date);
+        const unavailable=closed ? band(start,end,'closed','Closed') : work ?
+          band(start,minutes(work.start),'closed','Closed')+band(minutes(work.end),end,'closed','Closed'):'';
+        const sets=[];
+        for (const item of placed) {
+          let group=sets[sets.length-1];
+          if(!group || item.s>=group.end){group={end:item.e,lanes:1};sets.push(group);}
+          group.end=Math.max(group.end,item.e);group.lanes=Math.max(group.lanes,item.lane+1);item.group=group;
+        }
+        return unavailable+blocks.map(b=>band(minutes(b.start),minutes(b.end),'closed','Blocked')).join('')+
+          dayJobs(date).map(b=>band(minutes(b.endTime),minutes(b.endTime)+buffer,'buffer','Travel buffer')).join('')+
+          placed.map(p=>{
+            const lanes=p.group.lanes;
+            const attrs=(p.b?'data-operation="details" data-key="'+esc(p.b.id)+'"':'data-pending="'+esc(p.r.id)+'"');
+            return band(p.s,p.e,p.b?'saved':'proposed',clock(p.s)+' '+(p.b?p.b.clientName:'Pending · '+p.r.clientName),attrs)
+              .replace('style="','style="left:'+p.lane*100/lanes+'%;width:calc('+100/lanes+'% - 3px);');
+          }).join('');
+      };
+      byId('week-scroll').innerHTML='<div class="week-grid" style="--cols:'+days.length+';--height:'+ticks.length*58+'px"><div></div>'+days.map(d=>'<div class="day-cap">'+esc(new Date(d+'T12:00:00').toLocaleDateString('en-MY',{weekday:'short',day:'numeric'}))+'</div>').join('')+'<div>'+ticks.map(t=>'<time>'+clock(t)+'</time>').join('')+'</div>'+days.map(d=>'<div class="day-track" data-day="'+d+'" data-start="'+start+'">'+events(d)+'</div>').join('')+'</div>';
+    }
+    byId('week-scroll').onclick=e=>{
+      if(e.target.id==='agenda-new'){openBookingModal(deskDate);return;}
+      const pending=e.target.closest('[data-pending]');
+      if(pending){switchTab('requests');byId('request-'+pending.dataset.pending)?.scrollIntoView({block:'center'});return;}
+      const col=e.target.closest('.day-track');if(!col || e.target!==col)return;
+      const minutesAtClick=Number(col.dataset.start)+Math.floor((e.clientY-col.getBoundingClientRect().top)/29)*30;
+      openBookingModal(col.dataset.day);
+      byId('book-start-time').value=clock(minutesAtClick);
+      byId('book-end-time').value=clock(Math.min(1439,minutesAtClick+120));checkBookingConflicts();
+    };
+
     function trackingId(booking) {
       return booking.trackingId || appState.requests.find(r=>r.bookingId === booking.id && (r.guest || r.clientUid))?.id || '';
     }
@@ -1350,7 +1564,7 @@
     function ticketBookingFields(booking) {
       return { clientName:booking.clientName, phone:booking.clientPhone, eventDate:booking.eventDate,
         startTime:booking.startTime, endTime:booking.endTime, venue:booking.venue, packageName:booking.packageName,
-        finalTotal:booking.subtotal, depositPaid:booking.depositPaid };
+        finalTotal:booking.subtotal, depositPaid:booking.depositPaid, depositRequired:booking.depositRequired??null, depositDue:booking.depositDue||'', readyBy:booking.readyBy||'' };
     }
 
     async function saveBookingWithCapacity(booking, options = {}) {
@@ -1369,6 +1583,17 @@
         const bookingSnap = await tx.get(bookingRef);
         const requestSnap = requestRef ? await tx.get(requestRef) : null;
         const oldData = bookingSnap.exists() ? bookingSnap.data() : null;
+        if (options.catalogueItems) {
+          for (const item of options.catalogueItems) {
+            const snap = await tx.get(userDoc('packages',item.id));
+            if (!snap.exists()) throw new Error('catalogue-changed');
+            const current = snap.data();
+            const duration = current.durationMins !== undefined ? Math.max(0,num(current.durationMins)) :
+              (/bridal|akad|nikah|sanding/i.test(current.name)?240:/full/i.test(current.name)?150:/touch/i.test(current.name)?60:120);
+            if (current.name!==item.name || cents(current.price)!==cents(item.price) || duration!==item.durationMins)
+              throw new Error('catalogue-changed');
+          }
+        }
 
         if (options.mustExist && !oldData) throw new Error('booking-not-found');
         if (!options.allowOverwrite && !options.mustExist && oldData) throw new Error('booking-already-exists');
@@ -1418,6 +1643,7 @@
 
         if (options.enforceBlockedDate) {
           const isBlocked = blockedDates.some(x => x && x.date === newDate);
+          if (!fitsHours(profile,newDate,minutes(booking.startTime),minutes(booking.endTime))) throw new Error('daily-date-blocked');
           if (isBlocked) throw new Error('daily-date-blocked');
         }
 
@@ -1454,7 +1680,7 @@
 
         const linkedId = (requestRef && (requestSnap.data().guest || requestSnap.data().clientUid)) ? options.requestId : trackingId(oldData ? {...oldData,id:booking.id} : booking);
         if (!requestRef && linkedId) tx.set(doc(db,'clientApprovals',linkedId), ticketBookingFields(booking), {merge:true});
-        tx.set(bookingRef, { ...booking, ...(linkedId ? {trackingId:linkedId} : {}), updatedAt: serverTimestamp() }, { merge: !!oldData });
+        tx.set(bookingRef, { ...booking, ...(oldData && !options.allowOverwrite ? {remindedFor:oldData.remindedFor||''} : {}), ...(linkedId ? {trackingId:linkedId} : {}), updatedAt: serverTimestamp() }, { merge: !!oldData });
         if (requestRef) {
           const request = requestSnap.data();
           if (request.clientUid || request.guest === true) {
@@ -1517,6 +1743,8 @@
     }
 
     function resetLocalState() {
+      publicSettingsDirty=false;
+      if(byId('booking-sheet').open)byId('booking-sheet').close();
       appState.settings = { ...DEFAULT_SETTINGS };
       appState.packages = DEFAULT_PACKAGES.map(p => ({ ...p }));
       appState.bookings = [];
@@ -1956,7 +2184,8 @@
       });
 
       document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-        if (btn.dataset.tab === tabName) {
+        btn.setAttribute('aria-current',btn.dataset.tab===tabName?'page':'false');
+        if (btn.dataset.tab === tabName || (btn.dataset.tab==='more' && ['settings','expenses','packages'].includes(tabName))) {
           btn.classList.remove('text-slate-400');
           btn.classList.add('text-blush-700');
         } else {
@@ -2228,6 +2457,7 @@
     // DASHBOARD & KPIs
     // =========================================================================
     function renderDashboard() {
+      drawToday(); drawSchedule();
       const todayStr = localDateStr();
       const inPeriod = (ds) => dashPeriod === 'all' || ds.startsWith(dashPeriod);
       const jobs = appState.bookings.filter(b => inPeriod(b.eventDate));
@@ -2441,6 +2671,7 @@
     };
 
     window.setBookingFilter = function(filter) {
+      byId('month-archive').open=true;
       activeBookingFilter = filter;
       document.querySelectorAll('.filter-pill').forEach(btn => {
         btn.className = btn.dataset.filter === filter
@@ -2450,68 +2681,7 @@
       renderBookingsList();
     };
 
-    function bookingCardHTML(b) {
-      const id = esc(b.id);
-      const chip = relativeDayChip(b.eventDate);
-      const past = daysUntil(b.eventDate) < 0;
-      const stripe = b.status === 'Fully Paid' ? 'border-l-emerald-500' : (b.status === 'Deposit Paid' ? 'border-l-amber-400' : 'border-l-red-400');
-      const venue = b.venue
-        ? `<a href="${esc(mapsUrl(b.venue))}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-blush-700 max-w-full"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blush-500 shrink-0"></i><span class="truncate">${esc(b.venue)}</span></a>`
-        : `<span class="text-xs text-slate-400 italic">Venue not set</span>`;
-      const money = b.subtotal <= 0
-        ? `<button onclick="openBookingModal(null,'${id}')" class="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 shrink-0">Add price</button>`
-        : `<div class="text-right shrink-0">
-             <p class="font-bold text-sm text-charcoal">${esc(formatRM(b.subtotal))}</p>
-             ${getStatusBadgeHTML(b.status)}
-             <p class="text-[11px] mt-1 ${b.balanceDue > 0 ? 'text-amber-700 font-bold' : 'text-emerald-700 font-semibold'}">${b.balanceDue > 0 ? 'Balance ' + esc(formatRM(b.balanceDue)) : 'Paid in full'}</p>
-           </div>`;
-      const markPaid = (b.balanceDue > 0 && b.subtotal > 0)
-        ? `<button onclick="markFullyPaid('${id}')" class="px-3 py-2 rounded-xl border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Mark paid</button>`
-        : '';
-      return `
-      <article class="bg-white rounded-3xl border border-blush-200/80 border-l-4 ${stripe} shadow-sm p-4 space-y-3 ${past ? 'opacity-90' : ''}">
-        <div class="flex gap-3">
-          ${dateBlockHTML(b.eventDate, past)}
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${chip.cls}">${esc(chip.text)}</span>
-              <span class="text-[11px] font-semibold text-slate-400">${esc(b.receiptNo)}</span>
-            </div>
-            <h4 class="font-serif font-bold text-base text-charcoal truncate mt-1">${esc(b.clientName)}</h4>
-            <p class="text-xs font-semibold text-slate-700 mt-0.5">${esc(formatDisplayTime(b.startTime))} – ${esc(formatDisplayTime(b.endTime))}</p>
-            <div class="mt-0.5 min-w-0">${venue}</div>
-          </div>
-        </div>
-
-        <div class="flex items-end justify-between gap-3 rounded-2xl bg-blush-50/70 px-3 py-2.5">
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-blush-900 truncate">${esc(b.packageName)}</p>
-            ${b.notes ? `<p class="text-[11px] text-slate-500 italic line-clamp-2 mt-0.5">"${esc(b.notes)}"</p>` : ''}
-          </div>
-          ${money}
-        </div>
-
-        <div class="pt-2.5 flex flex-wrap items-center gap-2 border-t border-blush-100">
-          <button onclick="openReceiptModal('${id}')" class="px-3 py-2 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Receipt / PDF
-          </button>
-          <button onclick="quickWhatsAppClient('${id}')" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
-          </button>
-          <button onclick="copyReminder('${id}')" class="px-3 py-2 rounded-xl bg-white border border-blush-200 hover:bg-blush-50 text-blush-800 text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> Copy reminder
-          </button>
-          ${markPaid}
-          <div class="flex items-center gap-0.5 ml-auto">
-            <button onclick="openGoogleCalendar('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Add to Google Calendar" aria-label="Add to Google Calendar"><i data-lucide="calendar-plus" class="w-4 h-4"></i></button>
-            <button onclick="downloadBookingICS('${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-blush-700 transition" title="Download .ics calendar file" aria-label="Download calendar file"><i data-lucide="download" class="w-4 h-4"></i></button>
-            <button onclick="openBookingModal(null, '${id}')" class="p-2 rounded-xl hover:bg-blush-50 text-slate-600 transition" title="Edit Booking" aria-label="Edit booking"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-            <button onclick="confirmDeleteBooking('${id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-500 transition" title="Delete Booking" aria-label="Delete booking"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </div>
-        </div>
-      </article>`;
-    }
-
+    function bookingCardHTML(b) { return compactJob(b); }
     function renderBookingsList() {
       const search = (document.getElementById('booking-search-input').value || '').toLowerCase();
       const todayStr = localDateStr();
@@ -2523,7 +2693,7 @@
 
       const titles = {
         all: 'All Client Bookings', upcoming: 'Upcoming Bookings', week: 'Next 7 Days',
-        deposit: 'Balances to Collect', paid: 'Fully Paid', noprice: 'Jobs Needing a Price', past: 'Past Bookings'
+        awaitdeposit:'Awaiting deposit',remaining:'Balance remaining',deposit:'Balances to Collect', paid: 'Fully Paid', noprice: 'Jobs Needing a Price', past: 'Past Bookings'
       };
 
       if (selectedCalendarDate) {
@@ -2534,6 +2704,8 @@
         document.getElementById('bookings-list-title').textContent = titles[activeBookingFilter] || titles.all;
         if (activeBookingFilter === 'upcoming') list = list.filter(b => b.eventDate >= todayStr);
         else if (activeBookingFilter === 'week') list = list.filter(b => b.eventDate >= todayStr && b.eventDate <= weekEnd);
+        else if (activeBookingFilter === 'awaitdeposit') list=list.filter(b=>b.balanceDue>0 && !depositMet(b));
+        else if (activeBookingFilter === 'remaining') list=list.filter(b=>b.balanceDue>0 && depositMet(b));
         else if (activeBookingFilter === 'deposit') list = list.filter(b => b.balanceDue > 0 && b.subtotal > 0);
         else if (activeBookingFilter === 'paid') list = list.filter(b => b.status === 'Fully Paid');
         else if (activeBookingFilter === 'noprice') list = list.filter(b => b.subtotal <= 0);
@@ -2714,6 +2886,7 @@
         document.getElementById('book-package-price').value = b.packagePrice;
         document.getElementById('book-addon-fee').value = b.addonFee;
         document.getElementById('book-addon-desc').value = b.addonDesc || '';
+        byId('book-ready').value=b.readyBy||appState.requests.find(r=>r.bookingId===b.id)?.readyBy||''; byId('book-required').value=b.depositRequired??''; byId('book-due').value=b.depositDue||'';
         document.getElementById('book-deposit').value = b.depositPaid;
         document.getElementById('book-notes').value = b.notes || '';
       } else {
@@ -2832,7 +3005,12 @@
       const subtotal = packagePrice + addonFee;
       const depositPaid = Math.max(0, num(document.getElementById('book-deposit').value));
 
+      const required=byId('book-required').value===''?null:byId('book-required').valueAsNumber;
+      if(required!=null && required>subtotal){showToast('Required deposit exceeds the quote.','error');return;}
+      if(byId('book-ready').value && byId('book-ready').value<endTime){showToast('The session finishes after the ready-by time.','error');return;}
+      if(byId('book-due').value && byId('book-due').value>byId('book-date').value){showToast('Choose a deposit due date on or before the appointment.','error');return;}
       const fields = {
+        readyBy:byId('book-ready').value, depositRequired:required,depositDue:byId('book-due').value,
         clientName: document.getElementById('book-client-name').value.trim(),
         clientPhone: document.getElementById('book-client-phone').value.trim(),
         eventDate: document.getElementById('book-date').value,
@@ -3213,10 +3391,17 @@
       copyTextToClipboard(publicPageUrl(), 'Booking page link copied!');
     };
 
+    let publicSettingsDirty=false;
+    byId('public-form').addEventListener('input',()=>{publicSettingsDirty=true;});
     function renderPublicSettings() {
       const s = appState.settings;
       const form = document.getElementById('public-form');
-      if (form && !form.contains(document.activeElement)) {
+      if (form && !publicSettingsDirty && !form.contains(document.activeElement)) {
+        byId('custom-hours').checked=!!s.workingHours;
+        byId('weekday-hours').innerHTML=[1,2,3,4,5,6,0].map(i=>{
+          const h=s.workingHours?.[i]||{start:'05:00',end:'19:00',closed:false};
+          return '<div class="hours-line"><b>'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i]+'</b><label><input type="checkbox" id="closed-'+i+'" '+(h.closed?'checked':'')+'> Closed</label><input aria-label="Open time" type="time" id="opens-'+i+'" value="'+esc(h.start)+'"><input aria-label="Close time" type="time" id="closes-'+i+'" value="'+esc(h.end)+'"></div>';
+        }).join('');
         document.getElementById('pub-buffer').value = s.bufferMins;
         document.getElementById('pub-lead').value = s.minLeadDays;
         document.getElementById('pub-daily-cap').value = maxBookingsPerDay(s);
@@ -3224,6 +3409,7 @@
         document.getElementById('pub-faq').value = s.publicFaq || '';
         document.getElementById('pub-reviews').value = s.publicReviews || '';
       }
+      byId('partial-blocks').innerHTML=(s.timeBlocks||[]).filter(b=>b.date>=localDateStr()).map(b=>'<p>'+esc(b.date+' · '+b.start+' – '+b.end)+' <button type="button" class="underline" data-unblock="'+esc(b.date+' '+b.start+' '+b.end)+'">Remove</button></p>').join('');
       const qr = document.getElementById('pub-qr-preview');
       if (qr) {
         qr.textContent = '';
@@ -3248,10 +3434,30 @@
       }
     }
 
+    async function changeTimeBlock(block,remove) {
+      const ref=userDoc('meta','profile');
+      await runTransaction(db,async tx=>{
+        const snap=await tx.get(ref);
+        const blocks=(snap.data()?.timeBlocks||[]).filter(b=>b.date>=localDateStr() && !(b.date===block.date && b.start===block.start && b.end===block.end));
+        if(!remove) blocks.push(block);
+        tx.set(ref,{timeBlocks:blocks},{merge:true});
+      });
+    }
+    byId('block-period').onsubmit=async e=>{
+      e.preventDefault();const form=e.currentTarget;const b=Object.fromEntries(new FormData(form));
+      if(b.date<localDateStr()||b.end<=b.start){showToast('Choose a future time range on one day.','error');return;}
+      try{await changeTimeBlock(b,false);form.reset();showToast('Time blocked.');}catch{showToast('Could not save time block.','error');}
+    };
+    byId('partial-blocks').onclick=async e=>{
+      if(!e.target.dataset.unblock)return;const [date,start,end]=e.target.dataset.unblock.split(' ');
+      try{await changeTimeBlock({date,start,end},true);}catch{showToast('Could not remove block.','error');}
+    };
     window.savePublicSettings = function(event) {
       event.preventDefault();
       if (!currentUser || !db) return;
-      const data = {
+      const workingHours=byId('custom-hours').checked ? Array.from({length:7},(_,i)=>({closed:byId('closed-'+i).checked,start:byId('opens-'+i).value,end:byId('closes-'+i).value})) : null;
+      if(workingHours?.some(h=>!h.start||!h.end||(!h.closed && h.end<=h.start))){showToast('Check each open day’s start and finish.','error');return;}
+      const data = {workingHours,
         bufferMins: Math.max(0, Math.min(480, parseInt(document.getElementById('pub-buffer').value, 10) || 0)),
         minLeadDays: Math.max(0, Math.min(60, parseInt(document.getElementById('pub-lead').value, 10) || 0)),
         maxBookingsPerDay: Math.max(1, Math.min(50, Number.parseInt(document.getElementById('pub-daily-cap').value, 10) || 3)),
@@ -3260,6 +3466,7 @@
         publicReviews: document.getElementById('pub-reviews').value.trim().slice(0, 3000),
         updatedAt: serverTimestamp()
       };
+      publicSettingsDirty=false;
       fireWrite(setDoc(userDoc('meta', 'profile'), data, { merge: true }), 'Could not save public page settings.');
       document.activeElement && document.activeElement.blur();
       showToast('Public page settings saved!');
@@ -3344,6 +3551,7 @@
       const cfg = {
         businessName: s.businessName, ownerName: s.ownerName || '', tagline: s.tagline || '',
         whatsappNo: s.whatsappNo || '', igHandle: s.igHandle || '', terms: s.terms || '',
+        workingHours:s.workingHours||null,timeBlocks:(s.timeBlocks||[]).filter(b=>b.date>=localDateStr()),
         bufferMins: s.bufferMins, minLeadDays: s.minLeadDays,
         maxBookingsPerDay: maxBookingsPerDay(s),
         depositText: s.depositText || '', faq: s.publicFaq || '', reviews: s.publicReviews || '',
@@ -3474,6 +3682,7 @@
       if (hit) return `Clashes with ${hit.clientName} (${formatDisplayTime(hit.startTime)} to ${formatDisplayTime(hit.endTime)}).`;
       if ((appState.settings.blockedDates || []).some(x => x.date === r.eventDate)) return 'This date is blocked.';
       const dayCount = appState.bookings.filter(b => b.eventDate === r.eventDate).length;
+      if(!fitsHours(appState.settings,r.eventDate,rs,re))return 'Outside public hours or overlaps a blocked period.';
       if (dayCount >= maxBookingsPerDay()) return `Daily booking limit reached (${dayCount}/${maxBookingsPerDay()}).`;
       return '';
     }
@@ -3484,7 +3693,7 @@
       const s = appState.settings;
       let msg;
       if (kind === 'approve') {
-        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nFinal quote: ${formatRM(finalTotal)} (travel: ${formatRM(travel)}).\n\nTo confirm your date, please pay the deposit and send the receipt here.${s.depositText ? '\n\n' + s.depositText : ''}${s.duitnowQr ? '\n\nI will send you the DuitNow QR in this chat.' : ''}\n\nThank you!`;
+        msg = `Hi ${r.clientName}! Your booking request (${r.ref}) with ${s.businessName} is approved 💕\n\n📅 ${formatDisplayDate(r.eventDate)}\n⏰ ${formatDisplayTime(r.startTime)}\n\nFinal quote: ${formatRM(finalTotal)} (travel: ${formatRM(travel)}).\n\n${r.depositRequired===0?'Your booking is confirmed.':'Required deposit: '+formatRM(r.depositRequired)+(r.depositDue?' by '+r.depositDue:'')+'. Send the receipt here.'}${r.depositRequired!==0 && s.depositText ? '\n\n' + s.depositText : ''}${r.depositRequired!==0 && s.duitnowQr ? '\n\nI will send you the DuitNow QR in this chat.' : ''}\n\nThank you!`;
       } else if (kind === 'decline') {
         msg = `Hi ${r.clientName}, thank you for your request (${r.ref}). Unfortunately I am not available at that date and time. Would you like to look at another date? 💕`;
       } else {
@@ -3516,6 +3725,9 @@
       document.getElementById('request-edit-fields').innerHTML = requestFields.map(([key,label,type,max])=>
         '<label>'+label+'<input name="'+key+'" type="'+type+'" value="'+esc(r[key] || '')+'"'+(max?' maxlength="'+max+'"':'')+
         (['clientName','phone','venue','eventDate','startTime'].includes(key)?' required':'')+'></label>').join('');
+      const extras=appState.packages.filter(p=>p.addon && !isTravelCharge(p));
+      const services=appState.packages.filter(p=>!p.addon);
+      byId('request-edit-fields').insertAdjacentHTML('beforeend','<details><summary>Change quoted services</summary><label><input type="checkbox" name="replaceServices"> Replace services using the current catalogue</label><label>Package<select name="selectedBase">'+services.map(p=>'<option value="'+esc(p.id)+'" '+(p.id===r.packageId?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label>'+extras.map(p=>'<label><input type="checkbox" name="selectedExtras" value="'+esc(p.id)+'" '+((r.addons||[]).some(a=>a.id===p.id || a.name===p.name)?'checked':'')+'>'+esc(p.name)+'</label>').join('')+'</details>');
       document.getElementById('request-edit-error').textContent = '';
       document.getElementById('request-editor').showModal();
     };
@@ -3524,7 +3736,17 @@
       const form = event.currentTarget, target = editedRequest;
       const fields = Object.fromEntries(Array.from(new FormData(form),([key,v])=>[key,v.trim()]));
       const error = document.getElementById('request-edit-error');
-      const end = timeToMinutes(fields.startTime) + num(target.durationMins);
+      const data=new FormData(form);
+      delete fields.selectedExtras;delete fields.selectedBase;delete fields.replaceServices;
+      if(data.has('replaceServices')){
+        try{
+          const quote=catalogueQuote({packageId:data.get('selectedBase'),addons:data.getAll('selectedExtras').map(id=>({id}))},appState.packages);
+          Object.assign(fields,{originalEstimate:target.originalEstimate??(num(target.packagePrice)+(target.addons||[]).reduce((n,a)=>n+num(a.price),0)),
+            originalDuration:target.originalDuration??target.durationMins, packageId:quote.base.id,packageName:quote.base.name,packagePrice:quote.base.price,
+            durationMins:quote.duration,addons:quote.addons.map(a=>({id:a.id,name:a.name,price:a.price}))});
+        }catch(err){error.textContent=err.message;return;}
+      }
+      const end = timeToMinutes(fields.startTime) + num(fields.durationMins??target.durationMins);
       if (end >= 1440 || (fields.readyBy && timeToMinutes(fields.readyBy)<end)) {
         error.textContent='Choose a start time that fits the session and ready-by time.'; return;
       }
@@ -3545,7 +3767,10 @@
 
     function requestCardHTML(r) {
       const id = esc(r.id);
-      const clash = requestClash(r);
+      let preview;
+      try{preview=catalogueQuote(r,appState.packages);}catch{}
+      const previewRequest=preview?{...r,durationMins:preview.duration}:r;
+      const clash = requestClash(previewRequest);
       const addons = Array.isArray(r.addons) ? r.addons : [];
       const total = num(r.packagePrice) + addons.reduce((t, a) => t + num(a.price), 0);
       const mapHref = r.mapLink && /^https?:\/\//.test(r.mapLink) ? r.mapLink : mapsUrl(r.venue || '');
@@ -3553,7 +3778,7 @@
       const mood = r.moodboardLink && /^https?:\/\//.test(r.moodboardLink)
         ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blush-700 font-semibold underline"><i data-lucide="image" class="w-3.5 h-3.5"></i> View moodboard</a>` : '';
       return `
-      <article class="bg-white rounded-3xl border border-blush-300 shadow-sm p-4 space-y-3">
+      <article id="request-${id}" class="bg-white rounded-3xl border border-blush-300 shadow-sm p-4 space-y-3">
         <div class="flex gap-3">
           ${dateBlockHTML(r.eventDate, false)}
           <div class="min-w-0 flex-1">
@@ -3570,7 +3795,8 @@
         <div class="rounded-2xl bg-blush-50/70 px-3 py-2.5 text-xs space-y-1">
           <p class="font-bold text-blush-900">${esc(r.packageName)} <span class="font-normal text-slate-500">• ${esc(r.pax)} pax</span></p>
           ${addons.length ? `<p class="text-slate-600">Add-ons: ${esc(addons.map(a => a.name).join(', '))}</p>` : ''}
-          <p class="text-slate-600">Estimated total: <b>${esc(formatRM(total))}</b></p>
+          <p class="text-slate-600">Submitted estimate: <b>${esc(formatRM(r.originalEstimate??total))}</b></p>
+          <p class="text-slate-600">${preview?'Catalogue before travel: '+esc(formatRM(preview.serviceTotal))+' · '+esc(preview.duration)+' min':'Review services in Edit request before approval.'}</p>
           ${r.allergyStatus === 'yes' ? `<p class="text-red-700 font-semibold">Allergies: ${esc(r.allergies)}</p>` : '<p class="text-slate-500">No allergies reported</p>'}
           ${r.notes ? `<p class="text-slate-600 italic">"${esc(r.notes)}"</p>` : ''}
           <p class="text-slate-500">${esc(r.phone)}${r.email ? ' • ' + esc(r.email) : ''}</p>
@@ -3579,6 +3805,9 @@
         <div class="flex flex-wrap items-center gap-2">
           ${r.guest === true ? `<button onclick="replaceGuestLink('${id}')" class="text-xs underline">Replace private link</button>` : ''}
           <button type="button" onclick="editPendingRequest('${id}')" class="px-3 py-2 rounded-xl border border-blush-200 font-semibold text-xs">Edit request</button>
+          <div class="request-context"><b>Schedule on this date</b><p class="pending-line">Pending · ${esc(r.startTime)}–${esc(requestEndTime(previewRequest))} · ${esc(r.venue)}</p>${dayJobs(r.eventDate).map(b=>'<p>'+esc(b.startTime+'–'+b.endTime+' · '+b.clientName+' · '+b.venue)+'</p>').join('')||'<p>No confirmed appointments.</p>'}</div>
+          <label class="desk-field">Required deposit (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
+          <label class="desk-field">Deposit due (optional)<input id="due-${id}" type="date" max="${esc(r.eventDate)}"></label>
           <label class="text-xs font-semibold">Final travel fee (RM)
             <input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2)}" class="w-24 ml-1 border border-blush-200 rounded-lg p-2">
           </label>
@@ -3610,9 +3839,13 @@
       document.title = pending.length ? `(${pending.length}) ${base}` : base;
 
       if (!box.dataset.denied || all.length) {
+        const drafts=Array.from(box.querySelectorAll('input[id]'),el=>[el.id,el.value]);
+        const focused=box.contains(document.activeElement)?document.activeElement.id:null;
         box.innerHTML = pending.length
           ? pending.map(requestCardHTML).join('')
           : '<div class="bg-white rounded-3xl border border-dashed border-blush-200 p-8 text-center"><p class="text-sm font-semibold text-charcoal">No pending requests</p><p class="text-xs text-slate-400 mt-1">New requests from your booking page will appear here.</p></div>';
+        for(const [id,value] of drafts){const el=byId(id);if(el)el.value=value;}
+        if(focused)byId(focused)?.focus({preventScroll:true});
       }
       document.getElementById('req-handled-count').textContent = handled.length ? `(${handled.length})` : '';
       document.getElementById('requests-handled').innerHTML = handled.length ? handled.map(r => {
@@ -3685,13 +3918,23 @@
         return;
       }
       const travel = input.valueAsNumber;
-      const addons = (Array.isArray(r.addons) ? r.addons : []).filter(a => !isTravelCharge(a));
-      if (travel > 0) addons.push({ name: 'Travel fee', price: travel });
-      const finalTotal = num(r.packagePrice) + addons.reduce((sum, a) => sum + num(a.price), 0);
-      const clash = requestClash(r);
+      let quote;
+      try { quote=catalogueQuote(r,appState.packages); } catch(err){showToast(err.message,'error');return;}
+      const addons=quote.addons.map(a=>({name:a.name,price:a.price}));
+      if(travel>0)addons.push({name:'Travel fee',price:travel});
+      const finalTotal=(cents(quote.serviceTotal)+cents(travel))/100;
+      const depositInput=byId('required-'+id),dueInput=byId('due-'+id);
+      depositInput.max=String(finalTotal);
+      if(!depositInput.reportValidity() || !dueInput.reportValidity())return;
+      const depositRequired=depositInput.valueAsNumber,depositDue=dueInput.value;
+      const revised={...r,packageName:quote.base.name,packagePrice:quote.base.price,durationMins:quote.duration};
+      const finish=minutes(r.startTime)+quote.duration;
+      if(finish>=1440 || (r.readyBy && finish>minutes(r.readyBy))){showToast('The catalogue duration does not fit the ready-by time. Edit the request first.','error');return;}
+      const clash=requestClash(revised);
+      const original=r.originalEstimate??(num(r.packagePrice)+(r.addons||[]).reduce((sum,a)=>sum+num(a.price),0));
       openConfirmModal(
         'Approve this request?',
-        (clash ? `Current schedule check: ${clash} ` : '') + `Final quote: ${formatRM(finalTotal)}, including ${formatRM(travel)} for travel. The app will recheck the time conflict and your ${maxBookingsPerDay()}-booking daily limit before saving. This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)}.`,
+        (clash ? `Current schedule check: ${clash} ` : '') + `Submitted estimate: ${formatRM(original)} for ${r.originalDuration??r.durationMins} min. Current catalogue: ${quote.duration} min. Required deposit: ${formatRM(depositRequired)}${depositDue ? ' by '+depositDue : ''}. Final quote: ${formatRM(finalTotal)}, including ${formatRM(travel)} for travel. The app will recheck the time conflict and your ${maxBookingsPerDay()}-booking daily limit before saving. This creates a booking for ${r.clientName} on ${formatDisplayDate(r.eventDate)}.`,
         async () => {
           if (!currentUser || !db) return;
           try {
@@ -3709,9 +3952,9 @@
             const booking = normalizeBooking({
               id: bid, receiptNo, issuedDate: localDateStr(),
               clientName: r.clientName, clientPhone: r.phone,
-              eventDate: r.eventDate, startTime: r.startTime, endTime: requestEndTime(r),
-              venue: r.venue, packageId: r.packageId, packageName: r.packageName,
-              packagePrice: r.packagePrice, packageDesc: '',
+              eventDate: r.eventDate, startTime: r.startTime, endTime: requestEndTime(revised), readyBy:r.readyBy,depositRequired,depositDue,
+              venue: r.venue, packageId: quote.base.id, packageName: quote.base.name,
+              packagePrice: quote.base.price, packageDesc: quote.base.description||'',
               addonFee: addons.reduce((t, a) => t + num(a.price), 0),
               addonDesc: addons.map(a => a.name).join(', '),
               depositPaid: 0, notes
@@ -3719,13 +3962,13 @@
             if (!booking) throw new Error('bad request data');
             booking.createdAt = serverTimestamp();
             await saveBookingWithCapacity(booking, {
-              requestId: r.id, revision:r.revision || 0, travelFee:travel,
+              requestId: r.id, revision:r.revision || 0, travelFee:travel, catalogueItems:[quote.base,...quote.addons],
               enforceCapacity: true,
               enforceSlotConflict: true,
               enforceBlockedDate: true
             });
             showToast('Approved! Booking created. Send the client a WhatsApp next.');
-            requestWhatsApp(r, 'approve', finalTotal, travel);
+            requestWhatsApp({...r,depositRequired,depositDue}, 'approve', finalTotal, travel);
           } catch (err) {
             console.error(err);
             showToast(capacityErrorMessage(err), 'error');
@@ -3824,6 +4067,8 @@
             if (Number.isFinite(Number(st.maxBookingsPerDay))) profile.maxBookingsPerDay = Math.max(1, Math.min(50, Math.floor(Number(st.maxBookingsPerDay))));
             if (Number.isFinite(Number(st.bufferMins))) profile.bufferMins = Math.max(0, Math.min(480, Number(st.bufferMins)));
             if (Number.isFinite(Number(st.minLeadDays))) profile.minLeadDays = Math.max(0, Math.min(60, Number(st.minLeadDays)));
+            if(Array.isArray(st.workingHours) && st.workingHours.length===7 && st.workingHours.every(h=>h && TIME_RE.test(h.start) && TIME_RE.test(h.end))) profile.workingHours=st.workingHours;
+            if(Array.isArray(st.timeBlocks))profile.timeBlocks=st.timeBlocks.filter(b=>b && DATE_RE.test(b.date) && TIME_RE.test(b.start) && TIME_RE.test(b.end));
             if (Array.isArray(st.blockedDates)) profile.blockedDates = st.blockedDates;
             if (typeof st.duitnowQr === 'string' && st.duitnowQr.length <= 600000) profile.duitnowQr = st.duitnowQr;
             if (typeof st.logoBase64 === 'string' && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(st.logoBase64)) {
