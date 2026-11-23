@@ -1,4 +1,4 @@
-// Shared by the studio and the client ticket. Dates and clock times are studio-local.
+// Studio-local clock times. Prices and payments are compared in integer cents.
 export const minutes = time => Number(time.slice(0,2))*60 + Number(time.slice(3,5));
 export const clock = value => [Math.floor(value/60),value%60].map(n=>String(n).padStart(2,'0')).join(':');
 export const cents = value => Math.round(Number(value || 0)*100);
@@ -6,12 +6,23 @@ export function depositMet(booking) {
   return booking.depositRequired == null ? cents(booking.depositPaid)>0 :
     cents(booking.depositPaid)>=cents(booking.depositRequired);
 }
+
+export function overlapsAppointment(start,end,otherStart,otherEnd,buffer) {
+  return start < otherEnd + buffer && end + buffer > otherStart;
+}
+
 export function fitsHours(settings,date,start,end) {
-  const day = new Date(date+'T12:00:00').getDay();
-  const rule = settings.workingHours?.[day];
-  if (rule && (rule.closed || start<minutes(rule.start) || end>minutes(rule.end))) return false;
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end<=start || end>=1440) return false;
+  const weekday = new Date(date+'T12:00:00').getDay();
+  const hours = settings.workingHours?.[weekday];
+  if (hours) {
+    if (hours.closed || start<minutes(hours.start) || end>minutes(hours.end)) return false;
+  } else if (start<300 || start>1140) {
+    return false; // The default public calendar offers starts from 5 AM through 7 PM.
+  }
   return !(settings.timeBlocks || []).some(b=>b.date===date && start<minutes(b.end) && end>minutes(b.start));
 }
+
 export function catalogueQuote(request,catalogue) {
   const base = catalogue.find(p=>p.id===request.packageId && !p.addon);
   if (!base) throw new Error('Choose a current package for this request.');
