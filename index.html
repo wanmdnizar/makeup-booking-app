@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Makeup by Nureen — Boutique Booking & Receipt Studio</title>
-  <meta name="theme-color" content="#BE185D" />
+  <meta name="theme-color" content="#C52D60" />
 
   <!-- Google Fonts: Inter & Playfair Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +30,10 @@
           },
           colors: {
             blush: {
-              50: '#FFF8FB', 100: '#FFE8F0', 200: '#FFD3E3', 300: '#FFA8C8', 400: '#FF7FAE',
-              500: '#EC4C8D', 600: '#DB2F73', 700: '#BE185D', 800: '#9D174D', 900: '#831843',
+              50: '#FFF1F4', 100: '#FFF1F4', 200: '#FFD3E3', 300: '#FFA8C8', 400: '#FF7FAE',
+              500: '#E35B7D', 600: '#CC385F', 700: '#C52D60', 800: '#A42350', 900: '#A42350',
             },
-            charcoal: '#2B1B22'
+            charcoal: '#282326'
           }
         }
       }
@@ -46,11 +46,11 @@
        One palette, one set of components. Change colours in :root only.
        ===================================================================== */
     :root {
-      --rose:#BE185D; --rose-600:#DB2F73; --rose-500:#EC4C8D; --rose-deep:#831843; --rose-ink:#4A0F2B;
-      --grad:linear-gradient(135deg,#EC4C8D 0%,#D1286F 45%,#9D174D 100%);
-      --bg:#FFF3F7; --paper:#FFF8FB; --card:#FFFFFF; --ink:#2B1B22; --muted:#7D6571;
-      --rule:#F6D9E5; --petal:#FFE8F0; --petal-2:#FFD3E3; --peach:#FFDCCB;
-      --ok:#0F7B54; --ok-bg:#DDF6EA; --warn:#A1520A; --warn-bg:#FFEBCF; --bad:#BE123C; --bad-bg:#FFE1E7; --info:#9D174D; --info-bg:#FFE0EC;
+      --rose:#C52D60; --rose-600:#CC385F; --rose-500:#E35B7D; --rose-deep:#A42350; --rose-ink:#282326;
+      --grad:linear-gradient(135deg,#E35B7D 0%,#C52D60 45%,#A42350 100%);
+      --bg:#FFF3F7; --paper:#FFF1F4; --card:#FFFFFF; --ink:#282326; --muted:#7D6571;
+      --rule:#F6D9E5; --petal:#FFF1F4; --petal-2:#FFD3E3; --peach:#FFDCCB;
+      --ok:#0F7B54; --ok-bg:#DDF6EA; --warn:#A1520A; --warn-bg:#FFEBCF; --bad:#BE123C; --bad-bg:#FFE1E7; --info:#A42350; --info-bg:#FFE0EC;
       --shadow:0 12px 32px -20px rgba(190,24,93,.55);
       --shadow-sm:0 2px 8px -4px rgba(190,24,93,.25);
     }
@@ -252,7 +252,7 @@
     .link-btn { font-size:.76rem; font-weight:650; color:var(--rose); text-decoration:underline; text-underline-offset:.2em; }
     /* Handled requests: one compact row, actions open underneath (no sideways overflow on phones) */
     #requests-pending,#requests-handled{min-width:0;max-width:100%}
-    .handled-row{border-radius:12px;background:#FFF8FB;border:1px solid var(--rule);font-size:.8rem;min-width:0}
+    .handled-row{border-radius:12px;background:#FFF1F4;border:1px solid var(--rule);font-size:.8rem;min-width:0}
     .handled-row>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto 1rem;align-items:center;gap:.6rem;min-height:48px;padding:.55rem .75rem;cursor:pointer}
     .handled-row>summary::-webkit-details-marker{display:none}
     .handled-row>summary::after{content:"\25BE";color:var(--muted);font-size:.8rem;transition:transform .15s}
@@ -308,7 +308,7 @@
     #app-shell :is(h1,h2,h3,h4).font-serif:not(#header-brand-name) { font-family:Inter,system-ui,sans-serif; letter-spacing:-.025em; }
     #app-shell input[type=text], #app-shell input[type=number], #app-shell input[type=date], #app-shell input[type=time], #app-shell input[type=tel], #app-shell input[type=email], #app-shell select, #app-shell textarea { border-radius:12px; }
     @media screen {
-      :root {--bg:#f8f7f6;--paper:#fbfaf9;--rule:#e6dfe2;--ink:#292328;--muted:#695f65;--shadow-sm:none;--grad:#a91d59;}
+      :root {--bg:#f8f7f6;--paper:#fbfaf9;--rule:#e6dfe2;--ink:#282326;--muted:#695f65;--shadow-sm:none;--grad:#C52D60;}
       body {background:var(--bg);}
       .desk-card,.req-card,.kpi,.money-strip {border-radius:14px;box-shadow:none;}
       .kpi.hero {background:white;border:1px solid var(--rule);border-left:3px solid var(--rose);color:var(--ink);box-shadow:none;}
@@ -326,7 +326,7 @@
       .dateblock {background:var(--petal);color:var(--rose-deep);box-shadow:none;border-radius:10px;}
       #mobile-nav {left:0;right:0;bottom:0;border-radius:0;border-width:1px 0 0;box-shadow:none;background:white;padding-bottom:max(.4rem,env(safe-area-inset-bottom));}
       .mobile-nav-btn {color:var(--muted);}
-      .mobile-nav-btn.is-active {background:#f8e9ef;color:var(--rose-deep);border-radius:9px;box-shadow:none;}
+      .mobile-nav-btn.is-active {background:#FFF1F4;color:var(--rose-deep);border-radius:9px;box-shadow:none;}
       @media(max-width:767px){
         #app-shell main {padding-bottom:calc(6rem + env(safe-area-inset-bottom));}
         .page-head {align-items:flex-start;} .page-head .seg{max-width:100%;overflow-x:auto;}
@@ -361,6 +361,26 @@
     #review-content .directions a{display:block;padding:.55rem}
     #requests-pending .req-card>.desk-btn{margin:.7rem 1rem 1rem}
     .text-slate-400:not(:disabled){color:#695e63}
+    .reminder-sent{display:inline-flex;gap:.4rem;align-items:center;min-height:44px;cursor:pointer;color:var(--ink)}
+    .reminder-sent input{width:1rem;height:1rem;accent-color:var(--rose)}
+    .review-group{padding:1rem 1.1rem;border-top:1px solid var(--rule);overflow-wrap:anywhere}
+    .review-group h4,.approval h4{font-weight:700;margin-bottom:.5rem;color:#282326}
+    .review-group li+li{margin-top:.5rem}.review-group p,.review-group li{font-size:.9rem}
+    .approval-grid{margin-top:.75rem}.approval label,#request-editor label{color:#282326}
+    .quote-total{display:flex;justify-content:space-between;gap:1rem;margin:.8rem 0;font-weight:700}
+    #review-content .approval-actions .danger{background:white;color:var(--bad)}
+    #receipt-printable-area{box-sizing:border-box;width:100%;max-width:100%;min-width:0;color:#282326;background:#fff;overflow-wrap:anywhere}
+    #receipt-printable-area :is(div,span,p,h2){min-width:0;max-width:100%}
+    .document-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:flex-start}
+    .document-brand{flex:1 1 17rem;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:.75rem}
+    .document-meta{flex:0 1 auto;text-align:right}
+    #rec-business-name,#rec-number,#rec-ig{overflow-wrap:anywhere;white-space:normal}
+    @media(max-width:540px){.document-head{display:grid;grid-template-columns:minmax(0,1fr)}
+      .document-meta{text-align:left;display:flex;align-items:baseline;flex-wrap:wrap;gap:.25rem .6rem}
+      #rec-issue-date{flex-basis:100%}#rec-number{margin:0}
+      #receipt-printable-area{padding:1rem}
+    }
+    @media(max-width:360px){.document-parties{grid-template-columns:minmax(0,1fr)}.document-parties>div{text-align:left}}
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
@@ -1065,8 +1085,8 @@
 
         <!-- PRINTABLE / PDF CAPTURE AREA -->
         <div id="receipt-printable-area" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-blush-200/80 text-charcoal">
-          <div class="flex items-start justify-between border-b border-blush-100 pb-5">
-            <div class="flex items-center gap-3">
+          <div class="document-head border-b border-blush-100 pb-5">
+            <div class="document-brand">
               <div id="rec-logo-box" class="w-12 h-12 rounded-2xl bg-blush-700 text-white flex items-center justify-center font-serif font-bold text-xl overflow-hidden shrink-0">MN</div>
               <div>
                 <h2 id="rec-business-name" class="font-serif font-bold text-lg text-charcoal leading-tight">Makeup by Nureen</h2>
@@ -1074,7 +1094,7 @@
                 <p id="rec-ssm" class="text-[10px] text-slate-500 mt-1"></p>
               </div>
             </div>
-            <div class="text-right">
+            <div class="document-meta">
               <span id="rec-doc-title" class="inline-block px-2.5 py-1 rounded-lg bg-blush-50 text-blush-800 border border-blush-200 font-bold text-xs tracking-wide uppercase">RECEIPT</span>
               <p id="rec-number" class="text-xs font-bold text-charcoal mt-1.5">#R-0001</p>
               <p id="rec-issue-date" class="text-[10px] text-slate-400">Issued: -</p>
@@ -1086,7 +1106,7 @@
             <span id="rec-wa"></span>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 text-xs mb-5">
+          <div class="document-parties grid grid-cols-2 gap-4 text-xs mb-5">
             <div>
               <p class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Billed To</p>
               <p id="rec-client-name" class="font-bold text-charcoal text-sm">Client Name</p>
@@ -1570,7 +1590,8 @@
         '<div class="appointment-card"><div class="appointment-head"><span class="eyebrow-l">Next appointment</span><h2>No more appointments today</h2><p>Your next booked day is in Schedule.</p></div></div>';
       byId('today-list').innerHTML=jobs.filter(b=>b!==next).map(compactJob).join('')||(next?'':'<p class="quiet">No appointments booked for today.</p>');
       byId('today-list').closest('section').hidden=!!next && jobs.length===1;
-      byId('tomorrow-list').innerHTML=dayJobs(offsetDate(today,1)).map(b=>'<div class="remind-row">'+compactJob(b)+'<div class="desk-actions">'+taskButton('Open reminder','remind',b.id)+taskButton(b.remindedFor===reminderKey(b)?'Sent · undo':'Mark sent','sent',b.id)+'</div></div>').join('')||'<p class="quiet">No appointments tomorrow.</p>';
+      byId('tomorrow-list').innerHTML=dayJobs(offsetDate(today,1)).map(b=>'<div class="remind-row">'+compactJob(b)+'<div class="desk-actions">'+taskButton('Remind via WhatsApp','remind',b.id)+
+        '<label class="reminder-sent"><input type="checkbox" data-operation="sent" data-key="'+esc(b.id)+'" '+(b.remindedFor===reminderKey(b)?'checked':'')+'> Sent</label>'+'</div></div>').join('')||'<p class="quiet">No appointments tomorrow.</p>';
     }
     function reminderKey(b) { return b.eventDate+' '+b.startTime; }
     let activeWorkPage = '';
@@ -1712,11 +1733,11 @@
       receipt:b=>openReceiptModal(b.id),copy:b=>copyReminder(b.id),google:b=>openGoogleCalendar(b.id),
       ics:b=>downloadBookingICS(b.id),paid:b=>markFullyPaid(b.id),delete:b=>confirmDeleteBooking(b.id),
       remind:b=>quickReminderWhatsApp(b.id),
-      sent:async b=>{
+      sent:async (b,checked)=>{
         await runTransaction(db,async tx=>{
           const ref=userDoc('bookings',b.id), snap=await tx.get(ref);
           if (!snap.exists() || reminderKey(snap.data())!==reminderKey(b)) throw new Error('Schedule changed');
-          tx.update(ref,{remindedFor:snap.data().remindedFor===reminderKey(b)?'':reminderKey(b)});
+          tx.update(ref,{remindedFor:checked?reminderKey(b):''});
         });
       }
     };
@@ -1726,8 +1747,10 @@
       const b=appState.bookings.find(row=>row.id===button.dataset.key);
       if (!b) return;
 
-      try { await jobActions[button.dataset.operation](b); }
-      catch { showToast('Action could not be completed. Refresh and try again.','error'); }
+      if(button.dataset.operation==='sent') button.disabled=true;
+      try { await jobActions[button.dataset.operation](b,button.checked); }
+      catch { if(button.dataset.operation==='sent')drawToday();showToast('Action could not be completed. Refresh and try again.','error'); }
+      finally { if(button.dataset.operation==='sent')button.disabled=false; }
     });
     matchMedia('(max-width: 767px)').addEventListener('change',()=>drawSchedule());
     window.moveRange=n=>{deskDate=n===0?localDateStr():offsetDate(deskDate,n*(rangeMode==='day'?1:7)); drawSchedule();};
@@ -4009,8 +4032,20 @@
       const mood = r.moodboardLink && /^https?:\/\//.test(r.moodboardLink)
         ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="link-btn">Open moodboard ↗</a>` : '';
       const travelDefault = addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2);
-      const details = [['Guests',rosterText(r.people)], ['Phone', r.phone], ['Email', r.email], ['Notes', r.notes], ['Check', preview ? 'Catalogue price ' + formatRM(preview.serviceTotal) + ' · ' + preview.duration + ' min' : 'Review services in Edit before approving']]
-        .filter(([, v]) => v).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
+      const guests=r.people?.length?r.people:[{name:r.clientName,packageName:r.packageName}];
+      const guestRows=guests.map(person=>{
+        const showName=guests.length>1 || person.name!==r.clientName;
+        const allergy=person.allergies && !/^none$/i.test(person.allergies.trim());
+        return `<li>${showName?'<strong>'+esc(person.name)+'</strong> · ':''}${esc(person.packageName)}
+          ${person.look?'<p>Look · '+esc(person.look)+'</p>':''}
+          ${person.phone && person.phone!==r.phone?'<p>WhatsApp · '+esc(person.phone)+'</p>':''}
+          ${allergy?'<p class="alert-line">Allergies · '+esc(person.allergies)+'</p>':''}</li>`;
+      }).join('');
+      const jobs=dayJobs(r.eventDate), booked=countPeople(jobs), cap=maxBookingsPerDay();
+      const left=Math.max(0,cap-booked);
+      const capacity=jobs.length?`${booked} of ${cap} places booked · ${left} ${left===1?'place':'places'} left`:'No other appointments that day';
+      const details=[['Contact number',r.phone],['Email',r.email],['Notes',r.notes]].filter(([,v])=>v)
+        .map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
       return `
       <article id="${reviewing?'review-request-':'request-'}${id}" class="req-card">
         <header class="req-head">
@@ -4021,27 +4056,33 @@
             <p class="req-time">${esc(formatDisplayTime(r.startTime))} – ${esc(formatDisplayTime(requestEndTime(previewRequest)))}${r.readyBy ? ` · ready by ${esc(formatDisplayTime(r.readyBy))}` : ''}</p>
             <p class="req-venue"><i data-lucide="map-pin"></i><span>${esc(r.venue)}</span></p>
           </div>
-          <div class="req-amount"><small>Estimate</small><b>${esc(formatRM(total))}</b></div>
+          ${reviewing?'':`<div class="req-amount"><small>Estimate</small><b>${esc(formatRM(total))}</b></div>`}
         </header>
-        <div class="req-service"><b>${esc(r.packageName)}</b>${num(r.pax) > 1 ? ' · ' + esc(r.pax) + ' pax' : ''}
+        ${reviewing?'':`<div class="req-service"><b>${esc(r.packageName)}</b>${num(r.pax) > 1 ? ' · ' + esc(r.pax) + ' pax' : ''}
           ${addons.length ? `<div class="chips">${addons.map(a => `<span>${esc(a.name)}</span>`).join('')}</div>` : ''}
-        </div>
-        ${r.allergyStatus === 'yes' ? `<p class="alert-line">⚠ Allergies: ${esc(r.allergies)}</p>` : ''}
-        ${clash ? `<p class="alert-line warn">${esc(clash)}</p>` : ''}
+        </div>`}
+        ${!reviewing && r.allergyStatus==='yes'?`<p class="alert-line">Allergies · ${esc(r.allergies)}</p>`:''}
+        ${!reviewing && clash?`<p class="alert-line warn">${esc(clash)}</p>`:''}
         ${!reviewing ? `<button class="desk-btn primary" onclick="openRequestReview('${id}')">Review request</button>` : `
-        <details class="req-more" open>
-          <summary>Client details &amp; schedule that day</summary>
-          <dl class="mini-rows">${details}</dl>
-          ${mood ? `<p style="margin:.5rem 0">${mood}</p>` : ''}
-          <div class="request-context"><b>Already booked on this date</b>${dayJobs(r.eventDate).map(b => '<p>' + esc(formatDisplayTime(b.startTime) + ' – ' + formatDisplayTime(b.endTime) + ' · ' + b.clientName) + '</p>').join('') || '<p>No confirmed appointments.</p>'}</div>
-          ${r.guest === true ? `<p style="margin:.7rem 0 .2rem"><button type="button" onclick="replaceGuestLink('${id}')" class="link-btn">Client lost their tracking link? Send a new one</button></p>` : ''}
-        </details>
-        <details class="approval" open id="review-approval-${id}"><summary>Review quote and deposit</summary>
+        <section class="review-group"><h4>Guests</h4>
+          <ul>${guestRows}</ul>
+          ${r.allergyStatus==='yes' && !guests.some(p=>p.allergies && !/^none$/i.test(p.allergies.trim()))?'<p class="alert-line">Allergies · '+esc(r.allergies)+'</p>':''}
+          ${addons.length?'<p>Add-ons · '+esc(addons.map(a=>a.name).join(', '))+'</p>':''}
+          <dl class="mini-rows">${details}</dl>${mood}
+        </section>
+        <section class="review-group"><h4>Availability</h4><p>${esc(capacity)}</p>
+          ${clash?'<p class="alert-line warn">'+esc(clash)+'</p>':''}
+          ${jobs.map(b=>'<p>'+esc(formatDisplayTime(b.startTime)+' – '+formatDisplayTime(b.endTime)+' · '+b.clientName)+'</p>').join('')}
+        </section>
+        <section class="approval" id="review-approval-${id}"><h4>Quote and deposit</h4>
+          <p>Service estimate <strong>${esc(formatRM(total))}</strong></p>
+          ${!preview?'<p class="alert-line warn">Review the services in Edit before approving.</p>':cents(preview.serviceTotal)!==cents(total)?'<p>Current catalogue price <strong>'+esc(formatRM(preview.serviceTotal))+'</strong></p>':''}
           <div class="approval-grid">
             <label class="desk-field">Travel fee (RM)<input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${travelDefault}"></label>
             <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
             <label class="desk-field">Deposit due by<input id="due-${id}" type="date" max="${esc(r.eventDate)}"></label>
           </div>
+          <p class="quote-total">Final quote <output id="quote-total-${id}" aria-live="polite"></output></p>
           <div class="quick-dep"><span>Quick deposit:</span>
             <button type="button" class="chip" onclick="setDepositPct('${id}',30)">30%</button>
             <button type="button" class="chip" onclick="setDepositPct('${id}',50)">50%</button>
@@ -4052,12 +4093,13 @@
             <button id="approve-${id}" data-service="${preview ? preview.serviceTotal : 'NaN'}" onclick="approveRequest('${id}')" class="desk-btn primary"><i data-lucide="check"></i> Approve</button>
             <button onclick="declineRequest('${id}')" class="desk-btn danger"><i data-lucide="x"></i> Decline</button>
           </div>
-        </details>
+        </section>
         <footer class="req-tools">
           <button type="button" onclick="editPendingRequest('${id}')" class="desk-btn"><i data-lucide="pencil"></i> Edit</button>
           <button onclick="requestWA('${id}','chat')" class="desk-btn"><i data-lucide="message-circle"></i> WhatsApp</button>
           <details class="directions"><summary>Directions</summary><a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
           <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a></details>
+          ${r.guest===true?`<details><summary>More actions</summary><button type="button" onclick="replaceGuestLink('${id}')" class="link-btn">Replace tracking link</button></details>`:''}
         </footer>`}
       </article>`;
     }
@@ -4189,9 +4231,12 @@
       if(!button)return;
       const travel=byId('travel-'+id)?.valueAsNumber;
       const base=Number(button.dataset.service);
-      button.textContent=Number.isFinite(travel) && Number.isFinite(base)?'Approve · '+formatRM(base+travel):'Approve';
-      button.disabled=approvalsSaving.has(id);
-      if(button.disabled)button.textContent='Approving…';
+      const valid=Number.isFinite(travel) && travel>=0 && Number.isFinite(base);
+      const total=valid?formatRM((cents(base)+cents(travel))/100):'';
+      byId('quote-total-'+id).textContent=total||'—';
+      button.textContent=valid?'Approve · '+total:'Approve';
+      button.disabled=approvalsSaving.has(id) || !valid;
+      if(approvalsSaving.has(id))button.textContent='Approving…';
     }
     byId('review-content').addEventListener('input',event=>{
       if(event.target.id.startsWith('travel-'))refreshApprovalPrice(event.target.id.slice(7));
