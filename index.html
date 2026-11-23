@@ -356,10 +356,20 @@
       .block-fields:not(.whole-day) label:first-child,.block-fields button {grid-column:1/-1}
       #weekday-hours .hours-line {grid-template-columns:repeat(2,minmax(0,1fr))}
     }
+    #review-content .req-card{box-shadow:none;border:0}
+    #review-content .approval-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr))}
+    #review-content .directions a{display:block;padding:.55rem}
+    #requests-pending .req-card>.desk-btn{margin:.7rem 1rem 1rem}
+    .text-slate-400:not(:disabled){color:#695e63}
   </style>
 </head>
 <body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
 
+  <section id="request-review" class="work-page hidden" aria-labelledby="review-title">
+    <div><header class="p-4 border-b"><h2 class="font-bold text-xl" id="review-title">Review request</h2></header>
+    <div id="review-content" class="work-scroll"></div>
+    <div class="work-footer"><button class="desk-btn" onclick="closeWorkPage('request-review')">Back to requests</button></div></div>
+  </section>
   <section id="request-editor" class="work-page hidden" aria-labelledby="edit-request-title">
     <form id="request-edit-form">
       <h2 id="edit-request-title" class="font-bold text-xl">Edit pending request</h2>
@@ -542,7 +552,7 @@
             <div class="money-strip" id="ap-money"></div>
             <div id="appointment-primary" class="desk-actions"></div>
             <form id="payment-entry" hidden class="pay-form">
-              <label class="desk-field">Total received to date (RM)<input name="received" type="number" min="0.01" step="0.01" required></label>
+              <p id="payment-context" class="quiet" aria-live="polite"></p><label class="desk-field">Total received to date (RM)<input name="received" type="number" min="0.01" step="0.01" required></label>
               <button class="desk-btn primary" style="margin-top:.6rem">Save payment</button>
             </form>
             <div class="tool-row" id="appointment-more"></div>
@@ -574,8 +584,9 @@
             </div>
             <div class="seg"><button id="dash-seg-month" onclick="setDashAll(false)" class="is-on">Month</button><button id="dash-seg-all" onclick="setDashAll(true)">All time</button></div>
           </div>
+          <button type="button" onclick="exportPeriodBookings()" class="desk-btn">Export bookings for this period</button>
           <div class="kpi-grid">
-            <div class="kpi hero"><small>Net profit</small><b id="kpi-net-profit">RM 0.00</b><p>Collected minus expenses</p></div>
+            <div class="kpi hero"><small>Collected minus expenses</small><b id="kpi-net-profit">RM 0.00</b></div>
             <div class="kpi"><small>Total booked</small><b id="kpi-total-revenue">RM 0.00</b><p>Gross job value</p></div>
             <div class="kpi"><small>Collected</small><b id="kpi-total-collected" style="color:var(--ok)">RM 0.00</b><p>Deposits &amp; full payments</p></div>
             <div class="kpi"><small>Balance due</small><b id="kpi-pending-balance" style="color:var(--warn)">RM 0.00</b><p>To collect from clients</p></div>
@@ -597,11 +608,11 @@
 
             <form id="expense-form" onsubmit="handleSaveExpense(event)" class="space-y-3.5">
               <div>
-                <label class="block text-xs font-semibold text-charcoal mb-1">Date</label>
+                <label for="exp-date" class="block text-xs font-semibold text-charcoal mb-1">Date</label>
                 <input type="date" id="exp-date" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-charcoal mb-1">Category</label>
+                <label for="exp-category" class="block text-xs font-semibold text-charcoal mb-1">Category</label>
                 <select id="exp-category" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                   <option value="Cosmetics & Restock">Cosmetics &amp; Restock (Sephora, MAC, etc.)</option>
                   <option value="Disposables & Hygiene">Disposables, Lashes &amp; Brush Cleaner</option>
@@ -611,11 +622,11 @@
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-charcoal mb-1">Item / Description</label>
+                <label for="exp-desc" class="block text-xs font-semibold text-charcoal mb-1">Item / Description</label>
                 <input type="text" id="exp-desc" required placeholder="e.g., Concealer + Lashes" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-charcoal mb-1">Amount (RM)</label>
+                <label for="exp-amount" class="block text-xs font-semibold text-charcoal mb-1">Amount (RM)</label>
                 <input type="number" id="exp-amount" step="0.01" min="0.10" required placeholder="0.00" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
               </div>
               <button type="submit" class="w-full py-3 rounded-xl bg-blush-700 hover:bg-blush-800 text-white text-sm font-semibold shadow-sm transition flex items-center justify-center gap-1.5">
@@ -643,7 +654,7 @@
           <div class="seg" id="studio-seg">
             <button type="button" data-view="profile" onclick="setStudioView('profile')" class="is-on">Profile</button>
             <button type="button" data-view="packages" onclick="setStudioView('packages')">Packages</button>
-            <button type="button" data-view="page" onclick="setStudioView('page')">Booking page</button>
+            <button type="button" data-view="page" onclick="setStudioView('page')">Booking</button>
             <button type="button" data-view="data" onclick="setStudioView('data')">Data</button>
           </div>
         </div>
@@ -669,40 +680,40 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Business Name</label>
+                  <label for="set-business-name" class="block text-xs font-semibold text-charcoal mb-1">Business Name</label>
                   <input type="text" id="set-business-name" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Your Name (Greeting)</label>
+                  <label for="set-owner-name" class="block text-xs font-semibold text-charcoal mb-1">Your Name (Greeting)</label>
                   <input type="text" id="set-owner-name" placeholder="Nureen" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Tagline</label>
+                  <label for="set-tagline" class="block text-xs font-semibold text-charcoal mb-1">Tagline</label>
                   <input type="text" id="set-tagline" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">SSM Registration No.</label>
+                  <label for="set-ssm" class="block text-xs font-semibold text-charcoal mb-1">SSM Registration No.</label>
                   <input type="text" id="set-ssm" placeholder="202603123456" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Instagram Handle</label>
+                  <label for="set-ig" class="block text-xs font-semibold text-charcoal mb-1">Instagram Handle</label>
                   <input type="text" id="set-ig" placeholder="@makeupbynureen" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">TikTok Handle</label>
+                  <label for="set-tiktok" class="block text-xs font-semibold text-charcoal mb-1">TikTok Handle</label>
                   <input type="text" id="set-tiktok" placeholder="@makeupbynureenfakhira" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Business WhatsApp</label>
+                  <label for="set-whatsapp" class="block text-xs font-semibold text-charcoal mb-1">Business WhatsApp</label>
                   <input type="text" id="set-whatsapp" placeholder="012-345 6789" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-charcoal mb-1">Default Receipt Terms &amp; Notes</label>
+                <label for="set-terms" class="block text-xs font-semibold text-charcoal mb-1">Default Receipt Terms &amp; Notes</label>
                 <textarea id="set-terms" rows="3" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
               </div>
 
@@ -743,25 +754,25 @@
                     <input type="number" id="pub-buffer" min="0" max="480" step="15" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                   </div>
                   <div>
-                    <label class="block text-xs font-semibold text-charcoal mb-1">Earliest booking (days ahead)</label>
+                    <label for="pub-lead" class="block text-xs font-semibold text-charcoal mb-1">Earliest booking (days ahead)</label>
                     <input type="number" id="pub-lead" min="0" max="60" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Maximum people per day</label>
+                  <label for="pub-daily-cap" class="block text-xs font-semibold text-charcoal mb-1">Maximum people per day</label>
                   <input type="number" id="pub-daily-cap" min="1" max="3" step="1" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                   <p class="text-[11px] text-slate-400 mt-1">Each person uses one place. Pending requests use none. Maximum: 3 people per day.</p>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Deposit instructions</label>
+                  <label for="pub-deposit" class="block text-xs font-semibold text-charcoal mb-1">Deposit instructions</label>
                   <textarea id="pub-deposit" rows="3" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Good to know (FAQ)</label>
+                  <label for="pub-faq" class="block text-xs font-semibold text-charcoal mb-1">Good to know (FAQ)</label>
                   <textarea id="pub-faq" rows="4" placeholder="Question | Answer  (one per line)" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-charcoal mb-1">Client reviews</label>
+                  <label for="pub-reviews" class="block text-xs font-semibold text-charcoal mb-1">Client reviews</label>
                   <textarea id="pub-reviews" rows="3" placeholder="Aisyah | Loved my makeup, lasted all day!  (one per line)" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
                   <p class="text-[11px] text-slate-400 mt-1">Only add real reviews, with the client's permission.</p>
                 </div>
@@ -790,7 +801,7 @@
                       <label>Date<input required name="date" type="date"></label>
                       <label>From<input required name="start" type="time"></label>
                       <label>Until<input required name="end" type="time"></label>
-                      <button class="desk-btn" type="submit">Block time</button>
+                      <button class="desk-btn" type="submit">Block these hours</button>
                     </div>
                   </fieldset>
                 </form>
@@ -801,7 +812,7 @@
                     <div class="block-fields whole-day">
                       <label>Date<input required type="date" id="block-date"></label>
                       <label>Private note<input type="text" id="block-note" maxlength="40" placeholder="Optional"></label>
-                      <button class="desk-btn" type="submit">Block date</button>
+                      <button class="desk-btn" type="submit">Block whole day</button>
                     </div>
                   </fieldset>
                 </form>
@@ -903,74 +914,74 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Client Full Name *</label>
+            <label for="book-client-name" class="block text-xs font-semibold text-charcoal mb-1">Client Full Name *</label>
             <input type="text" id="book-client-name" required placeholder="e.g., Cik Aisyah Humaira" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
           <div><label for="book-pax" class="block text-xs font-semibold mb-1">Number of people</label>
             <input type="number" id="book-pax" min="1" max="3" step="1" required value="1" class="w-full px-3.5 py-2.5 text-sm border rounded-xl"></div>
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">WhatsApp Phone (MY)</label>
+            <label for="book-client-phone" class="block text-xs font-semibold text-charcoal mb-1">WhatsApp Phone (MY)</label>
             <input type="tel" id="book-client-phone" placeholder="e.g., 012-3456789" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Event Date *</label>
+            <label for="book-date" class="block text-xs font-semibold text-charcoal mb-1">Event Date *</label>
             <input type="date" id="book-date" required onchange="checkBookingConflicts()" class="w-full px-3 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">Start Time *</label>
+            <label for="book-start-time" class="block text-xs font-semibold text-charcoal mb-1">Start Time *</label>
             <input type="time" id="book-start-time" required value="08:00" onchange="checkBookingConflicts()" class="w-full px-3 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-charcoal mb-1">End Time *</label>
+            <label for="book-end-time" class="block text-xs font-semibold text-charcoal mb-1">End Time *</label>
             <input type="time" id="book-end-time" required value="10:00" onchange="checkBookingConflicts()" class="w-full px-3 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-charcoal mb-1">Venue / Location</label>
+          <label for="book-venue" class="block text-xs font-semibold text-charcoal mb-1">Venue / Location</label>
           <input type="text" id="book-venue" placeholder="e.g., Hotel Casuarina @ Meru, Ipoh" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
         </div>
 
         <div class="p-4 rounded-2xl bg-blush-50 border border-blush-200 space-y-3.5">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label class="block text-xs font-semibold text-charcoal mb-1">Service Package *</label>
+              <label for="book-package" class="block text-xs font-semibold text-charcoal mb-1">Service Package *</label>
               <select id="book-package" onchange="handlePackageSelectChange()" class="w-full px-3 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500"></select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-charcoal mb-1">Package Rate (RM)</label>
+              <label for="book-package-price" class="block text-xs font-semibold text-charcoal mb-1">Package Rate (RM)</label>
               <input type="number" id="book-package-price" step="0.01" min="0" oninput="recalculateBookingTotals()" class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label class="block text-xs font-semibold text-charcoal mb-1">Add-on / Mileage Fee (RM)</label>
+              <label for="book-addon-fee" class="block text-xs font-semibold text-charcoal mb-1">Add-on / Mileage Fee (RM)</label>
               <input type="number" id="book-addon-fee" step="0.01" min="0" value="0" oninput="recalculateBookingTotals()" class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-charcoal mb-1">Add-on Description</label>
+              <label for="book-addon-desc" class="block text-xs font-semibold text-charcoal mb-1">Add-on Description</label>
               <input type="text" id="book-addon-desc" placeholder="e.g., Mileage Ipoh-Kuala Kangsar" class="w-full px-3.5 py-2.5 text-sm bg-white border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500">
             </div>
           </div>
 
           <div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-blush-200/80">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Subtotal (RM)</label>
+              <label for="book-subtotal" class="block text-[11px] font-semibold text-slate-500 mb-1">Subtotal (RM)</label>
               <input type="number" id="book-subtotal" readonly class="w-full px-3 py-2 text-sm font-bold text-charcoal bg-blush-100/80 border border-blush-200 rounded-xl">
             </div>
-            <label class="desk-field">Ready by<input id="book-ready" type="time"></label>
+            <label class="desk-field">Ready by<input id="book-ready" type="time" required></label>
             <label class="desk-field">Required deposit (RM)<input id="book-required" type="number" min="0" step=".01" placeholder="Legacy policy"></label>
             <label class="desk-field">Deposit due date<input id="book-due" type="date"></label>
             <div>
-              <label class="block text-[11px] font-semibold text-emerald-700 mb-1">Deposit Paid (RM)</label>
+              <label for="book-deposit" class="block text-[11px] font-semibold text-emerald-700 mb-1">Deposit Paid (RM)</label>
               <input type="number" id="book-deposit" step="0.01" min="0" value="0" oninput="recalculateBookingTotals()" class="w-full px-3 py-2 text-sm font-bold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:border-emerald-500">
             </div>
             <div>
-              <label class="block text-[11px] font-semibold text-amber-700 mb-1">Balance Due (RM)</label>
+              <label for="book-balance" class="block text-[11px] font-semibold text-amber-700 mb-1">Balance Due (RM)</label>
               <input type="number" id="book-balance" readonly class="w-full px-3 py-2 text-sm font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl">
             </div>
           </div>
@@ -982,7 +993,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-charcoal mb-1">Makeup &amp; Client Notes</label>
+          <label for="book-notes" class="block text-xs font-semibold text-charcoal mb-1">Makeup &amp; Client Notes</label>
           <textarea id="book-notes" rows="2" placeholder="Skin type, outfit color, soft glam look, sensitive eyes..." class="w-full px-3.5 py-2 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
         </div>
 
@@ -1006,15 +1017,15 @@
       <form id="package-form" onsubmit="handleSavePackage(event)" class="work-form"><div class="work-scroll p-6 space-y-4">
         <input type="hidden" id="pkg-id">
         <div>
-          <label class="block text-xs font-semibold text-charcoal mb-1">Package Name *</label>
+          <label for="pkg-name" class="block text-xs font-semibold text-charcoal mb-1">Package Name *</label>
           <input type="text" id="pkg-name" required placeholder="e.g., Bridal Nikah & Sanding" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-charcoal mb-1">Default Price (RM) *</label>
+          <label for="pkg-price" class="block text-xs font-semibold text-charcoal mb-1">Default Price (RM) *</label>
           <input type="number" id="pkg-price" step="0.01" min="0" required placeholder="450.00" class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-charcoal mb-1">Inclusions / Description</label>
+          <label for="pkg-desc" class="block text-xs font-semibold text-charcoal mb-1">Inclusions / Description</label>
           <textarea id="pkg-desc" rows="2" placeholder="Includes premium false lashes, skin prep, hijab styling..." class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white"></textarea>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -1243,7 +1254,7 @@
   </div>
 
   <script type="module">
-    import { minutes,clock,cents,depositMet,fitsHours,catalogueQuote } from './studio-core.js';
+    import { overlapsAppointment,minutes,clock,cents,depositMet,fitsHours,catalogueQuote } from './studio-core.js?v=booking-review-2';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import {
       getAuth,
@@ -1500,7 +1511,7 @@
       const ae = timeToMinutes(a.endTime);
       const bs = timeToMinutes(b.startTime);
       const be = timeToMinutes(b.endTime);
-      return as < be + bufferMins && ae + bufferMins > bs;
+      return overlapsAppointment(as,ae,bs,be,bufferMins);
     }
 
     function capacityErrorMessage(err) {
@@ -1509,6 +1520,8 @@
         return `This booking would exceed the daily limit of ${maxBookingsPerDay()} people. Choose another date.`;
       }
       if (code === 'daily-time-conflict') return 'That time now overlaps another appointment or does not leave enough travel buffer. Refresh the calendar and choose another time.';
+      if (code === 'payment-changed') return 'A payment changed while this booking was open. Reopen it before saving.';
+      if (code === 'ready-deadline') return 'Set a ready-by time that allows the whole appointment to finish.';
       if (code === 'daily-date-blocked') return 'This appointment falls outside working hours or overlaps blocked time. Review the schedule before approval.';
       if (code === 'catalogue-changed') return 'The catalogue changed. Review the updated price and duration before approving.';
       if (code === 'request-changed') return 'This request changed. Review the latest details and approve again.';
@@ -1546,22 +1559,24 @@
       return '<time>'+esc(formatDisplayTime(b.startTime))+'</time> – <time>'+esc(formatDisplayTime(b.endTime))+'</time><span class="duration">'+esc(durLabel(b.startTime,b.endTime))+'</span>';
     }
     function compactJob(b) {
-      return '<button class="jobline" data-operation="details" data-key="'+esc(b.id)+'"><time>'+esc(formatDisplayTime(b.startTime))+'</time><span><strong>'+esc(b.clientName)+'</strong><small>'+esc(b.packageName)+(b.venue?' · '+esc(b.venue):'')+'</small></span>'+payPill(b)+'</button>';
+      return '<button class="jobline" data-operation="details" data-key="'+esc(b.id)+'"><time>'+esc(formatDisplayTime(b.startTime))+'</time><span><strong>'+esc(b.clientName)+'</strong><small>'+esc(b.packageName)+' · '+bookingPax(b)+(bookingPax(b)===1?' person':' people')+(b.venue?' · '+esc(b.venue):'')+'</small></span>'+payPill(b)+'</button>';
     }
     function drawToday() {
       const today=localDateStr(), now=new Date();
       const jobs=dayJobs(today), next=jobs.find(b=>minutes(b.endTime)>now.getHours()*60+now.getMinutes());
       byId('desk-date').textContent=formatDisplayDate(today);
       byId('next-visit').innerHTML=next?
-        '<div class="appointment-card"><div class="appointment-head"><span class="eyebrow-l">Next appointment</span><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+(next.venue?' · '+esc(next.venue):'')+'</p><div class="route">'+sessionHours(next)+'</div></div><div class="ticket-body"><div class="ticket-pills">'+payPill(next)+(next.readyBy?'<span class="pill muted">Ready by '+esc(formatDisplayTime(next.readyBy))+'</span>':'')+'</div><div class="desk-actions">'+(next.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>':'')+taskButton('WhatsApp','wa',next.id)+taskButton('Details','details',next.id,'primary')+'</div></div></div>':
+        '<div class="appointment-card"><div class="appointment-head"><span class="eyebrow-l">'+(minutes(next.startTime)<=now.getHours()*60+now.getMinutes()?'In progress':'Next appointment')+'</span><h2>'+esc(next.clientName)+'</h2><p>'+esc(next.packageName)+(next.venue?' · '+esc(next.venue):'')+'</p><div class="route">'+sessionHours(next)+'</div></div><div class="ticket-body"><div class="ticket-pills">'+payPill(next)+(next.readyBy?'<span class="pill muted">Ready by '+esc(formatDisplayTime(next.readyBy))+'</span>':'')+'</div><div class="desk-actions">'+(next.venue?'<a class="desk-btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(next.venue))+'">Open Maps ↗</a>':'')+taskButton('WhatsApp','wa',next.id)+taskButton('Details','details',next.id,'primary')+'</div></div></div>':
         '<div class="appointment-card"><div class="appointment-head"><span class="eyebrow-l">Next appointment</span><h2>No more appointments today</h2><p>Your next booked day is in Schedule.</p></div></div>';
-      byId('today-list').innerHTML=jobs.map(compactJob).join('')||'<p class="quiet">No appointments booked for today.</p>';
+      byId('today-list').innerHTML=jobs.filter(b=>b!==next).map(compactJob).join('')||(next?'':'<p class="quiet">No appointments booked for today.</p>');
+      byId('today-list').closest('section').hidden=!!next && jobs.length===1;
       byId('tomorrow-list').innerHTML=dayJobs(offsetDate(today,1)).map(b=>'<div class="remind-row">'+compactJob(b)+'<div class="desk-actions">'+taskButton('Open reminder','remind',b.id)+taskButton(b.remindedFor===reminderKey(b)?'Sent · undo':'Mark sent','sent',b.id)+'</div></div>').join('')||'<p class="quiet">No appointments tomorrow.</p>';
     }
     function reminderKey(b) { return b.eventDate+' '+b.startTime; }
     let activeWorkPage = '';
     let workTrigger;
     let workScroll = 0;
+    let returnToRequestReview=false;
     function fitEditor() {
       const viewport = window.visualViewport;
       if (viewport && viewport.scale === 1) {
@@ -1572,6 +1587,7 @@
     window.visualViewport?.addEventListener('resize',fitEditor);
     window.visualViewport?.addEventListener('scroll',fitEditor);
     function openWorkPage(id) {
+      if(id==='request-editor')returnToRequestReview=activeWorkPage==='request-review';
       if (!activeWorkPage) {workTrigger=document.activeElement; workScroll=window.scrollY;}
       else if (activeWorkPage!==id) byId(activeWorkPage).classList.add('hidden');
       activeWorkPage=id;
@@ -1588,6 +1604,11 @@
     window.closeWorkPage = function(id) {
       byId(id).classList.add('hidden');
       if(activeWorkPage!==id)return;
+      if(id==='request-editor' && returnToRequestReview && appState.requests.some(r=>r.id===reviewId && r.status==='pending')){
+        returnToRequestReview=false;
+        openRequestReview(reviewId);
+        return;
+      }
       activeWorkPage='';
       byId('app-shell').inert=false;
       byId('mobile-nav').inert=false;
@@ -1595,11 +1616,14 @@
       workTrigger?.focus({preventScroll:true});window.scrollTo({top:workScroll,behavior:'instant'});
     };
     let activeAppointment = null;
+    let appointmentScroll=0, appointmentSubview='';
     let appointmentOrigin = 'dashboard';
     let paymentBaseline = null;
     function openAppointment(b) {
       appointmentOrigin = document.querySelector('.tab-content:not(.hidden)').id.slice(4);
-      byId('back-to-schedule').textContent = appointmentOrigin==='dashboard'?'← Today':'← Schedule';
+      appointmentScroll=window.scrollY;
+      appointmentSubview=document.querySelector('#tab-'+appointmentOrigin+' .seg button.is-on')?.dataset.view;
+      byId('back-to-schedule').textContent='← '+({dashboard:'Today',schedule:'Schedule',requests:'Requests',money:'Finances'}[appointmentOrigin]||'Back');
       activeAppointment = b.id;
       byId('payment-entry').hidden = true;
       switchTab('appointment');
@@ -1618,7 +1642,7 @@
       byId('appointment-package').textContent = b.packageName + (b.receiptNo ? ' · ' + b.receiptNo : '');
       byId('ap-date').textContent = formatDisplayDate(b.eventDate);
       byId('ap-route').innerHTML = sessionHours(b);
-      const rows = [['Venue', b.venue], ['WhatsApp', b.clientPhone], ['Ready by', b.readyBy ? formatDisplayTime(b.readyBy) : ''],
+      const rows = [['Guests', String(bookingPax(b))], ['Venue', b.venue], ['WhatsApp', b.clientPhone], ['Ready by', b.readyBy ? formatDisplayTime(b.readyBy) : ''],
         ['Deposit', b.depositRequired!=null ? formatRM(b.depositRequired)+(b.depositDue && !depositMet(b) ? ' · due '+formatDisplayDate(b.depositDue) : '') : ''],
         ['Notes', b.notes]];
       byId('appointment-summary').innerHTML = rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('');
@@ -1634,7 +1658,10 @@
       byId('appointment-more').innerHTML = (b.subtotal?taskButton('Edit booking','edit',b.id,'','pencil'):'')+taskButton('Receipt & calendar','receipt',b.id,'','file-text')+
         taskButton('Copy reminder','copy',b.id,'','copy')+taskButton('Delete','delete',b.id,'danger','trash-2');
     }
-    byId('back-to-schedule').onclick = () => switchTab(appointmentOrigin);
+    byId('back-to-schedule').onclick = () => {
+      switchTab(appointmentOrigin,appointmentSubview);
+      requestAnimationFrame(()=>window.scrollTo({top:appointmentScroll,behavior:'instant'}));
+    };
     function openPayment(b) {
       const form = byId('payment-entry');
       paymentBaseline = {id:b.id,paid:b.depositPaid,subtotal:b.subtotal};
@@ -1643,6 +1670,12 @@
       field.min=(b.depositPaid+0.01).toFixed(2);
       field.max=b.subtotal.toFixed(2);
       field.value='';
+      const updateContext=()=>{
+        const received=field.value===''?b.depositPaid:field.valueAsNumber;
+        byId('payment-context').textContent='Previously received '+formatRM(b.depositPaid)+
+          (Number.isFinite(received) && received>=b.depositPaid && received<=b.subtotal?' · New payment '+formatRM(received-b.depositPaid)+' · Remaining '+formatRM(b.subtotal-received):'');
+      };
+      field.oninput=updateContext;updateContext();
       field.focus();
     }
     byId('payment-entry').onsubmit=async event=>{
@@ -1836,6 +1869,8 @@
           }
         }
 
+        if (options.expectedPayment!=null && oldData && num(oldData.depositPaid)!==options.expectedPayment)
+          throw new Error('payment-changed');
         if (options.mustExist && !oldData) throw new Error('booking-not-found');
         if (!options.allowOverwrite && !options.mustExist && oldData) throw new Error('booking-already-exists');
         if (requestRef && (!requestSnap || !requestSnap.exists() || requestSnap.data().status !== 'pending')) {
@@ -1881,7 +1916,8 @@
         }
 
         if (options.enforceBlockedDate) {
-          const isBlocked = blockedDates.some(x => x && x.date === newDate);
+          if (!TIME_RE.test(booking.readyBy || '') || booking.readyBy<booking.endTime) throw new Error('ready-deadline');
+          const isBlocked = blockedDates.some(x => x && (x.date || x) === newDate);
           if (!fitsHours(profile,newDate,minutes(booking.startTime),minutes(booking.endTime))) throw new Error('daily-date-blocked');
           if (isBlocked) throw new Error('daily-date-blocked');
         }
@@ -1982,6 +2018,7 @@
 
     function resetLocalState() {
       publicSettingsDirty=false;
+      returnToRequestReview=false;
       if(activeWorkPage) closeWorkPage(activeWorkPage);
       appState.settings = { ...DEFAULT_SETTINGS };
       appState.packages = DEFAULT_PACKAGES.map(p => ({ ...p }));
@@ -2022,26 +2059,16 @@
       });
       const floor = Math.max(parseInt(appState.settings.nextReceiptNo, 10) || 1, localMax + 1);
       const ref = userDoc('meta', 'profile');
+      const pendingNotice=setTimeout(()=>showToast('Receipt number pending. Waiting for the shared counter.'),4000);
       try {
-        const first = await Promise.race([
-          runTransaction(db, async (tx) => {
-            const snap = await tx.get(ref);
-            const stored = snap.exists() ? (parseInt(snap.data().nextReceiptNo, 10) || 1) : 1;
-            const next = Math.max(stored, floor);
-            tx.set(ref, { nextReceiptNo: next + count, updatedAt: serverTimestamp() }, { merge: true });
-            return next;
-          }),
-          sleep(4000).then(() => { throw new Error('receipt-counter-timeout'); })
-        ]);
-        appState.settings.nextReceiptNo = first + count;
-        return first;
-      } catch (err) {
-        // Offline: use this device's counter and record it
-        console.warn('Using local receipt counter:', err);
-        appState.settings.nextReceiptNo = floor + count;
-        fireWrite(setDoc(ref, { nextReceiptNo: floor + count, updatedAt: serverTimestamp() }, { merge: true }));
-        return floor;
-      }
+        return await runTransaction(db,async tx=>{
+          const snap=await tx.get(ref);
+          const stored=parseInt(snap.data()?.nextReceiptNo,10)||1;
+          const first=Math.max(stored,floor);
+          tx.set(ref,{nextReceiptNo:first+count,updatedAt:serverTimestamp()},{merge:true});
+          return first;
+        });
+      } finally {clearTimeout(pendingNotice);}
     }
 
     async function allocateReceiptNo() {
@@ -3015,6 +3042,7 @@
     // =========================================================================
     // BOOKING MODAL & FIRESTORE + APPS SCRIPT SAVE/DELETE
     // =========================================================================
+    let editPaymentBaseline=null;
     window.openBookingModal = function(preselectedDate = null, editBookingId = null) {
       const pkgSelect = document.getElementById('book-package');
 
@@ -3029,6 +3057,7 @@
         if (!b) return;
         document.getElementById('booking-modal-title').textContent = `Edit Booking (${b.receiptNo})`;
         document.getElementById('book-id').value = b.id;
+        editPaymentBaseline=b.depositPaid;
         byId('book-pax').value = bookingPax(b);
         byId('book-pax').disabled = Boolean(b.trackingId) || bookingPax(b)>3;
         document.getElementById('book-client-name').value = b.clientName;
@@ -3169,7 +3198,7 @@
         endTime,
         venue: document.getElementById('book-venue').value.trim(),
         packageId: foundPkg ? pkgId : 'custom',
-        packageName: foundPkg ? foundPkg.name : 'Custom Service',
+        packageName: foundPkg ? foundPkg.name : (editId && appState.bookings.find(b=>b.id===editId && b.packageId==='custom')?.packageName || 'Custom Service'),
         packagePrice,
         addonFee,
         addonDesc: document.getElementById('book-addon-desc').value.trim(),
@@ -3181,6 +3210,7 @@
         updatedAt: serverTimestamp()
       };
 
+      if (depositPaid>subtotal && subtotal>0) {showToast('Received amount exceeds the quote. Check both amounts.','error');return;}
       if (savingBooking) return;
       savingBooking = true;
       try {
@@ -3193,7 +3223,7 @@
             id: editId,
             packageDesc: samePackage && old.packageDesc ? old.packageDesc : (foundPkg ? foundPkg.description : '')
           };
-          await saveBookingWithCapacity(fullBooking, { mustExist: true, enforceCapacity: true });
+          await saveBookingWithCapacity(fullBooking, { mustExist: true, expectedPayment:editPaymentBaseline, enforceCapacity: true, enforceSlotConflict:true, enforceBlockedDate:true });
           window.closeBookingModal();
           showToast('Booking updated!');
         } else {
@@ -3207,7 +3237,7 @@
             packageDesc: foundPkg ? foundPkg.description : '',
             createdAt: serverTimestamp()
           };
-          await saveBookingWithCapacity(newBooking, { enforceCapacity: true });
+          await saveBookingWithCapacity(newBooking, { enforceCapacity: true, enforceSlotConflict:true, enforceBlockedDate:true });
           window.closeBookingModal();
           showToast(`Booking ${receiptNo} saved!`);
         }
@@ -3220,9 +3250,12 @@
     };
 
     window.confirmDeleteBooking = function(id) {
+      const booking=appState.bookings.find(b=>b.id===id);
+      if(!booking)return;
+      const places=bookingPax(booking);
       openConfirmModal(
         'Delete Client Booking?',
-        'This will permanently remove this booking and its receipt record, and free one place in that day’s booking limit.',
+        `This removes this booking and its receipt and releases ${places} ${places===1?'place':'places'} on ${formatDisplayDate(booking.eventDate)}.`,
         async () => {
           try {
             await deleteBookingWithCapacity(id);
@@ -3831,7 +3864,7 @@
       const buf = num(appState.settings.bufferMins);
       const tm = (t) => parseInt(t.slice(0, 2), 10) * 60 + parseInt(t.slice(3), 10);
       const rs = tm(r.startTime), re = tm(requestEndTime(r));
-      const hit = appState.bookings.find(b => b.eventDate === r.eventDate && rs < tm(b.endTime) + buf && re + buf > tm(b.startTime));
+      const hit = appState.bookings.find(b => b.eventDate === r.eventDate && overlapsAppointment(rs,re,tm(b.startTime),tm(b.endTime),buf));
       if (hit) return `Clashes with ${hit.clientName} (${formatDisplayTime(hit.startTime)} to ${formatDisplayTime(hit.endTime)}).`;
       if ((appState.settings.blockedDates || []).some(x => x.date === r.eventDate)) return 'This date is blocked.';
       const dayCount = countPeople(appState.bookings.filter(b => b.eventDate === r.eventDate));
@@ -3866,7 +3899,7 @@
 
     function requestQuote(r, catalogue) {
       if (!r.people) return catalogueQuote(r,catalogue);
-      if (!Array.isArray(r.people) || r.people.length!==r.pax || !r.pax || r.pax>8)
+      if (!Array.isArray(r.people) || r.people.length!==r.pax || !r.pax || r.pax>3)
         throw new Error('Check the guest list before approval.');
       const services=r.people.map(p=>catalogueQuote({packageId:p.packageId},catalogue).base);
       const first=catalogueQuote({packageId:services[0].id,addons:r.addons},catalogue);
@@ -3945,7 +3978,7 @@
         }catch(err){error.textContent=err.message;return;}
       }
       const end = timeToMinutes(fields.startTime) + num(fields.durationMins??target.durationMins);
-      if (end >= 1440 || (fields.readyBy && timeToMinutes(fields.readyBy)<end)) {
+      if (!fields.readyBy || end >= 1440 || timeToMinutes(fields.readyBy)<end) {
         error.textContent='Choose a start time that fits the session and ready-by time.'; return;
       }
       if (fields.clientName.length < 2 || fields.venue.length < 3 || fields.phone.replace(/\D/g,'').length < 9) {
@@ -3963,7 +3996,7 @@
       finally { btn.disabled = false; }
     };
 
-    function requestCardHTML(r) {
+    function requestCardHTML(r, reviewing=false) {
       const id = esc(r.id);
       let preview;
       try { preview = requestQuote(r, appState.packages); } catch {}
@@ -3979,7 +4012,7 @@
       const details = [['Guests',rosterText(r.people)], ['Phone', r.phone], ['Email', r.email], ['Notes', r.notes], ['Check', preview ? 'Catalogue price ' + formatRM(preview.serviceTotal) + ' · ' + preview.duration + ' min' : 'Review services in Edit before approving']]
         .filter(([, v]) => v).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
       return `
-      <article id="request-${id}" class="req-card">
+      <article id="${reviewing?'review-request-':'request-'}${id}" class="req-card">
         <header class="req-head">
           ${dateBlockHTML(r.eventDate, false)}
           <div class="req-main">
@@ -3995,14 +4028,15 @@
         </div>
         ${r.allergyStatus === 'yes' ? `<p class="alert-line">⚠ Allergies: ${esc(r.allergies)}</p>` : ''}
         ${clash ? `<p class="alert-line warn">${esc(clash)}</p>` : ''}
-        <details class="req-more">
+        ${!reviewing ? `<button class="desk-btn primary" onclick="openRequestReview('${id}')">Review request</button>` : `
+        <details class="req-more" open>
           <summary>Client details &amp; schedule that day</summary>
           <dl class="mini-rows">${details}</dl>
           ${mood ? `<p style="margin:.5rem 0">${mood}</p>` : ''}
           <div class="request-context"><b>Already booked on this date</b>${dayJobs(r.eventDate).map(b => '<p>' + esc(formatDisplayTime(b.startTime) + ' – ' + formatDisplayTime(b.endTime) + ' · ' + b.clientName) + '</p>').join('') || '<p>No confirmed appointments.</p>'}</div>
           ${r.guest === true ? `<p style="margin:.7rem 0 .2rem"><button type="button" onclick="replaceGuestLink('${id}')" class="link-btn">Client lost their tracking link? Send a new one</button></p>` : ''}
         </details>
-        <details class="approval" id="review-approval-${id}"><summary>Review quote and deposit</summary>
+        <details class="approval" open id="review-approval-${id}"><summary>Review quote and deposit</summary>
           <div class="approval-grid">
             <label class="desk-field">Travel fee (RM)<input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${travelDefault}"></label>
             <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
@@ -4022,12 +4056,29 @@
         <footer class="req-tools">
           <button type="button" onclick="editPendingRequest('${id}')" class="desk-btn"><i data-lucide="pencil"></i> Edit</button>
           <button onclick="requestWA('${id}','chat')" class="desk-btn"><i data-lucide="message-circle"></i> WhatsApp</button>
-          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
-          <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a>
-        </footer>
+          <details class="directions"><summary>Directions</summary><a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
+          <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a></details>
+        </footer>`}
       </article>`;
     }
 
+    let reviewId='', reviewVersion='';
+    function updateRequestReview() {
+      const request=appState.requests.find(r=>r.id===reviewId && r.status==='pending');
+      if(!request) {closeWorkPage('request-review');return;}
+      const version=JSON.stringify([request,appState.packages,dayJobs(request.eventDate),appState.settings.workingHours,
+        appState.settings.timeBlocks,appState.settings.blockedDates,appState.settings.bufferMins,appState.settings.maxBookingsPerDay]);
+      if(version===reviewVersion)return;
+      if(reviewVersion)showToast('Booking details or availability changed. Review the latest quote.');
+      reviewVersion=version;
+      byId('review-content').innerHTML=requestCardHTML(request,true);
+      refreshApprovalPrice(reviewId);
+      lucide.createIcons();
+    }
+    window.openRequestReview=id=>{
+      reviewId=id;reviewVersion='';
+      openWorkPage('request-review');updateRequestReview();
+    };
     window.setDepositPct = function(id, pct) {
       const button = byId('approve-' + id), travel = byId('travel-' + id)?.valueAsNumber, base = Number(button?.dataset.service);
       const field = byId('required-' + id);
@@ -4038,6 +4089,7 @@
     };
 
     function renderRequests() {
+      if(activeWorkPage==='request-review')updateRequestReview();
       const box = document.getElementById('requests-pending');
       if (!box) return;
       const all = appState.requests.filter(r => r && DATE_RE.test(String(r.eventDate || '')) && /^\d\d:\d\d$/.test(String(r.startTime || '')));
@@ -4141,7 +4193,7 @@
       button.disabled=approvalsSaving.has(id);
       if(button.disabled)button.textContent='Approving…';
     }
-    byId('requests-pending').addEventListener('input',event=>{
+    byId('review-content').addEventListener('input',event=>{
       if(event.target.id.startsWith('travel-'))refreshApprovalPrice(event.target.id.slice(7));
     });
     window.approveRequest = async function(id) {
@@ -4205,7 +4257,8 @@
               enforceSlotConflict: true,
               enforceBlockedDate: true
             });
-        showToast('Booking approved.');
+        if(activeWorkPage==='request-review')closeWorkPage('request-review');
+      showToast('Booking approved.');
       } catch (err) {
         console.error(err); showToast(capacityErrorMessage(err),'error');
       } finally {
@@ -4400,9 +4453,10 @@
       return '"' + s.replace(/"/g, '""') + '"';
     }
 
-    window.exportCSV = function() {
+    window.exportPeriodBookings = () => exportCSV(dashPeriod);
+    window.exportCSV = function(period = 'all') {
       const headers = ['Receipt No', 'Issued Date', 'Event Date', 'Start Time', 'Client Name', 'Phone', 'Venue', 'Package', 'Package Price (RM)', 'Add-on Fee (RM)', 'Subtotal (RM)', 'Deposit Paid (RM)', 'Balance Due (RM)', 'Status'];
-      const rows = [...appState.bookings]
+      const rows = appState.bookings.filter(b=>period==='all' || b.eventDate.startsWith(period))
         .sort((a, b) => a.eventDate.localeCompare(b.eventDate))
         .map(b => [
           csvCell(b.receiptNo), csvCell(b.issuedDate), csvCell(b.eventDate), csvCell(b.startTime),
@@ -4411,7 +4465,7 @@
           num(b.depositPaid).toFixed(2), num(b.balanceDue).toFixed(2), csvCell(b.status)
         ]);
       const csvContent = '\uFEFF' + [headers.map(csvCell).join(','), ...rows.map(r => r.join(','))].join('\r\n');
-      downloadBlob(csvContent, 'text/csv;charset=utf-8;', `SSM_Bookings_Report_${localDateStr()}.csv`);
+      downloadBlob(csvContent, 'text/csv;charset=utf-8;', `SSM_Bookings_Report_${period}_${localDateStr()}.csv`);
       showToast('CSV spreadsheet downloaded!');
     };
 
@@ -4797,6 +4851,7 @@
         ['confirm-modal', window.closeConfirmModal],
         ['receipt-modal', window.closeReceiptModal],
         ['import-modal', window.closeImportModal],
+        ['request-review', ()=>closeWorkPage('request-review')],
         ['request-editor', ()=>closeWorkPage('request-editor')],
         ['booking-modal', window.closeBookingModal],
         ['package-modal', window.closePackageModal]
