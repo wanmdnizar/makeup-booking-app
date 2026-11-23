@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="referrer" content="no-referrer">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Book Your Makeup Session</title>
+  <meta name="description" content="Request a makeup session: choose a package, pick an available date and send your booking request." />
+  <meta property="og:title" content="Book your makeup session" />
+  <meta property="og:description" content="Choose a package, pick an available date and send your request." />
+  <meta name="theme-color" content="#B83950" />
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'], serif: ['Playfair Display', 'ui-serif', 'Georgia'] },
+        colors: {
+          blush: { 50:'#FBE8E5',100:'#FBE8E5',200:'#EFC7C3',300:'#E9A8A6',400:'#DE7F85',500:'#CC5866',600:'#BF4356',700:'#B83950',800:'#A13348',900:'#A13348' },
+          charcoal: '#282422'
+        }
+      } }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+  <style>
+    /* =====================================================================
+       MAKEUP BY NUREEN — CLIENT BOOKING (client booking page)
+       Same palette as the admin app.
+       ===================================================================== */
+    :root {
+      --rose:#B83950; --rose-600:#BF4356; --rose-500:#CC5866; --rose-deep:#A13348; --rose-ink:#282422;
+      --bg:#fffafa; --paper:#fbfaf9; --ink:#282422; --muted:#646060; --rule:#e6dfe2; --petal:#FBE8E5; --petal-2:#e4ced8;
+    }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',system-ui,sans-serif; background-color:var(--bg); color:var(--ink); -webkit-tap-highlight-color:transparent; }
+    :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid var(--rose-500); outline-offset:2px; }
+    .field { width:100%; padding:.75rem .95rem; font-size:1rem; background:#fff; border:1px solid var(--petal-2); border-radius:14px; color:var(--ink); }
+    .field:focus { outline:none; border-color:var(--rose-500); box-shadow:0 0 0 3px rgba(236,76,141,.18); }
+    .field.err { border-color:#dc2626; }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+    .day { aspect-ratio:1 / 1; }
+    @media print { .no-print { display:none !important; } }
+    header.sticky { background:rgba(255,255,255,.88) !important; border-color:var(--rule) !important; }
+    h1.font-serif, h2.font-serif, h3.font-serif { font-family:'Inter',system-ui,sans-serif; letter-spacing:-.035em; }
+    #brand-name { font-family:'Playfair Display',Georgia,serif; letter-spacing:0; }
+
+    .booking-intro {text-align:left;}
+    .booking-intro h1 {font-size:clamp(1.7rem,5vw,2.3rem);font-weight:700;line-height:1.12;}
+    .booking-intro p {color:var(--muted);margin-inline:0;max-width:48ch;}
+    .booking-intro #ig-link,.booking-intro #tt-link {color:var(--rose-deep);}
+    .compact-intro .booking-intro { display:none; }
+
+    /* progress */
+    #progress {display:grid;grid-template-columns:1fr 1.35fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule);}
+    .stage {display:flex;align-items:center;justify-content:center;gap:.25rem;padding:.6rem 0;border-bottom:2px solid transparent;color:var(--muted);}
+    .stage.current b {background:var(--rose);color:white;border-radius:50%;min-width:1.25rem;line-height:1.25rem;text-align:center;}
+    .stage.current {border-color:var(--rose);color:var(--rose-deep);}
+    .stage.complete b {color:var(--rose);}
+    #flow section>h2 {font-size:clamp(1.2rem,3vw,1.55rem);font-weight:700;color:var(--ink);}
+    #package-list {gap:0;border:1px solid var(--rule);background:white;border-radius:14px;overflow:hidden;}
+    #package-list label .rounded-3xl {position:relative;padding-left:3rem;border:0;border-radius:0;box-shadow:none;}
+    #package-list label+label {border-top:1px solid var(--rule);}
+    #package-list label>div:before { content:""; position:absolute; left:1.1rem; top:1.25rem; width:1.1rem; height:1.1rem; border:1.5px solid #cc9ba9; border-radius:50%; background:#fff; }
+    #package-list label:has(:checked)>div { background:var(--petal); box-shadow:inset 3px 0 var(--rose); }
+    #package-list label:has(:checked)>div:before { border:6px solid var(--rose); background:#fff; }
+    #package-list input:focus-visible+div { outline:3px solid var(--rose-500); outline-offset:-3px; }
+    #package-list p.font-bold { color:var(--rose); }
+
+    /* calendar + cards */
+    .rounded-3xl.bg-white, #conf-summary, #review-card { border-color:var(--rule); box-shadow:none;border-radius:14px; }
+    #cal-grid .day { max-height:3.6rem; aspect-ratio:auto; min-height:2.9rem; border-radius:9px; }
+    .availability-notes { display:grid; gap:.4rem; line-height:1.5; }
+    .availability-notes ul { list-style:disc; padding-left:1.35rem; }
+    .availability-notes strong { font-weight:700; }
+    .booking-fields { display:grid; gap:1rem; }
+    .booking-fields fieldset { min-width:0; border:0; padding:0; margin:0; }
+
+    #review-card,#client-panel,#confirmation>.bg-white {background:white;border:1px solid var(--rule);border-top:3px solid var(--rose);border-radius:14px;box-shadow:none;}
+    #client-panel {padding:clamp(1rem,4vw,1.5rem);}
+    .review-heading {padding-bottom:.85rem;border-bottom:1px solid var(--rule);}
+    .review-heading h3 {font-size:1.35rem;font-weight:700;overflow-wrap:anywhere;}
+    .review-heading p {font-size:.87rem;color:var(--muted);}
+    .review-time {margin-top:.45rem;font-size:1.1rem;font-weight:650;font-variant-numeric:tabular-nums;}
+    .review-time small {font-size:.78rem;color:var(--muted);font-weight:500;}
+    .ticket-total {border-top:1px solid var(--rule);padding-top:.8rem;font-variant-numeric:tabular-nums;}
+    .ticket-total>span:last-child {font-size:1.2rem;text-align:right;}
+    #client-panel > h1 { font:700 .78rem/1.4 Inter,system-ui,sans-serif; color:var(--rose-600); letter-spacing:.16em; text-transform:uppercase; }
+    .ticket-head { margin-top:1.1rem; text-align:left; }
+    .ticket-ref { display:block; font:600 .82rem/1.5 ui-monospace,monospace; letter-spacing:.09em; color:var(--rose); }
+    .ticket-head h2 { margin:.4rem 0; font:800 clamp(1.45rem,4vw,2rem)/1.15 Inter,system-ui,sans-serif; letter-spacing:-.045em; color:var(--rose-ink); }
+    .ticket-head p, .ticket-foot p, .ticket-new { color:var(--muted); font-size:.87rem; line-height:1.55; }
+    .tag{display:inline-block;margin-left:.4rem;padding:.1rem .55rem;border-radius:999px;background:var(--petal);color:var(--rose-deep);font:700 .7rem/1.5 Inter,system-ui,sans-serif;vertical-align:middle}
+    .tag-ok{background:#dcfce7;color:#166534}.tag-off{background:#e5e7eb;color:#374151}
+    .track { display:flex; list-style:none; padding:1.3rem 0; margin:1rem 0 0; border-top:1px dashed var(--petal-2); }
+    .track li { position:relative; flex:1; min-width:0; display:grid; justify-items:center; align-content:start; gap:.55rem; text-align:center; font:600 .75rem/1.35 Inter,system-ui,sans-serif; color:var(--muted); }
+    .track li::before { content:""; position:absolute; top:9px; width:100%; right:50%; height:2px; background:var(--petal-2); }
+    .track li:first-child::before { display:none; }
+    .track .done + li::before { background:var(--rose); }
+    .dot { z-index:1; width:20px; height:20px; border:2px solid #E8BBD0; border-radius:50%; background:#fff; font-size:12px; line-height:16px; }
+    .done .dot, .current .dot { background:var(--rose); border-color:var(--rose); color:#fff; }
+    .current .dot { box-shadow:inset 0 0 0 4px #fff, 0 0 0 1px var(--rose); }
+    .track .current { color:var(--rose-deep); font-weight:800; }
+    .ticket-rows { margin:0; border-top:1px solid var(--rule); }
+    .ticket-rows div { display:grid; grid-template-columns:minmax(5rem,1fr) 2fr; gap:1rem; padding:.65rem 0; border-bottom:1px solid #FBE6EE; font-size:.9rem; }
+    .ticket-rows time, .ticket-rows dd { font-variant-numeric:tabular-nums; }
+    .ticket-rows dt { color:var(--muted); } .ticket-rows dd { font-weight:600; margin:0; overflow-wrap:anywhere; }
+    .ticket-foot { margin:1rem 0; }
+    .ticket-contact, #manage-link { display:inline-block; border-radius:14px; padding:.75rem 1.1rem; background:var(--rose-deep); color:#fff; font-weight:700; text-decoration:none; margin:.5rem 0; box-shadow:none; }
+    .ticket-new { text-decoration:underline; text-underline-offset:.2em; }
+    #received-progress .current .dot, #client-list .current .dot { box-shadow:inset 0 0 0 4px #fff, 0 0 0 3px #EFC7C3; }
+    @media(max-width:350px){.stage{flex-direction:column;gap:.1rem;}}
+    #conf-summary, #confirmation > .bg-white, #confirmation .rounded-2xl.bg-white { border-radius:14px; }
+    #selection-estimate:not(:empty) {padding:.8rem 0;border-block:1px solid var(--rule);font-weight:600;font-variant-numeric:tabular-nums;}
+    #selection-estimate:empty {display:none;}
+    @media(hover:hover){#package-list label:hover>div,#addon-list label:hover {background:var(--petal);}}
+    @media(prefers-reduced-motion:no-preference){#package-list label>div,#addon-list label,.day {transition:background-color .15s ease,border-color .15s ease;}}
+    @media(prefers-reduced-motion:reduce){html {scroll-behavior:auto;} .transition {transition:none;}}
+    .party-count,.party-count>div {display:flex;align-items:center;justify-content:space-between;gap:.65rem}
+    .party-count{padding:.8rem 1rem;background:#fff1f5;border-radius:16px;font-weight:650}
+    .party-count button,#time-options button{min-height:44px;min-width:44px;border:1px solid #ddc7cf;background:white;border-radius:12px;font-weight:650}
+    .party-count button:disabled,#time-options button:disabled{opacity:.45}
+    #people-list{display:grid;gap:1.25rem}.person{background:white;border:1px solid var(--rule);border-radius:16px;padding:1rem;display:grid;gap:.85rem;min-width:0}
+    .person>legend{padding:0 .45rem;font-weight:750;color:var(--rose-deep)}.person label,.services legend{font-size:.9rem;font-weight:600}.person .field{display:block;margin-top:.3rem;font-weight:400}.person small{font-weight:400;color:var(--muted)}
+    .services{min-width:0;display:grid;gap:.4rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}.services legend{margin-bottom:.4rem}.services label{display:flex;align-items:center;gap:.5rem;padding:.65rem;border:1px solid var(--rule);border-radius:10px;cursor:pointer}.services label:has(:checked){background:var(--petal);border-color:var(--rose)}.services input{accent-color:var(--rose)}.services small{display:block}.service-description{font-size:.82rem;color:var(--muted)}.service-description:empty{display:none}
+    #time-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.4rem,1fr));gap:.4rem}#time-options button[aria-pressed=true]{color:white;background:var(--rose);border-color:var(--rose)}
+    /* Flat, low-clutter step 1: dividers instead of boxes */
+    .party-count{background:transparent;border-radius:0;border-bottom:1px solid var(--rule);padding:.4rem 0 .9rem}
+    #people-list{gap:0}
+    .person{background:transparent;border:0;border-radius:0;padding:1rem 0 1.25rem;border-bottom:1px solid var(--rule)}
+    .person:last-child{border-bottom:0}
+    .person>legend{padding:0;margin-bottom:.15rem;float:left;width:100%}
+    .person>legend+*{clear:both}
+    .services{grid-template-columns:1fr;gap:0;border-block:1px solid var(--rule)}
+    .services legend{padding:0;margin:0 0 .4rem}
+    .services label{border:0;border-radius:0;border-bottom:1px solid var(--rule);padding:.8rem .5rem;min-height:48px}
+    .services label:last-of-type{border-bottom:0}
+    .services label:has(:checked){background:var(--petal);box-shadow:inset 3px 0 var(--rose);border-color:var(--rule)}
+    .services label>span{display:flex;flex:1;min-width:0;justify-content:space-between;gap:.75rem;align-items:baseline}
+    .services label small{white-space:nowrap}
+    #addon-list{gap:0;border-block:1px solid var(--rule)}
+    #addon-list label{border:0;border-bottom:1px solid var(--rule);border-radius:0;background:transparent;box-shadow:none;min-height:48px}
+    #addon-list label:last-child{border-bottom:0}
+    #cal-grid{gap:.2rem}
+    @media(max-width:360px){main{padding-inline:.5rem}#step-2>.rounded-3xl{padding:.4rem}#cal-grid{gap:2px}#cal-grid .day{min-height:3rem}}
+    .step-actions{position:sticky;bottom:0;z-index:15;padding:.75rem 0 calc(.75rem + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 80%,rgba(255,250,250,0))}
+    .save-wa{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;color:var(--rose-deep);border:1px solid var(--petal-2);border-radius:12px;font-weight:650}
+    .booking-fields, #time-wrap {min-width:0;grid-template-columns:minmax(0,1fr)}
+    #f-ready {box-sizing:border-box;min-width:0;width:100%;max-width:16rem;min-height:44px}
+    .allergy-choice {min-width:0}
+    .allergy-choice legend,.review-guest h4 {font-weight:650}
+    .allergy-choice label {display:inline-flex;gap:.5rem;align-items:center;min-height:44px;padding-right:1rem}
+    .review-guest {overflow-wrap:anywhere;line-height:1.55}
+    .review-details dd {font-weight:400}
+    .review-total {display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+    .review-total strong {font-size:1.2rem;color:var(--rose-deep)}
+    #brand-name, #brand-tagline {overflow-wrap:anywhere;white-space:normal}
+    @media(max-width:480px) {
+      #top-whatsapp {width:44px;height:44px;padding:0;justify-content:center}
+      #top-whatsapp span {display:none}
+      #top-whatsapp svg {width:20px;height:20px}
+    }
+    .edit-links{display:flex;flex-wrap:wrap;gap:.8rem}.edit-links button,summary{color:var(--rose-deep);cursor:pointer}.edit-links button,.look-choice summary,#venue-options summary{min-height:44px;line-height:44px}
+    #flow :is(input,textarea,select,button){scroll-margin-block:6rem}
+    .services label>span{flex-wrap:wrap}.ticket-rows dd,.review-guest{overflow-wrap:anywhere}
+    @media(max-width:480px){.step-actions{position:static}.booking-fields input,.booking-fields textarea{font-size:16px}}
+    .text-slate-400:not(:disabled){color:#695e63}
+  </style>
+  <link rel="stylesheet" href="./studio-desk.css?v=2">
+  <link rel="stylesheet" href="./studio-warm.css?v=1">
+</head>
+<body class="client min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur border-b border-blush-200 sticky top-0 z-20 no-print">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div id="brand-logo" class="w-10 h-10 rounded-2xl bg-blush-700 text-white flex items-center justify-center font-serif font-bold overflow-hidden shrink-0">M</div>
+        <div class="min-w-0">
+          <p id="brand-name" class="font-serif font-bold text-lg leading-tight">makeupbynureenfakhira</p>
+          <p id="brand-tagline" class="text-[10px] tracking-[0.18em] uppercase text-blush-700 font-semibold">ART • BEAUTY • BRIDAL</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+      <a aria-label="Contact the studio on WhatsApp" id="top-whatsapp" href="#" target="_blank" rel="noopener" class="hidden shrink-0 px-3.5 py-2 rounded-full bg-blush-50 text-blush-700 border border-blush-200 text-xs font-semibold items-center gap-1.5">
+        <i data-lucide="message-circle" class="w-4 h-4"></i> <span>WhatsApp</span>
+      </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6 pb-28 space-y-8">
+
+    <section id="client-panel" hidden class="bg-white rounded-2xl border border-blush-200 p-4">
+      <h1 class="font-serif text-xl font-bold">Track my booking</h1>
+      <p id="client-message" role="status" class="text-sm mt-2"></p>
+      <div id="client-list" aria-live="polite"></div>
+      <a href="book.html" class="ticket-new">Make a new booking ↗</a>
+    </section>
+    <!-- Loading / error -->
+    <aside id="pending-attempt" hidden class="bg-white border p-4 rounded-xl">
+      <p id="pending-message" role="status"></p>
+      <button type="button" id="check-attempt" class="save-wa">Check request status</button>
+    </aside>
+    <section id="state-loading" class="py-20 text-center text-slate-500 text-sm">Loading…</section>
+    <section id="state-error" class="hidden py-16 text-center">
+      <p class="font-serif text-xl font-bold">Booking is not available right now</p>
+      <p id="state-error-text" class="text-sm text-slate-500 mt-2">Please message us on WhatsApp to book.</p>
+    </section>
+
+    <!-- Booking flow -->
+    <div id="flow" class="hidden space-y-8">
+
+      <!-- Intro -->
+      <section class="booking-intro space-y-2">
+        
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Book your makeup session</h1>
+        <p class="text-sm">Choose a package and an available time. Your deposit is due after studio approval.</p>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 pt-1"><a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline"><i data-lucide="instagram" class="w-4 h-4"></i> Instagram</a><a id="tt-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline">TikTok</a></div>
+      </section>
+
+      <!-- Progress -->
+      <nav id="progress" class="flex items-center justify-center gap-2 text-[11px] font-semibold" aria-label="Progress"></nav>
+
+      <!-- STEP 1: package -->
+      <section id="step-1" class="space-y-4">
+        <h2 class="font-serif text-xl font-bold">1. People &amp; services</h2>
+        <div class="party-count"><label for="party-count">How many people? <small>(up to 3)</small></label><div><button type="button" id="fewer" aria-label="One fewer person">−</button><output id="party-count" aria-live="polite">1</output><button type="button" id="more" aria-label="Add one person">+</button></div></div>
+        <div id="people-list"></div>
+        <div id="contact-block" class="hidden space-y-3">
+          <div>
+            <label class="block text-sm font-semibold mb-1" for="f-contact">Who should we contact? *</label>
+            <select id="f-contact" class="field"></select>
+            <p class="text-xs text-slate-500 mt-1">We send booking updates to this person’s WhatsApp.</p>
+          </div>
+          <div id="contact-other" class="hidden space-y-3">
+            <div><label class="block text-sm font-semibold mb-1" for="f-name">Contact person’s full name *</label><input id="f-name" class="field" autocomplete="off" maxlength="80"></div>
+
+          </div>
+        </div>
+            <div><label class="block text-sm font-semibold mb-1" for="f-other-phone">Booking contact’s WhatsApp number *</label><input id="f-other-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="0123456789" maxlength="20"></div>
+        <div id="addon-wrap" class="hidden space-y-2">
+          <h3 class="text-sm font-bold">Booking add-ons <span class="font-normal text-slate-500">(optional)</span></h3>
+          <div id="addon-list" class="grid gap-2"></div>
+        </div>
+        <p id="selection-estimate" role="status" class="text-sm"></p>
+        <p id="e-package" class="hidden text-xs font-medium text-red-600"></p>
+        <div class="step-actions"><button onclick="goStep(2)" class="action-primary w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue to date &amp; time</button></div>
+      </section>
+
+      <!-- STEP 2: date & time -->
+      <section id="step-2" class="hidden space-y-4">
+        <h2 class="font-serif text-xl font-bold">2. Date &amp; time</h2>
+        <p class="text-sm text-slate-500">Choose a date to see start times for your whole booking.</p>
+        <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <button onclick="shiftMonth(-1)" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+            <p id="cal-title" class="font-serif font-bold"></p>
+            <button onclick="shiftMonth(1)" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Next month"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+          </div>
+          <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase mb-1">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+          <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Available</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Unavailable for your party</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
+          </div>
+          <div id="capacity-hint" class="availability-notes text-sm text-slate-600 mt-3"></div>
+        </div>
+
+        <div id="busy-windows" class="text-sm text-slate-600" aria-live="polite"></div>
+        <div class="booking-fields">
+        <div id="time-wrap" class="hidden space-y-3">
+          <div>
+            <label for="f-ready" class="block text-sm font-semibold mb-1">When must everyone be ready? *</label>
+            <input type="time" id="f-ready" class="field" required aria-describedby="e-ready">
+            <p id="e-ready" role="alert" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>
+          <div>
+            <label id="starts-label" class="block text-sm font-semibold mb-1">Makeup start time *</label>
+            <input type="hidden" id="f-time"><div id="time-options" role="group" aria-labelledby="starts-label"></div>
+            <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
+          </div>
+        </div>
+        </div>
+        <p id="selected-session" aria-live="polite" class="font-semibold"></p>
+        <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
+
+        <div class="step-actions flex gap-2">
+          <button onclick="goStep(1)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
+          <button onclick="goStep(3)" class="action-primary flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue to venue &amp; notes</button>
+        </div>
+      </section>
+
+      <!-- STEP 3: details -->
+      <section id="step-3" class="hidden space-y-4">
+        <h2 class="font-serif text-xl font-bold">3. Venue &amp; notes</h2>
+        <div class="booking-fields">
+          <div>
+            <label class="block text-sm font-semibold mb-1" for="f-venue">Makeup location *</label>
+            <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
+            <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>
+          <details id="venue-options" class="space-y-3"><summary>Optional details</summary><div>
+            <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
+            <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
+            <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>
+<div>
+            <label class="block text-sm font-semibold mb-1" for="f-mood">Moodboard / inspiration link <span class="font-normal text-slate-500">(optional)</span></label>
+            <input id="f-mood" class="field" inputmode="url" maxlength="500" placeholder="Pinterest, Instagram, Google Drive or Google Photos link">
+            <p class="text-xs text-slate-500 mt-1">Prefer to send photos? You can share them on WhatsApp after you submit.</p>
+            <p id="e-mood" class="hidden text-xs text-red-600 mt-1"></p>
+          </div>
+<div>
+            <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
+            <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
+          </div>
+          </details>
+        </div>
+        <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
+
+        <div class="step-actions flex gap-2">
+          <button onclick="goStep(2)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
+          <button onclick="goStep(4)" class="action-primary flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Review booking</button>
+        </div>
+      </section>
+
+      <section id="step-4" class="hidden space-y-4">
+        <h2 class="font-serif text-xl font-bold">4. Review &amp; send</h2>
+        <div id="review-card" class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm space-y-3 text-sm"></div>
+        <aside class="journey-intro" aria-labelledby="journey-preview-title">
+          <h3 id="journey-preview-title">What happens next?</h3>
+          <ol class="journey-preview">
+            <li><b>Send your request.</b> Save the private tracking link.</li>
+            <li><b>Studio review.</b> Your makeup artist checks the time and approves the final quote if available.</li>
+            <li><b>Pay any deposit due.</b> Your link shows the amount, deadline and payment instructions.</li>
+            <li><b>Booking confirmed.</b> The studio records your deposit or waives it.</li>
+          </ol>
+        </aside>
+        <label class="flex items-start gap-3 text-xs text-slate-600 leading-relaxed">
+          <input type="checkbox" id="f-terms" class="mt-0.5 accent-pink-600 w-4 h-4 shrink-0">
+          <span>I understand this is a booking <b>request</b>. My booking is confirmed after studio approval and any required deposit. <span id="terms-text"></span></span>
+        </label>
+        <p id="e-terms" class="hidden text-xs font-medium text-red-600"></p>
+        <p id="e-submit" role="alert" class="hidden text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl p-3"></p>
+        <div class="step-actions flex gap-2">
+          <button onclick="goStep(3)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
+          <button id="submit-btn" onclick="submitRequest()" class="action-primary flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 disabled:opacity-60 text-white font-semibold text-sm transition">Send booking request</button>
+        </div>
+      </section>
+
+      <!-- Info: reviews & FAQ -->
+      <section id="reviews-wrap" class="hidden space-y-3 pt-4">
+        <h2 class="font-serif text-xl font-bold text-center">Kind words</h2>
+        <div id="reviews-list" class="grid gap-3"></div>
+      </section>
+      <section id="faq-wrap" class="hidden space-y-3">
+        <h2 class="font-serif text-xl font-bold text-center">Good to know</h2>
+        <div id="faq-list" class="space-y-2"></div>
+      </section>
+    </div>
+
+    <!-- CONFIRMATION -->
+    <section id="confirmation" class="hidden space-y-5">
+      <div class="text-center space-y-2 pt-2">
+
+        <h1 class="font-serif text-2xl font-bold">Request received</h1>
+
+      </div>
+      <div class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm text-center space-y-1">
+
+        <div id="received-progress"></div>
+
+      </div>
+      <div class="rounded-2xl bg-white p-4 space-y-2">
+        <a id="manage-link" class="font-bold underline text-blush-800">Track my booking</a>
+        <p class="text-sm">Save this private link to follow your booking. Anyone with the link can view its details.</p>
+        <button id="copy-private" class="underline" type="button">Copy private link</button>
+        <p id="copy-result" role="status" class="text-sm"></p>
+      </div>
+      <details><summary>Booking details</summary><div id="conf-summary" class="p-4 text-sm space-y-2"></div></details>
+      <a id="conf-wa" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">
+        <i data-lucide="message-circle" class="w-5 h-5"></i> Message the studio
+      </a>
+      <button onclick="location.assign(location.pathname)" class="w-full py-3 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Make another request</button>
+    </section>
+  </main>
+
+  <footer class="text-center text-[11px] text-slate-400 pb-8 px-4"><span id="footer-text"></span></footer>
+
+  <script type="module">
+    import { overlapsAppointment, depositMet, fitsHours, clientCalendarUrl } from './studio-core.js?v=booking-review-2';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, getDocFromServer, setDoc, writeBatch, collection, query, where, documentId, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =========================================================================
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    // SETTINGS YOU MAY CHANGE
+    // =========================================================================
+    // After you create a reCAPTCHA Enterprise key (see the guide), paste it between the quotes.
+    // Leave it empty until then. The page works without it.
+    const RECAPTCHA_SITE_KEY = "";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTVI7cv5m1EV-PS9DDc5ntv5umxbQE44Y",
+      authDomain: "makeup-booking-app-60dd6.firebaseapp.com",
+      projectId: "makeup-booking-app-60dd6",
+      storageBucket: "makeup-booking-app-60dd6.firebasestorage.app",
+      messagingSenderId: "452759012871",
+      appId: "1:452759012871:web:2a1d4be7d7aba0d8eb4ca2",
+      measurementId: "G-3LHBP581XN"
+    };
+
+    const app = initializeApp(firebaseConfig, "client-bookings");
+    if (RECAPTCHA_SITE_KEY) {
+      try {
+        const m = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js");
+        m.initializeAppCheck(app, { provider: new m.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
+      } catch (e) { console.warn('App Check unavailable', e); }
+    }
+    const db = getFirestore(app);
+
+    // ---------- helpers ----------
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+    const pad = (n) => String(n).padStart(2, '0');
+    const dstr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const toMin = (t) => { const [h, m] = String(t).split(':').map(Number); return h * 60 + m; };
+    const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+    const fmtRM = (n) => 'RM ' + num(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtTime = (t) => { const m = toMin(t); const h = Math.floor(m / 60); return `${(h % 12) || 12}:${pad(m % 60)} ${h < 12 ? 'AM' : 'PM'}`; };
+    const fmtDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
+    const fmtDur = (m) => m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ' ' + (m % 60) + 'm' : ''}` : `${m}m`;
+    const waNum = (raw) => {
+      let d = String(raw || '').replace(/\D/g, '');
+      if (!d) return '';
+      if (d.startsWith('00')) d = d.slice(2);
+      if (d.startsWith('60')) return d;
+      if (d.startsWith('0')) return '6' + d;
+      return '60' + d;
+    };
+    const validMyPhone = (raw) => /^(60|0)1\d{8,9}$/.test(String(raw).replace(/[\s\-+()]/g, ''));
+    const safeUrl = (u) => { try { const x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : ''; } catch { return ''; } };
+
+    // ---------- state ----------
+    let cfg = null;
+    const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
+    let availabilityReady = false;
+    let step = 1;
+    const blankPerson = () => ({name:'', look:'', packageId:'', allergyChoice:'', allergies:''});
+    const people = [blankPerson()];
+    const removedPeople = [];
+    function service(person) { return mainPackages().find(p => p.id === person.packageId); }
+    function packageTotal() { return people.reduce((sum,p) => sum + Math.round(num(service(p)?.price)*100),0)/100; }
+    function bookingName() { return people.length === 1 ? service(people[0]).name : 'Group makeup · '+people.length+' people'; }
+    let selAddons = new Set();
+    let selDate = '';
+    let viewMonth = new Date(); viewMonth.setDate(1);
+    let submitting = false;
+
+    const settingInt = (value, fallback, min, max) => {
+      const n = Number.parseInt(value, 10);
+      return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+    };
+    const BUFFER = () => settingInt(cfg.bufferMins, 90, 0, 480);
+    const LEAD = () => settingInt(cfg.minLeadDays, 1, 0, 60);
+    const MAX_PER_DAY = () => settingInt(cfg.maxBookingsPerDay, 3, 1, 3);
+    const DAY_START = 5 * 60, LAST_START = 19 * 60, STEP = 30;
+
+    function mainPackages() { return (cfg.packages || []).filter(p => !p.addon); }
+    function addonPackages() { return (cfg.packages || []).filter(p => p.addon && p.id !== 'pkg_5' && !/\b(transport|mileage|travel|petrol|parking|toll|pax|bridesmaids?|additional (people|person)|extra (people|person))\b/i.test(p.name)); }
+    function currentDuration() {
+      return people.reduce((sum,p)=>sum + Math.max(30,num(service(p)?.durationMins)||120),0)
+        + selectedAddonObjs().reduce((sum,a)=>sum+Math.max(0,num(a.durationMins)),0);
+    }
+
+    function capacityReached(date) {
+      const day = busy[date] || {};
+      const count = Number(day.paxCount) || 0;
+      const cap = settingInt(day.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
+      return day.capacityReached === true || count + people.length > cap;
+    }
+
+    // Is a start time free for a job of `dur` minutes on `date`? Travel buffer is kept on both sides.
+    function startIsFree(date, start, dur) {
+      if (!availabilityReady || capacityReached(date) || (cfg.blockedDates||[]).some(b=>(b.date||b)===date)) return false;
+      const slots = Array.isArray(busy[date]?.slots) ? busy[date].slots : [];
+      const end = start + dur;
+      if (!fitsHours(cfg,date,start,end)) return false;
+      if (end >= 1440 || dur > 900) return false;
+      const buf = BUFFER();
+      return slots.every(s => {
+        const bs = toMin(s.s), be = s.e === '24:00' ? 1440 : toMin(s.e);
+        if (bs === 0 && be >= 1440) return false; // whole day blocked
+        return !overlapsAppointment(start,end,bs,be,buf);
+      });
+    }
+    function freeStarts(date, dur) {
+      const out = [];
+      const rule = cfg.workingHours?.[new Date(date+'T12:00:00').getDay()];
+      const first = rule ? Math.ceil(toMin(rule.start)/STEP)*STEP : DAY_START;
+      const last = rule ? toMin(rule.end)-dur : LAST_START;
+      for (let t = first; t <= last; t += STEP) if (startIsFree(date, t, dur)) out.push(t);
+      return out;
+    }
+    function dayState(date) {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const [y, m, d] = date.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const diff = Math.round((dt - today) / 86400000);
+      if (diff < LEAD()) return 'past';
+      if (diff > 540) return 'far';
+      if (!availabilityReady) return 'loading';
+      return freeStarts(date, currentDuration()).length ? 'open' : 'booked';
+    }
+
+    // ---------- load ----------
+    async function init() {
+      try {
+        const snap = await getDoc(doc(db, 'public', 'config'));
+        if (!snap.exists()) throw new Error('no-config');
+        cfg = snap.data();
+      } catch (e) {
+        console.error(e);
+        $('state-loading').classList.add('hidden');
+        $('state-error').classList.remove('hidden');
+        return;
+      }
+      applyBrand();
+      $('state-loading').classList.add('hidden');
+      $('flow').classList.toggle('hidden', managing);
+      if (managing) { renderClientBookings(); lucide.createIcons(); return; }
+      renderProgress();
+      renderPackages();
+      renderInfo();
+      renderCalendar();
+      watchMonth();
+      onSnapshot(doc(db,'public','config'),snap=>{
+        if (!snap.exists()) return;
+        const latest=snap.data();
+        const settingsChanged=JSON.stringify([latest.workingHours,latest.timeBlocks,latest.bufferMins,latest.minLeadDays,latest.maxBookingsPerDay,latest.blockedDates])!==
+          JSON.stringify([cfg.workingHours,cfg.timeBlocks,cfg.bufferMins,cfg.minLeadDays,cfg.maxBookingsPerDay,cfg.blockedDates]);
+        for(const key of ['workingHours','timeBlocks','bufferMins','minLeadDays','maxBookingsPerDay','blockedDates'])cfg[key]=latest[key];
+        if(settingsChanged && step===2){renderCalendar();refreshTimes();}
+      },()=>{});
+      lucide.createIcons();
+    }
+    let availabilityFailed=false;
+    let stopMonth;
+    let monthGeneration=0;
+    function watchMonth() {
+      if (stopMonth) stopMonth();
+      const generation=++monthGeneration;
+      availabilityReady=false;
+      availabilityFailed=false;
+      const first=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1));
+      const next=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1));
+      const monthQuery=query(collection(db,'busy'),where(documentId(),'>=',first),where(documentId(),'<',next));
+      stopMonth=onSnapshot(monthQuery,snap=>{
+        if (generation!==monthGeneration) return;
+        Object.keys(busy).forEach(k => delete busy[k]);
+        snap.forEach(d => {
+          const v = d.data();
+          if (v && Array.isArray(v.slots)) busy[d.id] = {
+            slots: v.slots,
+            bookingCount: Number(v.bookingCount) || 0,
+            paxCount: v.paxCount ?? (Number(v.bookingCount) || v.slots.length ? 3 : 0),
+            maxBookingsPerDay: settingInt(v.maxBookingsPerDay, MAX_PER_DAY(), 1, 3),
+            capacityReached: v.capacityReached === true
+          };
+        });
+        availabilityReady = true;
+        if (step === 2) { renderCalendar(); refreshTimes(); }
+      }, (err) => {
+        if (generation!==monthGeneration) return;
+        availabilityFailed=true;
+        console.warn('availability unavailable', err);
+        availabilityReady = false;
+        if (step === 2) { renderCalendar(); refreshTimes(); }
+      });
+      lucide.createIcons();
+    }
+
+    function applyBrand() {
+      document.title = `Book your session | ${cfg.businessName || 'Makeup'}`;
+      $('brand-name').textContent = cfg.businessName || 'Makeup Artist';
+      $('brand-tagline').textContent = cfg.tagline || '';
+      $('footer-text').textContent = `© ${new Date().getFullYear()} ${cfg.businessName || ''}` + (cfg.igHandle ? ` • ${cfg.igHandle}` : '');
+      if (typeof cfg.logo === 'string' && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(cfg.logo)) {
+        const box = $('brand-logo'); box.textContent = '';
+        const img = document.createElement('img'); img.src = cfg.logo; img.alt = ''; img.className = 'w-full h-full object-cover'; box.appendChild(img);
+      }
+      const wa = waNum(cfg.whatsappNo);
+      if (wa) {
+        const a = $('top-whatsapp'); a.href = `https://wa.me/${wa}`; a.classList.remove('hidden'); a.classList.add('inline-flex');
+      }
+      $('terms-text').textContent = cfg.terms || '';
+      const ig = String(cfg.igHandle || '').replace(/^.*instagram\.com\//i, '').replace(/[^A-Za-z0-9._]/g, '');
+      const tt = String(cfg.tiktokHandle || '').replace(/^.*tiktok\.com\/@?/i, '').replace(/^@/, '').replace(/[^A-Za-z0-9._]/g, '');
+      if (tt) { const l = $('tt-link'); l.href = `https://www.tiktok.com/@${tt}`; l.classList.remove('hidden'); }
+      if (ig) { const l = $('ig-link'); l.href = `https://instagram.com/${ig}`; l.classList.remove('hidden'); }
+    }
+
+    function renderProgress() {
+      const labels = ['Services', 'Time', 'Venue', 'Review'];
+      $('flow').classList.toggle('compact-intro', step > 1);
+      $('progress').innerHTML = labels.map((label,i) => {
+        const n=i+1;
+        const state=n===step?'current':n<step?'complete':'upcoming';
+        return `<span class="stage ${state}" ${n===step?'aria-current="step"':''}><b aria-hidden="true">${n<step?'✓':n}</b>${label}</span>`;
+      }).join('');
+
+    }
+
+    function updateSelectionEstimate() {
+      $('selection-estimate').textContent = people.every(service) ? 'Estimated total · '+fmtRM(estimate())+' · '+fmtDur(currentDuration()) : '';
+    }
+    let editingGuest = 0;
+    function guestIsComplete(person) {
+      return person.name.trim().length >= 2 && service(person) && person.allergyChoice && person.allergies.trim();
+    }
+    function renderPeople() {
+      $('party-count').textContent = people.length;
+      $('fewer').disabled = people.length === 1;
+      $('more').disabled = people.length >= 3;
+      const list = mainPackages();
+      $('people-list').innerHTML = people.map((p,i)=>{
+        if (people.length > 1 && i !== editingGuest && guestIsComplete(p)) {
+          const item=service(p);
+          return `<section class="guest-summary" data-person="${i}"><div><strong>${esc(p.name)}</strong>
+            <p>${esc(item.name)} · ${esc(fmtDur(Math.max(30,num(item.durationMins)||120)))}</p></div>
+            <div><b>${esc(fmtRM(item.price))}</b><button type="button" data-edit-guest="${i}" aria-label="Edit guest ${i+1}">Edit</button></div></section>`;
+        }
+        return `<fieldset class="person" data-person="${i}"><legend>Person ${i+1}</legend>
+        <label>${people.length===1?'Full name':'Name'}<input class="field" data-key="name" autocomplete="${people.length===1?'name':'off'}" maxlength="60" required value="${esc(p.name)}"></label>
+        <fieldset class="services"><legend>Makeup service</legend>${list.map(item=>`<label><input type="radio" name="service-${i}" data-key="packageId" value="${esc(item.id)}" ${item.id===p.packageId?'checked':''}><span><span class="service-name">${esc(item.name)}</span><span class="rate"><b>${esc(fmtRM(item.price))}</b><small>${esc(fmtDur(Math.max(30,num(item.durationMins)||120)))}</small></span></span></label>`).join('') || 'No services available.'}</fieldset>
+        <p class="service-description" data-description>${esc(service(p)?.description||'')}</p>
+        <details class="look-choice" ${p.look?'open':''}><summary>Add a look preference</summary>
+          <label>Preferred look<input class="field" data-key="look" maxlength="120" value="${esc(p.look)}"></label></details>
+        <fieldset class="allergy-choice">
+          <legend>Allergies or sensitive skin?</legend>
+          ${['no','yes'].map(choice => `<label><input type="radio" name="allergy-${i}" data-key="allergyChoice" value="${choice}" ${p.allergyChoice===choice?'checked':''}> ${choice==='yes'?'Yes':'No'}</label>`).join('')}
+        </fieldset>
+        <label data-allergy-details ${p.allergyChoice==='yes'?'':'hidden'}>Allergy or sensitivity details
+          <input class="field" data-key="allergies" maxlength="100" ${p.allergyChoice==='yes'?'required':'disabled'} value="${p.allergyChoice==='yes'?esc(p.allergies):''}">
+        </label></fieldset>`;
+      }).join('');
+      renderContactChoices();
+      updateSelectionEstimate();
+    }
+    function editGuest(index, key='name') {
+      editingGuest=index;
+      renderPeople();
+      $('people-list').children[index]?.querySelector('[data-key="'+key+'"]')?.focus();
+    }
+    $('people-list').addEventListener('click',event=>{
+      const edit=event.target.closest('[data-edit-guest]');
+      if (edit) editGuest(Number(edit.dataset.editGuest));
+    });
+    $('people-list').addEventListener('input',event=>{
+      const input=event.target, row=input.closest('[data-person]');
+      if (!row || !input.dataset.key) return;
+      const person=people[Number(row.dataset.person)];
+      person[input.dataset.key]=input.value;
+      if(input.dataset.key==='allergyChoice') {
+        const show = input.value === 'yes';
+        const details = row.querySelector('[data-key="allergies"]');
+        row.querySelector('[data-allergy-details]').hidden = !show;
+        details.required = show;
+        details.disabled = !show;
+        details.value = '';
+        person.allergies = show ? '' : 'None';
+      }
+      if(input.dataset.key==='name') renderContactChoices();
+      if(input.dataset.key==='packageId') {
+        row.querySelector('[data-description]').textContent=service(person)?.description||'';
+        updateSelectionEstimate();
+      }
+    });
+    $('more').onclick=()=>{if(people.length<3){people.push(removedPeople.pop()||blankPerson());editGuest(people.length-1);}};
+    $('fewer').onclick=()=>{if(people.length>1){removedPeople.push(people.pop());editingGuest=Math.min(editingGuest,people.length-1);renderPeople();}};
+    function renderPackages() {
+      renderPeople();
+      const adds = addonPackages();
+      $('addon-wrap').classList.toggle('hidden', adds.length === 0);
+      $('addon-list').innerHTML = adds.map(p => `
+        <label class="flex items-center gap-3 bg-white rounded-2xl border border-blush-200 p-3 cursor-pointer has-[:checked]:border-blush-600 has-[:checked]:bg-blush-50">
+          <input type="checkbox" value="${esc(p.id)}" class="accent-pink-600 w-4 h-4 addon-cb" ${selAddons.has(p.id) ? 'checked' : ''}>
+          <span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="block text-[11px] text-slate-500">${esc(p.description || '')}</span>${num(p.durationMins)>0 ? '<span class="block text-xs font-semibold">Adds '+esc(fmtDur(num(p.durationMins)))+'</span>' : ''}</span>
+          <span class="text-sm font-bold text-blush-700 shrink-0">${esc(fmtRM(p.price))}</span>
+        </label>`).join('');
+      $('addon-list').querySelectorAll('.addon-cb').forEach(cb => cb.addEventListener('change', () => {
+        cb.checked ? selAddons.add(cb.value) : selAddons.delete(cb.value);
+        updateSelectionEstimate();
+      }));
+      lucide.createIcons();
+    }
+
+    function renderInfo() {
+      const rev = String(cfg.reviews || '').split('\n').map(l => l.trim()).filter(Boolean).slice(0, 8);
+      if (rev.length) {
+        $('reviews-wrap').classList.remove('hidden');
+        $('reviews-list').innerHTML = rev.map(l => {
+          const i = l.indexOf('|');
+          const who = i > -1 ? l.slice(0, i).trim() : '';
+          const text = i > -1 ? l.slice(i + 1).trim() : l;
+          return `<figure class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm"><blockquote class="text-sm text-slate-700 italic leading-relaxed">“${esc(text)}”</blockquote>${who ? `<figcaption class="text-xs font-semibold text-blush-700 mt-2">${esc(who)}</figcaption>` : ''}</figure>`;
+        }).join('');
+      }
+      const faq = String(cfg.faq || '').split('\n').map(l => l.trim()).filter(Boolean).slice(0, 12);
+      if (faq.length) {
+        $('faq-wrap').classList.remove('hidden');
+        $('faq-list').innerHTML = faq.map(l => {
+          const i = l.indexOf('|');
+          const q = i > -1 ? l.slice(0, i).trim() : l;
+          const a = i > -1 ? l.slice(i + 1).trim() : '';
+          return `<details class="bg-white rounded-2xl border border-blush-200 p-3.5 shadow-sm"><summary class="text-sm font-semibold cursor-pointer">${esc(q)}</summary>${a ? `<p class="text-sm text-slate-600 mt-2 leading-relaxed">${esc(a)}</p>` : ''}</details>`;
+        }).join('');
+      }
+    }
+
+    // ---------- calendar ----------
+    window.shiftMonth = (d) => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + d, 1); selDate=''; watchMonth(); renderCalendar(); refreshTimes(); };
+
+    function renderCalendar() {
+      const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+      $('cal-title').textContent = viewMonth.toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
+      if (!availabilityReady) {
+        $('capacity-hint').textContent=availabilityFailed?'Availability could not load. ':'Loading availability…';
+        if(availabilityFailed) {
+          const retry=document.createElement('button');retry.textContent='Try again';retry.className='underline';
+          retry.onclick=()=>{watchMonth();renderCalendar();};$('capacity-hint').append(retry);
+        }
+      }
+      else {
+        const limit = settingInt(busy[selDate]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
+        $('capacity-hint').innerHTML = '<p><strong>Daily limit</strong> '+esc(limit)+' '+(limit===1?'person':'people')+'</p>'+
+          '<p>Pending requests do not reserve a time.</p>';
+      }
+      const first = (new Date(y, m, 1).getDay() + 6) % 7;
+      const days = new Date(y, m + 1, 0).getDate();
+      const now = new Date();
+      $('cal-prev').classList.toggle('invisible', y === now.getFullYear() && m <= now.getMonth());
+      let html = '';
+      for (let i = 0; i < first; i++) html += '<div></div>';
+      for (let d = 1; d <= days; d++) {
+        const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
+        const st = dayState(ds);
+        const sel = ds === selDate;
+        const occupied = Number(busy[ds]?.paxCount) || 0;
+        const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
+        if (st === 'open') {
+          const availabilityLabel = occupied > 0 ? `${dailyCap-occupied} places left` : 'Available';
+          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[10px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${dailyCap-occupied} left</span>` : ''}</button>`;
+        } else if (st === 'booked') {
+          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, unavailable for this party"><span class="text-sm font-semibold line-through">${d}</span><span class="text-[10px] uppercase mt-0.5">—</span></button>`;
+        } else {
+          html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
+        }
+      }
+      $('cal-grid').innerHTML = html;
+      $('cal-grid').querySelectorAll('button[data-date]').forEach(b => b.addEventListener('click', () => {
+        selDate = b.dataset.date;
+        $('e-date').classList.add('hidden');
+        renderCalendar(); refreshTimes();
+      }));
+    }
+
+    function refreshTimes() {
+      const info = $('busy-windows');
+      info.textContent = ''; $('selected-session').textContent='';
+      if (!availabilityReady || !selDate) { $('time-wrap').classList.add('hidden'); return; }
+      const dur = currentDuration();
+      const starts = freeStarts(selDate, dur);
+      const slots = busy[selDate]?.slots || [];
+      const closed = cfg.workingHours?.[new Date(selDate+'T12:00:00').getDay()]?.closed;
+      const allDay = closed || slots.some(slot => slot.s === '00:00' && slot.e === '24:00');
+      const blocked=(cfg.timeBlocks||[]).filter(b=>b.date===selDate);
+      const ranges = [...slots,...blocked.map(b=>({s:b.start,e:b.end}))].map(slot => fmtTime(slot.s) + ' – ' + (slot.e === '24:00' ? 'midnight' : fmtTime(slot.e)));
+      const windows = allDay ? ['Unavailable all day'] : ranges.length ? ranges : ['No booked times'];
+      const status = capacityReached(selDate) ? 'There are too few places left for this party.' :
+        !starts.length && !allDay ? 'No start time fits this service.' : '';
+      info.innerHTML = '<div class="availability-notes"><strong>'+esc(fmtDate(selDate))+'</strong>'+
+        '<p>Unavailable times</p><ul>'+windows.map(range=>'<li>'+esc(range)+'</li>').join('')+'</ul>'+
+        (status?'<p>'+esc(status)+'</p>':'')+'</div>';
+      if(!ranges.length && !status && !allDay) info.replaceChildren();
+      if (!starts.length) {
+        $('f-time').value = '';
+        $('time-wrap').classList.add('hidden');
+        return;
+      }
+      const sel = $('f-time');
+      const keep = sel.value;
+      const deadline=$('f-ready').value;
+      const fitsDeadline=t=>deadline && t+dur<=toMin(deadline);
+      sel.value = starts.some(t=>fromMin(t)===keep && fitsDeadline(t)) ? keep : '';
+      $('starts-label').hidden=!deadline;
+      $('time-options').innerHTML=starts.filter(fitsDeadline).map(t=>{
+        const value=fromMin(t);
+        return `<button type="button" data-time="${value}" aria-pressed="${sel.value===value}" ${fitsDeadline(t)?'':'disabled'}>${fmtTime(value)}</button>`;
+      }).join('');
+      $('time-options').onclick=event=>{
+        const button=event.target.closest('button[data-time]');
+        if(!button || button.disabled)return;
+        sel.value=button.dataset.time;
+        $('time-options').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+        $('e-date').classList.add('hidden');
+        $('selected-session').textContent='Selected finish · '+fmtTime(fromMin(toMin(sel.value)+dur))+' ('+fmtTime(sel.value)+' start)';
+        validateReadyBy(false);
+      };
+      $('selected-session').textContent=sel.value?'Selected finish · '+fmtTime(fromMin(toMin(sel.value)+dur))+' ('+fmtTime(sel.value)+' start)':'';
+      const travelMinutes = BUFFER();
+      $('time-hint').innerHTML = '<strong>Session duration</strong> · '+esc(fmtDur(dur))+
+        (travelMinutes > 0 ? '<br>We allow '+esc(travelMinutes)+' minutes between appointments for travel.' : '');
+      if(deadline && !starts.some(fitsDeadline)) $('time-hint').append(' No start fits this deadline. Change the date or ready-by time.');
+      $('time-wrap').classList.remove('hidden');
+    }
+
+    // ---------- steps ----------
+    const showErr = (id, msg) => { const el = $(id); if (!el) return; el.textContent = msg; el.classList.remove('hidden'); };
+    const clearErr = () => document.querySelectorAll('[id^="e-"]').forEach(e => e.classList.add('hidden'));
+
+    window.goStep = function(n) {
+      clearErr();
+      if (n > step) {
+        if (step === 1 && !validateStep1()) return;
+        if (step <= 2 && n >= 3 && !validateStep2()) return;
+        if (step <= 3 && n === 4 && !validateStep3()) return;
+
+      }
+      showStep(n);
+    };
+    function showStep(n) {
+      step = n;
+      for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
+      const heading=$('step-'+n).querySelector('h2');
+      heading.tabIndex=-1;heading.focus({preventScroll:true});
+      if (n === 2) { renderCalendar(); refreshTimes(); }
+      if (n === 4) renderReview();
+      renderProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    };
+
+    function validateStep1() {
+      if (selectedAddonObjs().length > 8) { showErr('e-package','Please select up to eight add-ons.'); return false; }
+      for(const [i,p] of people.entries()) {
+        const missing=p.name.trim().length<2?'name':!service(p)?'packageId':!p.allergyChoice?'allergyChoice':!p.allergies.trim()?'allergies':'';
+        if(missing) {
+          const messages={name:'Enter a full name',packageId:'Choose a service',allergyChoice:'Choose Yes or No for allergies',allergies:'Describe the allergy or sensitivity'};
+          showErr('e-package',messages[missing]+' for Person '+(i+1)+'.'); editGuest(i,missing); return false; }
+      }
+      if (people.some(p => typeof p.packageId !== 'string' || p.packageId.length > 60 || !service(p)?.name?.trim())) {
+        showErr('e-package','This service has an invalid catalogue entry. Please contact the studio to book it.');
+        return false;
+      }
+      const ci = contactIndex(), c = contact();
+      if (ci === -1 && c.name.length < 2) { showErr('e-package','Enter the contact person’s full name.'); $('f-name').focus(); return false; }
+      if (!validMyPhone(c.phone)) {
+        showErr('e-package', people.length === 1 ? 'Enter a Malaysian WhatsApp number, e.g. 0123456789.' : 'Enter a Malaysian WhatsApp number for the contact person, e.g. 0123456789.');
+        $('f-other-phone').focus(); return false;
+      }
+      if(currentDuration()>900 || packageTotal()<0 || packageTotal()>100000) {showErr('e-package','This group exceeds the online booking limit. Contact the studio to arrange a session.');return false;}
+      return true;
+    }
+    function validateReadyBy(requireValue = true) {
+      const start = $('f-time').value;
+      const deadline = $('f-ready').value;
+      if (!deadline && requireValue) {
+        showErr('e-ready','Choose the time you need to be ready.');
+        $('f-ready').focus();
+        return false;
+      }
+      if (start && deadline) {
+        const finish = toMin(start) + currentDuration();
+        if (finish > toMin(deadline)) {
+          showErr('e-ready', 'Your session finishes at ' + fmtTime(fromMin(finish)) + '. Choose an earlier start or change your ready-by time.');
+          return false;
+        }
+      }
+      $('e-ready').classList.add('hidden');
+      return true;
+    }
+    $('f-ready').addEventListener('change',()=>{ refreshTimes(); validateReadyBy(false); });
+    function validateStep2() {
+      if (!availabilityReady) { showErr('e-date',availabilityFailed?'Availability could not load. Choose Try again above.':'Availability is loading. Please wait a moment.'); return false; }
+      if (selDate && dayState(selDate) !== 'open') { showErr('e-date','Please choose a currently available date.'); return false; }
+      if (!selDate) { showErr('e-date', 'Please pick an available date.'); return false; }
+      if (!validateReadyBy()) return false;
+      const t = $('f-time').value;
+      if (!t) { showErr('e-date', 'Choose a start time that fits your ready-by time.'); $('time-options').querySelector('button')?.focus(); return false; }
+      if (!startIsFree(selDate, toMin(t), currentDuration())) { showErr('e-date', 'That time was just taken. Please choose another.'); refreshTimes(); return false; }
+      if (!validateReadyBy()) return false;
+      return true;
+    }
+    function validateStep3() {
+      if ($('f-venue').value.trim().length < 3) {
+        $('f-venue').focus();showErr('e-venue', 'Please enter the venue name and full address.');
+        return false;
+      }
+      const map = $('f-map').value.trim();
+      if (map && (!safeUrl(map) || safeUrl(map).length > 500)) {
+        $('venue-options').open=true;$('f-map').focus();showErr('e-map', 'Use a valid map link of up to 500 characters.');
+        return false;
+      }
+
+      let ok = true;
+      const bad = (id, msg) => { $('venue-options').open=true;$('f-mood').focus();showErr(id, msg); ok = false; };
+      const mood = $('f-mood').value.trim(); if (mood && (!safeUrl(mood) || safeUrl(mood).length > 500)) bad('e-mood', 'Use a valid link of up to 500 characters. A short share link works best.');
+      return ok;
+    }
+
+    // One person: she is the contact. Group: choose one of the people, or someone else.
+    function contactIndex() {
+      if (people.length === 1) return 0;
+      const v = $('f-contact').value;
+      return v === 'other' ? -1 : Number(v) || 0;
+    }
+    function contact() {
+      const i = contactIndex();
+      return {name: i>=0 ? people[i].name.trim() : $('f-name').value.trim(), phone:$('f-other-phone').value.trim()};
+    }
+    function renderContactChoices() {
+      const group = people.length > 1;
+      $('contact-block').classList.toggle('hidden', !group);
+      const sel = $('f-contact'), keep = sel.value;
+      sel.innerHTML = people.map((p,i)=>`<option value="${i}">${esc(p.name.trim() || 'Person '+(i+1))}</option>`).join('')+'<option value="other">Someone else</option>';
+      sel.value = [...sel.options].some(o=>o.value===keep) ? keep : '0';
+      updateContactUI();
+    }
+    function updateContactUI() {
+      const group = people.length > 1, ci = contactIndex();
+      $('contact-other').classList.toggle('hidden', !(group && ci === -1));
+    }
+    $('f-contact').addEventListener('change', updateContactUI);
+    function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
+    function estimate() {
+      return packageTotal() + selectedAddonObjs().reduce((s, a) => s + num(a.price), 0);
+    }
+
+    function renderReview() {
+      const rows = [
+        ...(selAddons.size ? [['Add-ons', selectedAddonObjs().map(a => `${a.name} (${fmtRM(a.price)})`).join(', ')]] : []),
+        ...($('f-ready').value ? [['Ready by', fmtTime($('f-ready').value)]] : []),
+        ['Venue', $('f-venue').value.trim()],
+        ...(people.length > 1 ? [['Contact', contact().name+' · '+contact().phone]] : [['WhatsApp', contact().phone]]),
+        ['Map link', $('f-map').value.trim()],
+        ['Inspiration', $('f-mood').value.trim()],
+        ['Notes', $('f-notes').value.trim()],
+      ];
+      const start = $('f-time').value;
+      const finish = fromMin(toMin(start) + currentDuration());
+      const ticketHeader = `<header class="review-heading"><h3>${esc(fmtDate(selDate))}</h3>
+        <div class="review-time"><time>${esc(fmtTime(start))}</time> – <time>${esc(fmtTime(finish))}</time> <small>· ${esc(fmtDur(currentDuration()))}</small></div></header>`;
+      const guests = people.map((p,i) => `<div class="review-guest">
+        <h4>${esc(p.name.trim())}</h4>
+        <p>${esc(service(p).name)} · ${esc(fmtRM(service(p).price))}</p>
+        ${p.look.trim() ? `<p>Look · ${esc(p.look.trim())}</p>` : ''}
+        ${p.allergyChoice==='yes' ? `<p><strong>Allergies or sensitivities</strong> · ${esc(p.allergies.trim())}</p>` : '<p>No allergies reported</p>'}
+      </div>`).join('');
+      const details = rows.filter(([,value]) => value).map(([label,value]) =>
+        `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('');
+      $('review-card').innerHTML = ticketHeader + guests + `<dl class="ticket-rows review-details">${details}</dl>
+        <div class="review-total"><span>Estimated total</span><strong>${esc(fmtRM(estimate()))}</strong></div>
+        <p class="text-sm text-slate-500">Travel fee to be confirmed before deposit.</p>
+        <div class="edit-links"><button onclick="goStep(1)">Edit people</button><button onclick="goStep(2)">Edit time</button><button onclick="goStep(3)">Edit venue</button></div>`;
+
+    }
+
+    // ---------- submit ----------
+    function makeRef() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      const arr = new Uint32Array(6); crypto.getRandomValues(arr);
+      return 'NB-' + Array.from(arr, n => chars[n % chars.length]).join('');
+    }
+
+    function submissionError(err, stage) {
+      const code = String(err?.code || '').replace(/^firestore\//,'');
+      let help;
+      if (code === 'auth/operation-not-allowed' || code === 'auth/admin-restricted-operation') {
+        help = 'Guest booking is unavailable. Please contact the studio and share the code below.';
+      } else if (code === 'permission-denied') {
+        help = 'The booking service declined this request. Please share the code below with the studio.';
+      } else if (code === 'auth/network-request-failed' || code === 'unavailable' || code === 'deadline-exceeded') {
+        help = 'The booking service could not be reached. Check your connection and retry on this page.';
+      } else if (code === 'auth/too-many-requests' || code === 'resource-exhausted') {
+        help = 'The booking service is busy. Please wait a little before trying again.';
+      } else {
+        help = 'The booking service could not complete this step. Please share the code below with the studio.';
+      }
+      const publicCode = /^[a-z0-9/_-]{1,80}$/i.test(code) ? code : 'unexpected-error';
+      return help + ' (' + stage + ' / ' + publicCode + ')';
+    }
+
+    window.submitRequest = async function() {
+      if (submitting) return;
+      clearErr();
+      if ($('f-website').value) return;  // bot trap
+      for (const [page, validate] of [[1, validateStep1], [2, validateStep2], [3, validateStep3]]) {
+        if (validate()) continue;
+        if (page !== step) { showStep(page); validate(); }
+        const error = $(`step-${page}`).querySelector('[id^="e-"]:not(.hidden)');
+        if (error && !($('step-'+page).contains(document.activeElement) && document.activeElement.matches('input,select,textarea,button'))) {
+          error.tabIndex = -1;
+          error.focus({preventScroll: true});
+          error.scrollIntoView({block: 'center'});
+        }
+        return;
+      }
+      if (!$('f-terms').checked) {
+        showErr('e-terms', 'Please tick the box to continue.');
+        $('f-terms').focus();
+        return;
+      }
+
+      // Stop the same browser from sending many requests in a row
+      try {
+        const last = parseInt(localStorage.getItem('lastRequestAt') || '0', 10);
+        if (!attempt && Date.now() - last < 60000) { showErr('e-submit', 'Your request was just sent. Please wait a minute before sending another.'); return; }
+      } catch {}
+
+      submitting = true;
+      const btn = $('submit-btn'); btn.disabled = true; btn.textContent = 'Sending…';
+      let stage = 'prepare';
+      let slowTimer;
+      let data;
+      let trackingUrl;
+      let uid = null;
+      const retrying = Boolean(attempt);
+      try {
+        const sensitivities=people.filter(p=>p.allergyChoice==='yes').map(p=>p.name.trim()+': '+p.allergies.trim());
+        const ref = attempt?.ref || makeRef();
+        const addons = selectedAddonObjs().map(a => ({ id:String(a.id), name: String(a.name).slice(0, 80), price: num(a.price) }));
+        data = {
+          ref, status: 'pending',
+          clientName: contact().name,
+          phone: contact().phone.replace(/[^\d+]/g, '').slice(0, 16),
+          email: '', // Required by the existing booking record format.
+          packageId: String(people[0].packageId).slice(0, 60),
+          packageName: bookingName().slice(0, 120),
+          packagePrice: packageTotal(),
+          durationMins: currentDuration(),
+          addons,
+          eventDate: selDate,
+          startTime: $('f-time').value,
+          readyBy: $('f-ready').value || '',
+          pax: people.length,
+          people: people.map(p=>({
+            name:p.name.trim(), packageId:p.packageId, packageName:service(p).name.slice(0,120),
+            look:p.look.trim(), allergies:p.allergies.trim()
+          })),
+          venue: $('f-venue').value.trim(),
+          mapLink: safeUrl($('f-map').value.trim()),
+          allergyStatus: sensitivities.length ? 'yes' : 'none',
+          allergies: sensitivities.join('; ').length<=500 ? sensitivities.join('; ') : 'See individual allergy details in the guest list.',
+          moodboardLink: safeUrl($('f-mood').value.trim()),
+          notes: $('f-notes').value.trim(),
+          termsAccepted: true,
+          source: 'public-page',
+          createdAt: serverTimestamp()
+        };
+        stage = 'guest-sign-in';
+        slowTimer = setTimeout(() => { btn.textContent = 'Still sending… Keep this page open'; }, 12000);
+        uid = await guestUid();
+        requestId ||= doc(collection(db,'requests')).id;
+        secret ||= randomSecret();
+        trackingUrl = new URL(location.pathname, location.origin);
+        trackingUrl.hash = 'manage=' + requestId + '.' + secret;
+        attempt={id:requestId,key:secret,ref};
+        try {
+          localStorage.setItem(attemptKey,JSON.stringify(attempt));
+          localStorage.setItem('lastRequestAt', String(Date.now()));
+        } catch {}
+        stage = 'save-request';
+        const batch = writeBatch(db);
+        batch.set(doc(db,'guestKeys',requestId), {secret, creator:uid});
+        batch.set(doc(db,'requests',requestId), {...data, guest:true, revision:0});
+        await batch.commit();
+      } catch (err) {
+        console.warn('Booking submission failed', stage, err?.code || err?.name);
+        if(stage==='save-request' && uid && await requestAlreadySaved(uid)) {
+          location.replace(trackingUrl.href);
+          return;
+        }
+        const denied=String(err?.code || '').replace(/^firestore\//,'')==='permission-denied';
+        const uncertain=stage==='save-request' && (!denied || retrying);
+        if(uncertain) {
+          showAttempt();
+          $('pending-attempt').scrollIntoView({block:'center'});
+          showErr('e-submit','We could not confirm receipt. Check request status, or retry this same request once connected. Reference '+attempt.ref+'.');
+        } else {
+          if(stage==='save-request') {
+            forgetAttempt();
+            requestId=null;
+            secret='';
+            try { localStorage.removeItem('lastRequestAt'); } catch {}
+          }
+          showErr('e-submit',submissionError(err,stage));
+        }
+        btn.disabled=false; btn.textContent=uncertain?'Retry this request':'Send booking request';
+        submitting=false;
+        return;
+      } finally { clearTimeout(slowTimer); }
+
+      // A successful commit is final even if the confirmation UI has a problem.
+      try { localStorage.setItem('lastRequestAt', String(Date.now())); } catch {}
+      try {
+        history.replaceState(null,'',trackingUrl.href);
+        forgetAttempt();
+        $('manage-link').href = trackingUrl.href;
+        showConfirmation(data);
+      } catch {
+        location.assign(trackingUrl.href);
+      }
+    };
+
+    async function requestAlreadySaved(uid) {
+      try {
+        await setDoc(doc(db,'guestSessions',uid,'bookings',requestId), {secret});
+      } catch {
+        // An existing guest session may still authorize the server read.
+      }
+      try {
+        return (await getDocFromServer(doc(db,'requests',requestId))).exists();
+      } catch { return false; }
+    }
+
+    function showConfirmation(d) {
+      $('flow').classList.add('hidden');
+      $('confirmation').classList.remove('hidden');
+      $('received-progress').innerHTML = '<p>Reference '+esc(d.ref)+'</p>'+bookingJourney(d)+saveWhatsApp(d,$('manage-link').href);
+      const rows = [
+        ['Package', d.packageName], ...(d.addons.length ? [['Add-ons', d.addons.map(a => a.name).join(', ')]] : []),
+        ['Date', fmtDate(d.eventDate)], ['Start time', fmtTime(d.startTime)], ['Ready by', fmtTime(d.readyBy)], ['Location', d.venue],
+        ['Estimated total', fmtRM(d.packagePrice + d.addons.reduce((s, a) => s + a.price, 0))]
+      ];
+      $('conf-summary').innerHTML = rows.map(([k, v]) => `<div class="flex gap-3"><span class="w-28 shrink-0 text-slate-500 text-xs pt-0.5">${esc(k)}</span><span class="flex-1 font-medium break-words">${esc(v)}</span></div>`).join('');
+      const msg = `Hi ${cfg.ownerName || cfg.businessName || ''}! I just sent a booking request.\n\n` +
+        `Ref: ${d.ref}\nName: ${d.clientName}\nPackage: ${d.packageName}\nDate: ${fmtDate(d.eventDate)}\nStart: ${fmtTime(d.startTime)}\nLocation: ${d.venue}\n\nThank you!`;
+      const wa = waNum(cfg.whatsappNo);
+      const a = $('conf-wa');
+      if (wa) a.href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`; else a.classList.add('hidden');
+      window.scrollTo({ top: 0 });
+      lucide.createIcons();
+    }
+
+    const auth = getAuth(app);
+
+    let requestId = null;
+    let secret = '';
+    const managing = location.hash.startsWith('#manage=');
+    const attemptKey='studio.pendingGuestRequest.v1';
+    let attempt=null;
+    try {
+      const saved=JSON.parse(localStorage.getItem(attemptKey));
+      if(saved && /^[A-Za-z0-9]{20}$/.test(saved.id) && /^[a-f0-9]{64}$/.test(saved.key) && /^NB-[A-Z2-9]{6}$/.test(saved.ref)) attempt=saved;
+    } catch {}
+    function forgetAttempt() {
+      try {
+        if(JSON.parse(localStorage.getItem(attemptKey))?.id===attempt?.id) localStorage.removeItem(attemptKey);
+      } catch {}
+      attempt=null;
+      if(!submitting){requestId=null;secret='';}
+      $('pending-attempt').hidden=true;
+    }
+    function showAttempt() {
+      $('pending-message').textContent='Receipt is unconfirmed for '+attempt.ref+'. Check before starting again.';
+      $('pending-attempt').hidden=false;
+    }
+    if(attempt && !managing) {
+      requestId=attempt.id;
+      secret=attempt.key;
+      showAttempt();
+    }
+    $('check-attempt').onclick=async()=>{
+      if(!attempt || submitting)return;
+      const button=$('check-attempt');button.disabled=true;
+      try {
+        if(await requestAlreadySaved(await guestUid())) {
+          location.assign(location.pathname+'#manage='+requestId+'.'+secret);
+        } else {
+          $('pending-message').textContent='Receipt still unconfirmed for '+attempt.ref+'. Retry using this form or ask the studio to check the reference.';
+        }
+      } catch { $('pending-message').textContent='Could not connect. Check again when online.'; }
+      finally { button.disabled=false; }
+    };
+    function randomSecret() {
+      return Array.from(crypto.getRandomValues(new Uint8Array(32)), n=>n.toString(16).padStart(2,'0')).join('');
+    }
+    async function guestUid() {
+      await auth.authStateReady();
+      return (auth.currentUser || (await signInAnonymously(auth)).user).uid;
+    }
+    $('manage-link').onclick = event => {
+      event.preventDefault();
+      if ($('manage-link').href === location.href) location.reload();
+      else location.assign($('manage-link').href);
+    };
+    window.addEventListener('hashchange', () => location.reload());
+    $('copy-private').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText($('manage-link').href);
+        $('copy-result').textContent = 'Private link copied.';
+      } catch { $('copy-result').textContent = 'Press and hold Track my booking to copy the link.'; }
+    };
+    let requests = new Map();
+    let approvals = new Map();
+    const message = text => { $('client-message').textContent = text; };
+    function saveWhatsApp(r,url) {
+      if(!validMyPhone(r.phone) || !url) return '';
+      const number=waNum(r.phone);
+      const msg='My booking '+r.ref+' · Private progress link: '+url;
+      return '<a class="save-wa" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+number+'?text='+encodeURIComponent(msg)+'">Save to my WhatsApp · '+esc(number.slice(-4))+'</a><p class="text-sm">Tap Send in WhatsApp to keep your private link.</p>';
+    }
+    function copyTicketButton() {
+      return '<button type="button" id="ticket-copy" class="ticket-new">Copy private link</button><span id="ticket-copy-state" role="status"></span>';
+    }
+    function bookingJourney(r) {
+      const approved = r.status === 'approved';
+      const confirmed = approved && depositMet(r);
+      const active = confirmed ? 3 : approved ? 2 : 1;
+      const total = r.finalTotal ?? r.approvedTotal;
+      const deposit = r.depositRequired;
+      const recorded = num(r.depositPaid);
+      const steps = [
+        ['Request received', 'Your request reached the studio.'],
+        [approved ? 'Studio approved' : 'Awaiting studio review',
+          approved ? 'Your places are reserved.' + (total != null ? ' Final quote ' + fmtRM(total) + '.' : '')
+                   : 'Your makeup artist will check your time and final quote.'],
+        [approved && deposit === 0 ? 'Deposit waived' : 'Deposit',
+          !approved ? 'Your private link will show any deposit due after approval.'
+          : deposit === 0 ? 'The studio waived your deposit.'
+          : deposit == null ? (recorded > 0 ? fmtRM(recorded) + ' recorded.' : 'Follow the studio’s payment instructions.')
+          : fmtRM(recorded) + ' received of ' + fmtRM(deposit) + '.'],
+        ['Booking confirmed', confirmed ? 'Your appointment is confirmed.' : 'After approval and any required deposit.']
+      ];
+      return '<ol class="journey-list" aria-label="Booking journey">' + steps.map(([title, detail], i) =>
+        '<li' + (i === active ? ' aria-current="step"' : i < active ? ' class="complete"' : '') +
+        '><strong>' + esc(title) + '</strong><p>' + esc(detail) + '</p></li>').join('') + '</ol>';
+    }
+
+    function progressTicket(r) {
+      const cancelled = r.status === 'cancelled', declined = r.status === 'declined';
+      const approved = r.status === 'approved', paid = approved && depositMet(r);
+      const title = cancelled ? 'Booking cancelled' : declined ? 'Request declined' : paid ? 'Booking confirmed' : approved ? 'Approved · awaiting deposit' : 'Awaiting studio review';
+      const detail = cancelled || declined ? 'Contact the studio if you would like to discuss another date.'
+        : paid ? (r.depositRequired===0?'Your date is secured.':'The studio has recorded your required payment.') : approved ? 'Follow the studio’s deposit instructions to secure your date.' : 'Your request is with the studio. You can check its progress here.';
+      return '<header class="ticket-head"><span class="ticket-ref">'+esc(r.ref)+'</span><h2>'+title+'</h2><p>'+detail+'</p></header>' + (cancelled || declined ? '' : bookingJourney(r));
+    }
+    function renderClientBookings() {
+      const box = $('client-list');
+      const r = approvals.values().next().value || requests.values().next().value;
+      if (!r) { box.replaceChildren(); return; }
+      const approved = r.status === 'approved' || r.status === 'cancelled';
+      const amount = approved ? (r.finalTotal ?? r.approvedTotal) : num(r.packagePrice) + (r.addons || []).reduce((sum,a)=>sum+num(a.price),0);
+      const rows = [
+        ['Service', r.packageName], ...(r.people||[]).map(p=>[p.name,[p.packageName,p.look,'Allergies: '+p.allergies].filter(Boolean).join(' · ')]), ['Date', fmtDate(r.eventDate)],
+        ['Session', fmtTime(r.startTime) + ' – ' + fmtTime(r.endTime || fromMin(toMin(r.startTime) + r.durationMins))],
+        ...(r.readyBy ? [['Ready by', fmtTime(r.readyBy)]] : []), ['Venue', r.venue], ['Client', r.clientName], ['Contact', r.phone],
+        [approved ? 'Final quote' : 'Estimate', amount == null ? '' : fmtRM(amount)],
+        ['Deposit required',approved && r.depositRequired!=null ? fmtRM(r.depositRequired) : ''],
+        ['Deposit due',approved && !depositMet(r) && r.depositDue ? fmtDate(r.depositDue) : ''],
+        ['Payment received', approved && num(r.depositPaid)>0 ? fmtRM(r.depositPaid) : '']
+      ];
+      const phone = waNum(cfg?.whatsappNo);
+      const link = phone ? '<a class="ticket-contact" href="https://wa.me/'+phone+'?text='+encodeURIComponent('Hello, I have a correction for booking '+r.ref+'.')+'">Contact the studio ↗</a>' : '';
+      let next = '';
+      if (r.status === 'approved' && !depositMet(r)) {
+        const remaining = Math.max(0, num(r.depositRequired) - num(r.depositPaid));
+        const heading = r.depositRequired == null ? 'Deposit due' : 'Deposit remaining · ' + fmtRM(remaining);
+        const receiptText = 'Hello, I would like to send my payment receipt for booking ' + r.ref + '.';
+        const receiptLink = phone ? '<a class="ticket-contact" target="_blank" rel="noopener" href="https://wa.me/' +
+          phone + '?text=' + encodeURIComponent(receiptText) + '">Send receipt via WhatsApp ↗</a>' : '';
+        const qr = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(cfg?.duitnowQr || '') ?
+          '<img alt="Studio DuitNow QR" width="180" height="180" src="' + esc(cfg.duitnowQr) + '">' : '';
+        next = '<section class="payment-next"><h3>' + esc(heading) + '</h3>' +
+          (r.depositDue ? '<p>Due ' + esc(fmtDate(r.depositDue)) + '</p>' : '') +
+          '<p>' + esc(cfg?.depositText || 'Contact the studio for payment instructions.') + '</p>' + qr +
+          receiptLink + '<p>Your makeup artist updates this page after checking your payment.</p></section>';
+      } else if (r.status === 'approved' && amount != null) {
+        next = '<p><strong>Booking balance · ' + esc(fmtRM(Math.max(0, amount - num(r.depositPaid)))) + '</strong></p>';
+      }
+      const calendar = r.status==='approved' && depositMet(r) ? '<a class="ticket-contact" href="'+esc(clientCalendarUrl(r))+'" target="_blank" rel="noopener">Save to Google Calendar ↗</a>' : '';
+      box.innerHTML = progressTicket(r)+next+calendar+saveWhatsApp(r,location.href)+copyTicketButton() + '<details><summary>Booking details</summary><dl class="ticket-rows">'+rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl></details>' +
+        '<div class="ticket-foot"><p>For corrections, contact the studio and quote your booking reference.</p>'+link+'</div>';
+    }
+    $('client-list').addEventListener('click',async event=>{
+      if(event.target.id!=='ticket-copy')return;
+      try{await navigator.clipboard.writeText(location.href);$('ticket-copy-state').textContent=' Link copied.';}
+      catch{$('ticket-copy-state').textContent=' Copy the address from your browser.';}
+    });
+    async function openPrivateLink() {
+      $('client-panel').hidden = false;
+      message('Opening your booking…');
+      const match = /^#manage=([A-Za-z0-9]{20})\.([a-f0-9]{64})$/.exec(location.hash);
+      if (!match) { message('This link is incomplete. Ask the studio for a replacement.'); return; }
+      const [,id,key] = match;
+      secret = key;
+      try {
+        const uid = await guestUid();
+        await setDoc(doc(db,'guestSessions',uid,'bookings',id), {secret:key});
+        let failed = false;
+        let loaded = 0;
+        const fail = () => {
+          failed = true;
+          requests.clear(); approvals.clear(); $('client-list').replaceChildren();
+          message('This link is unavailable. Ask the studio for the current link.');
+        };
+        // Both listeners check the current key, including when an approval is archived.
+        for (const [name,target] of [['requests',requests],['clientApprovals',approvals]]) {
+          let first = true;
+          onSnapshot(doc(db,name,id),snap=>{
+            if (failed) return;
+            if (first) { loaded++; first = false; }
+            if (snap.exists()) target.set(id,snap.data()); else target.delete(id);
+            if (loaded === 2) {
+              message(requests.size || approvals.size ? '' : 'Booking unavailable. Contact the studio for help.');
+              if(attempt?.id===id && (requests.size || approvals.size))forgetAttempt();
+              renderClientBookings();
+            }
+          },fail);
+        }
+      } catch { message('Could not open this booking. Check your connection or ask the studio for the current link.'); }
+    }
+    if (managing) openPrivateLink();
+    init();
+  </script>
+</body>
+</html>
