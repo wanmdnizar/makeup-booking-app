@@ -1,0 +1,58 @@
+/* Shared colour roles for the client booking form and Studio Desk. */
+body.client, body.admin {
+  --bg: #fffdfb;
+  --paper: #fffdfb;
+  --card: #fff;
+  --ink: #282422;
+  --muted: #5e5552;
+  --rose: #b83950;
+  --rose-deep: #9e2f44;
+  --petal: #fbe8e5;
+  --petal-2: #efc7c3;
+  --rule: #e8dcd8;
+  --grad: #b83950;
+  color: var(--ink);
+  background: var(--bg);
+}
+.client #brand-name, .admin .desk-heading h3 { color: var(--ink); }
+.client .action-primary, .admin .action-primary, .admin .desk-btn.primary {
+  background: var(--rose);
+  color: white;
+}
+.client .services label small, .review-total strong, .admin .amount-row strong {
+  font-variant-numeric: tabular-nums;
+}
+#review-content .desk-heading, #review-content .review-group, #review-content .approval {
+  padding: 1rem;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: white;
+  overflow-wrap: anywhere;
+}
+#review-content .desk-heading { background: var(--paper); }
+#review-content .review-group, #review-content .approval { border-top: 1px solid var(--rule); }
+#review-content h4 {
+  background: var(--petal);
+  color: var(--ink);
+  padding: .4rem .55rem;
+  margin-block: .2rem .65rem;
+  font-size: 1rem;
+}
+#review-content .review-tools, #review-content .approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem .75rem;
+}
+#review-content .review-link { display: inline-flex; align-items: center; gap: .25rem; min-height: 44px; }
+#review-content .desk-field { display: grid; gap: .375rem; min-width: 0; }
+#review-content .desk-field input { width: 100%; min-width: 0; box-sizing: border-box; }
+#rec-service-lines > *, #rec-package-row, #rec-addon-row, .document-totals { break-inside: avoid; }
+@media (max-width: 480px) {
+  .client .services label > span { gap: .2rem .6rem; }
+  #review-content input, .client #flow :is(input:not([type=checkbox]):not([type=radio]),textarea,select) {
+    font-size: 1rem;
+  }
+  #review-content .desk-heading, #review-content .review-group, #review-content .approval { padding-inline: .875rem; }
+}
