@@ -1,0 +1,112 @@
+/* Shared colour roles for the client booking form and Studio Desk. */
+body.client, body.admin {
+  --bg: #fffdfb;
+  --paper: #fffdfb;
+  --card: #fff;
+  --ink: #282422;
+  --muted: #5e5552;
+  --rose: #b83950;
+  --rose-deep: #9e2f44;
+  --petal: #fbe8e5;
+  --petal-2: #efc7c3;
+  --rule: #e8dcd8;
+  --grad: #b83950;
+  color: var(--ink);
+  background: var(--bg);
+}
+.client #brand-name, .admin .desk-heading h3 { color: var(--ink); }
+.client .action-primary, .admin .action-primary, .admin .desk-btn.primary {
+  background: var(--rose);
+  color: white;
+}
+.client .services label small, .review-total strong, .admin .amount-row strong {
+  font-variant-numeric: tabular-nums;
+}
+#review-content .desk-heading, #review-content .review-group, #review-content .approval {
+  padding: 1rem;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: white;
+  overflow-wrap: anywhere;
+}
+#review-content .desk-heading { background: var(--paper); }
+#review-content .review-group, #review-content .approval { border-top: 1px solid var(--rule); }
+#review-content h4 {
+  background: var(--petal);
+  color: var(--ink);
+  padding: .4rem .55rem;
+  margin-block: .2rem .65rem;
+  font-size: 1rem;
+}
+#review-content .review-tools, #review-content .approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem .75rem;
+}
+#review-content .review-link { display: inline-flex; align-items: center; gap: .25rem; min-height: 44px; }
+#review-content .desk-field { display: grid; gap: .375rem; min-width: 0; }
+#review-content .desk-field input { width: 100%; min-width: 0; box-sizing: border-box; }
+#rec-service-lines > *, #rec-package-row, #rec-addon-row, .document-totals { break-inside: avoid; }
+@media (max-width: 480px) {
+  .client .services label > span { gap: .2rem .6rem; }
+  #review-content input, .client #flow :is(input:not([type=checkbox]):not([type=radio]),textarea,select) {
+    font-size: 1rem;
+  }
+  #review-content .desk-heading, #review-content .review-group, #review-content .approval { padding-inline: .875rem; }
+}
+
+/* Both headers use the same wordmark, including while the web font loads. */
+body.client #brand-name, body.admin #header-brand-name {
+  font: 700 clamp(.85rem, 4.2vw, 1.125rem)/1.15 'Playfair Display', Georgia, serif;
+  letter-spacing: -.018em;
+  text-transform: none;
+  color: #322724;
+}
+body.client { background: #f9e9e4; }
+.client header.sticky { background: #fff5ee !important; }
+.client #brand-logo { border-radius: 50%; }
+.client .booking-main { max-width: 46rem; margin: auto; padding: .5rem clamp(.65rem, 3vw, 1.25rem) 3rem; }
+.client .booking-main > #flow { margin-top: 0; }
+.client #pending-attempt:not([hidden]) { margin-bottom: .75rem; }
+.client #flow > section:not(.booking-intro) { margin-top: .8rem; }
+.client #flow .booking-intro {
+  position: relative; isolation: isolate; overflow: hidden; padding: .85rem 1rem;
+  border-radius: 1.2rem 1.2rem 2.4rem .45rem; background: linear-gradient(110deg,#f2b7ac,#e5988b 70%,#edb6a3);
+  color: #392420;
+}
+.client .booking-intro h1 { font: 600 clamp(1.35rem, 4vw, 1.8rem)/1.1 'Playfair Display', Georgia, serif; letter-spacing: -.025em; }
+.client .booking-intro h1,.client .booking-intro p { position: relative; max-width: min(32rem,75%); }
+.client .booking-intro p { margin: .42rem 0 .1rem; color: #4c302c; font-size: .82rem; line-height: 1.45; }
+.client .booking-intro :is(#tt-link,#ig-link) { position: relative; min-height: 40px; color: #522c2c; font-size: .78rem; }
+.client .powder-compact {
+  position: absolute; z-index: -1; width: clamp(5.4rem,16vw,9.5rem); aspect-ratio: 1; right: -1rem; bottom: -1.2rem;
+  transform: rotate(-28deg); border-radius: 50%; padding: .38rem; background: linear-gradient(135deg,#fff0ca,#cb9279 42%,#f9d7b4 72%,#b68171);
+  box-shadow: -.25rem .35rem .7rem #71433244;
+}
+.client .powder-compact span { display: block; height: 100%; border-radius: 50%; border: 2px solid #a26e62;
+  background: repeating-linear-gradient(0deg,transparent 0 3px,#fff3dd29 3px 4px),linear-gradient(0deg,#b75b60 0 32%,#dd927f 32% 66%,#f1b49a 66%); }
+.client #progress { margin: .55rem 0 0; background: #f6d9cf; border: 0; border-radius: 2rem; padding: .2rem; }
+.client #progress .stage { min-width: 0; border: 0; border-radius: 2rem; padding: .4rem 0; font-size: .72rem; }
+.client #progress .stage.current { background: #fff7ef; color: #84372e; }
+.client #progress .stage b { flex-shrink: 0; }
+.client #flow > section[id^="step-"] { background: #fff7ef; border-top: 2px solid #d99b8f; border-radius: .4rem 1.6rem 1rem 1rem; padding: clamp(.8rem,2.8vw,1.25rem); }
+.client #flow section > h2 { display: flex; align-items: center; gap: .5rem; font: 650 1.02rem/1.25 Inter,system-ui,sans-serif; }
+.client .step-icon { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: #f1c9ba; color: #753b35; }
+.client .step-icon svg { width: 1rem; height: 1rem; }
+.client .party-count { font-size: .86rem; }
+.client .party-count button { border-radius: 50%; background: #f9e2d8; }
+.client .person legend,.client .person > label { font-size: .87rem; }
+.client .services label:has(:checked) { background: #f8dcd0; }
+.client .services .rate { font-variant-numeric: tabular-nums; color: #793f36; }
+.client .contact-options { display: flex; flex-wrap: wrap; gap: .4rem; }
+.client .contact-options label,.client .allergy-choice label { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .7rem; min-height: 44px; border: 1px solid #c6a79d; border-radius: 2rem; font-size: .85rem; max-width: 100%; overflow-wrap: anywhere; }
+.client .contact-options input,.client .allergy-choice input { width: 1rem; accent-color: #a44145; }
+.client :is(.contact-options,.allergy-choice) label:has(:checked) { background: #f7d5c8; border-color: #aa6558; }
+.client .booking-details { padding: .8rem 0; }
+.client .booking-details h3 { font-weight: 650; }
+.client #step-2 > .bg-white,.client #review-card,.client #faq-list details { background: #fff2e7; }
+.client #cal-grid .day { border-radius: 45%; }
+.client #flow .step-actions { background: transparent; }
+.client #flow .action-primary { border-radius: 2rem; background: #a63f46; }
