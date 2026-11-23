@@ -358,7 +358,10 @@
     }
     #review-content .req-card{box-shadow:none;border:0}
     #review-content .approval-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr))}
-    #review-content .directions a{display:block;padding:.55rem}
+    #review-content .approval-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #review-content .approval-grid label:last-child{grid-column:1/-1}
+    #review-content input[type=date]{display:block;min-inline-size:0;max-inline-size:100%;width:100%;box-sizing:border-box}
+    #review-content .req-tools .desk-btn{min-height:44px}
     #requests-pending .req-card>.desk-btn{margin:.7rem 1rem 1rem}
     .text-slate-400:not(:disabled){color:#695e63}
     .reminder-sent{display:inline-flex;gap:.4rem;align-items:center;min-height:44px;cursor:pointer;color:var(--ink)}
@@ -782,6 +785,11 @@
                   <label for="pub-daily-cap" class="block text-xs font-semibold text-charcoal mb-1">Maximum people per day</label>
                   <input type="number" id="pub-daily-cap" min="1" max="3" step="1" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl focus:outline-none focus:border-blush-500 focus:bg-white">
                   <p class="text-[11px] text-slate-400 mt-1">Each person uses one place. Pending requests use none. Maximum: 3 people per day.</p>
+                </div>
+                <div>
+                  <label for="deposit-lead-days" class="block text-xs font-semibold text-charcoal mb-1">Deposit due (days before event)</label>
+                  <input type="number" id="deposit-lead-days" min="0" step="1" required class="w-full px-3.5 py-2.5 text-sm bg-blush-50/50 border border-blush-200 rounded-xl">
+                  <p class="text-xs text-slate-500 mt-1">Use 0 for the event date. Short-notice bookings default to today.</p>
                 </div>
                 <div>
                   <label for="pub-deposit" class="block text-xs font-semibold text-charcoal mb-1">Deposit instructions</label>
@@ -1372,6 +1380,7 @@
       lastBackup: '',
       bufferMins: 90,
       minLeadDays: 1,
+      depositLeadDays: 7,
       maxBookingsPerDay: 3,
       depositText: 'To secure your date, please pay a deposit by DuitNow QR and send the receipt on WhatsApp. The balance is due before the event.',
       publicFaq: 'How do I confirm my date? | Your date is confirmed once your request is approved and the deposit is received.\nIs the deposit refundable? | The deposit is non-refundable but can be moved once with 7 days notice.\nDo you travel? | Yes. Outstation and venue travel fees may apply and are confirmed when we approve your request.',
@@ -1557,6 +1566,13 @@
     const byId=id=>document.getElementById(id);
     function offsetDate(date,offset) {
       const d=new Date(date+'T12:00:00'); d.setDate(d.getDate()+offset); return localDateStr(d);
+    }
+    function defaultDepositDue(eventDate,settings=appState.settings,today=localDateStr()) {
+      if(!DATE_RE.test(eventDate))return '';
+      if(eventDate<=today)return eventDate;
+      const days=Number.isSafeInteger(settings.depositLeadDays) && settings.depositLeadDays>=0 ? settings.depositLeadDays : 7;
+      const remaining=(Date.parse(eventDate)-Date.parse(today))/86400000;
+      return days>=remaining ? today : offsetDate(eventDate,-days);
     }
     function dayJobs(date) {
       return appState.bookings.filter(b=>b.eventDate===date).sort((a,b)=>a.startTime.localeCompare(b.startTime));
@@ -3066,6 +3082,18 @@
     // BOOKING MODAL & FIRESTORE + APPS SCRIPT SAVE/DELETE
     // =========================================================================
     let editPaymentBaseline=null;
+    const manualDue=byId('book-due');
+    manualDue.addEventListener('input',()=>{manualDue.dataset.custom='yes';});
+    byId('book-required').addEventListener('input',()=>syncDepositDue(byId('book-required'),manualDue));
+    byId('book-date').addEventListener('change',()=>{
+      const date=byId('book-date').value;
+      manualDue.max=date;
+      if(manualDue.dataset.custom!=='yes'){
+        const next=defaultDepositDue(date);
+        if(manualDue.disabled)manualDue.dataset.previous=next;
+        else manualDue.value=next;
+      }
+    });
     window.openBookingModal = function(preselectedDate = null, editBookingId = null) {
       const pkgSelect = document.getElementById('book-package');
 
@@ -3111,6 +3139,11 @@
         }
       }
 
+      manualDue.disabled=false;
+      manualDue.max=byId('book-date').value;
+      manualDue.dataset.custom=editBookingId?'yes':'';
+      if(!editBookingId)manualDue.value=defaultDepositDue(manualDue.max);
+      syncDepositDue(byId('book-required'),manualDue);
       recalculateBookingTotals();
       checkBookingConflicts();
       openWorkPage('booking-modal');
@@ -3212,7 +3245,7 @@
       if(byId('book-ready').value && byId('book-ready').value<endTime){showToast('The session finishes after the ready-by time.','error');return;}
       if(byId('book-due').value && byId('book-due').value>byId('book-date').value){showToast('Choose a deposit due date on or before the appointment.','error');return;}
       const fields = {
-        readyBy:byId('book-ready').value, depositRequired:required,depositDue:byId('book-due').value,
+        readyBy:byId('book-ready').value, depositRequired:required,depositDue:required===0?'':byId('book-due').value,
         pax: byId('book-pax').valueAsNumber,
         clientName: document.getElementById('book-client-name').value.trim(),
         clientPhone: document.getElementById('book-client-phone').value.trim(),
@@ -3610,6 +3643,7 @@
           return '<div class="hours-line"><b>'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i]+'</b><label><input type="checkbox" id="closed-'+i+'" '+(h.closed?'checked':'')+'> Closed</label><input aria-label="Open time" type="time" id="opens-'+i+'" value="'+esc(h.start)+'"><input aria-label="Close time" type="time" id="closes-'+i+'" value="'+esc(h.end)+'"></div>';
         }).join('');
         document.getElementById('pub-buffer').value = s.bufferMins;
+        byId('deposit-lead-days').value=s.depositLeadDays??7;
         document.getElementById('pub-lead').value = s.minLeadDays;
         document.getElementById('pub-daily-cap').value = maxBookingsPerDay(s);
         document.getElementById('pub-deposit').value = s.depositText || '';
@@ -3664,7 +3698,9 @@
       if (!currentUser || !db) return;
       const workingHours=byId('custom-hours').checked ? Array.from({length:7},(_,i)=>({closed:byId('closed-'+i).checked,start:byId('opens-'+i).value,end:byId('closes-'+i).value})) : null;
       if(workingHours?.some(h=>!h.start||!h.end||(!h.closed && h.end<=h.start))){showToast('Check each open day’s start and finish.','error');return;}
-      const data = {workingHours,
+      const depositLeadDays=byId('deposit-lead-days').valueAsNumber;
+      if(!Number.isSafeInteger(depositLeadDays) || depositLeadDays<0){showToast('Enter a whole number of days, starting at 0.','error');return;}
+      const data = {workingHours,depositLeadDays,
         bufferMins: Math.max(0, Math.min(480, parseInt(document.getElementById('pub-buffer').value, 10) || 0)),
         minLeadDays: Math.max(0, Math.min(60, parseInt(document.getElementById('pub-lead').value, 10) || 0)),
         maxBookingsPerDay: Math.max(1, Math.min(3, Number.parseInt(document.getElementById('pub-daily-cap').value, 10) || 3)),
@@ -4080,7 +4116,7 @@
           <div class="approval-grid">
             <label class="desk-field">Travel fee (RM)<input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${travelDefault}"></label>
             <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
-            <label class="desk-field">Deposit due by<input id="due-${id}" type="date" max="${esc(r.eventDate)}"></label>
+            <label class="desk-field">Deposit due by<input id="due-${id}" type="date" value="${esc(defaultDepositDue(r.eventDate))}" max="${esc(r.eventDate)}"></label>
           </div>
           <p class="quote-total">Final quote <output id="quote-total-${id}" aria-live="polite"></output></p>
           <div class="quick-dep"><span>Quick deposit:</span>
@@ -4097,9 +4133,9 @@
         <footer class="req-tools">
           <button type="button" onclick="editPendingRequest('${id}')" class="desk-btn"><i data-lucide="pencil"></i> Edit</button>
           <button onclick="requestWA('${id}','chat')" class="desk-btn"><i data-lucide="message-circle"></i> WhatsApp</button>
-          <details class="directions"><summary>Directions</summary><a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
-          <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a></details>
-          ${r.guest===true?`<details><summary>More actions</summary><button type="button" onclick="replaceGuestLink('${id}')" class="link-btn">Replace tracking link</button></details>`:''}
+          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
+          <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a>
+          ${r.guest===true?`<button type="button" onclick="replaceGuestLink('${id}')" class="desk-btn">Replace tracking link</button>`:''}
         </footer>`}
       </article>`;
     }
@@ -4109,7 +4145,7 @@
       const request=appState.requests.find(r=>r.id===reviewId && r.status==='pending');
       if(!request) {closeWorkPage('request-review');return;}
       const version=JSON.stringify([request,appState.packages,dayJobs(request.eventDate),appState.settings.workingHours,
-        appState.settings.timeBlocks,appState.settings.blockedDates,appState.settings.bufferMins,appState.settings.maxBookingsPerDay]);
+        appState.settings.timeBlocks,appState.settings.blockedDates,appState.settings.bufferMins,appState.settings.maxBookingsPerDay,appState.settings.depositLeadDays]);
       if(version===reviewVersion)return;
       if(reviewVersion)showToast('Booking details or availability changed. Review the latest quote.');
       reviewVersion=version;
@@ -4121,13 +4157,20 @@
       reviewId=id;reviewVersion='';
       openWorkPage('request-review');updateRequestReview();
     };
+    function syncDepositDue(amount,due) {
+      const waived=amount.value!=='' && amount.valueAsNumber===0;
+      if(waived && !due.disabled){due.dataset.previous=due.value;due.value='';}
+      if(!waived && due.disabled)due.value=due.dataset.previous||'';
+      due.disabled=waived;
+    }
     window.setDepositPct = function(id, pct) {
       const button = byId('approve-' + id), travel = byId('travel-' + id)?.valueAsNumber, base = Number(button?.dataset.service);
       const field = byId('required-' + id);
       if (!field) return;
-      if (pct === 0) { field.value = '0'; return; }
+      if (pct === 0) { field.value = '0'; syncDepositDue(field,byId('due-'+id));return; }
       if (!Number.isFinite(base) || !Number.isFinite(travel)) { showToast('Enter the travel fee first.', 'error'); return; }
       field.value = ((base + travel) * pct / 100).toFixed(2);
+      syncDepositDue(field,byId('due-'+id));
     };
 
     function renderRequests() {
@@ -4239,6 +4282,7 @@
       if(approvalsSaving.has(id))button.textContent='Approving…';
     }
     byId('review-content').addEventListener('input',event=>{
+      if(event.target.id.startsWith('required-'))syncDepositDue(event.target,byId('due-'+event.target.id.slice(9)));
       if(event.target.id.startsWith('travel-'))refreshApprovalPrice(event.target.id.slice(7));
     });
     window.approveRequest = async function(id) {
@@ -4263,7 +4307,7 @@
       const depositInput=byId('required-'+id),dueInput=byId('due-'+id);
       depositInput.max=String(finalTotal);
       if(!depositInput.reportValidity() || !dueInput.reportValidity())return;
-      const depositRequired=depositInput.valueAsNumber,depositDue=dueInput.value;
+      const depositRequired=depositInput.valueAsNumber,depositDue=depositRequired===0?'':dueInput.value;
       const revised={...r,packageName:quote.base.name,packagePrice:quote.base.price,durationMins:quote.duration};
       const finish=minutes(r.startTime)+quote.duration;
       if(finish>=1440 || (r.readyBy && finish>minutes(r.readyBy))){showToast('The catalogue duration does not fit the ready-by time. Edit the request first.','error');return;}
@@ -4399,6 +4443,7 @@
             });
             if (Number.isFinite(Number(st.maxBookingsPerDay))) profile.maxBookingsPerDay = Math.max(1, Math.min(3, Math.floor(Number(st.maxBookingsPerDay))));
             if (Number.isFinite(Number(st.bufferMins))) profile.bufferMins = Math.max(0, Math.min(480, Number(st.bufferMins)));
+            if(Number.isSafeInteger(st.depositLeadDays) && st.depositLeadDays>=0)profile.depositLeadDays=st.depositLeadDays;
             if (Number.isFinite(Number(st.minLeadDays))) profile.minLeadDays = Math.max(0, Math.min(60, Number(st.minLeadDays)));
             if(Array.isArray(st.workingHours) && st.workingHours.length===7 && st.workingHours.every(h=>h && TIME_RE.test(h.start) && TIME_RE.test(h.end))) profile.workingHours=st.workingHours;
             if(Array.isArray(st.timeBlocks))profile.timeBlocks=st.timeBlocks.filter(b=>b && DATE_RE.test(b.date) && TIME_RE.test(b.start) && TIME_RE.test(b.end));
