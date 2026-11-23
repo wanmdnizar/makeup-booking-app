@@ -162,6 +162,11 @@
       #top-whatsapp span {display:none}
       #top-whatsapp svg {width:20px;height:20px}
     }
+    .edit-links{display:flex;flex-wrap:wrap;gap:.8rem}.edit-links button,summary{color:var(--rose-deep);cursor:pointer}.edit-links button,.look-choice summary,#venue-options summary{min-height:44px;line-height:44px}
+    #flow :is(input,textarea,select,button){scroll-margin-block:6rem}
+    .services label>span{flex-wrap:wrap}.ticket-rows dd,.review-guest{overflow-wrap:anywhere}
+    @media(max-width:480px){.step-actions{position:static}.booking-fields input,.booking-fields textarea{font-size:16px}}
+    .text-slate-400:not(:disabled){color:#695e63}
   </style>
 </head>
 <body class="min-h-screen">
@@ -193,6 +198,10 @@
       <a href="book.html" class="ticket-new">Make a new booking ↗</a>
     </section>
     <!-- Loading / error -->
+    <aside id="pending-attempt" hidden class="bg-white border p-4 rounded-xl">
+      <p id="pending-message" role="status"></p>
+      <button type="button" id="check-attempt" class="save-wa">Check request status</button>
+    </aside>
     <section id="state-loading" class="py-20 text-center text-slate-500 text-sm">Loading…</section>
     <section id="state-error" class="hidden py-16 text-center">
       <p class="font-serif text-xl font-bold">Booking is not available right now</p>
@@ -226,9 +235,10 @@
           </div>
           <div id="contact-other" class="hidden space-y-3">
             <div><label class="block text-sm font-semibold mb-1" for="f-name">Contact person’s full name *</label><input id="f-name" class="field" autocomplete="off" maxlength="80"></div>
-            <div><label class="block text-sm font-semibold mb-1" for="f-other-phone">Contact person’s WhatsApp number *</label><input id="f-other-phone" class="field" type="tel" inputmode="tel" autocomplete="off" placeholder="0123456789" maxlength="20"></div>
+
           </div>
         </div>
+            <div><label class="block text-sm font-semibold mb-1" for="f-other-phone">Booking contact’s WhatsApp number *</label><input id="f-other-phone" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="0123456789" maxlength="20"></div>
         <div id="addon-wrap" class="hidden space-y-2">
           <h3 class="text-sm font-bold">Booking add-ons <span class="font-normal text-slate-500">(optional)</span></h3>
           <div id="addon-list" class="grid gap-2"></div>
@@ -264,7 +274,7 @@
         <div class="booking-fields">
         <div id="time-wrap" class="hidden space-y-3">
           <div>
-            <label for="f-ready" class="block text-sm font-semibold mb-1">What time do you need to be ready? *</label>
+            <label for="f-ready" class="block text-sm font-semibold mb-1">When must everyone be ready? *</label>
             <input type="time" id="f-ready" class="field" required aria-describedby="e-ready">
             <p id="e-ready" role="alert" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
@@ -275,6 +285,7 @@
           </div>
         </div>
         </div>
+        <p id="selected-session" aria-live="polite" class="font-semibold"></p>
         <p id="e-date" class="hidden text-xs font-medium text-red-600"></p>
 
         <div class="step-actions flex gap-2">
@@ -292,7 +303,7 @@
             <textarea id="f-venue" rows="2" class="field" maxlength="300" placeholder="Venue name and full address"></textarea>
             <p id="e-venue" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
-          <div>
+          <details id="venue-options" class="space-y-3"><summary>Optional details</summary><div>
             <label class="block text-sm font-semibold mb-1" for="f-map">Google Maps / Waze link <span class="font-normal text-slate-500">(optional)</span></label>
             <input id="f-map" class="field" inputmode="url" maxlength="500" placeholder="Paste the share link of your location">
             <p id="e-map" class="hidden text-xs text-red-600 mt-1"></p>
@@ -307,6 +318,7 @@
             <label class="block text-sm font-semibold mb-1" for="f-notes">Anything else we should know? <span class="font-normal text-slate-500">(optional)</span></label>
             <textarea id="f-notes" rows="3" class="field" maxlength="1000" placeholder="Hijab style, skin type, theme, special requests…"></textarea>
           </div>
+          </details>
         </div>
         <div class="hp" aria-hidden="true"><label>Website <input id="f-website" tabindex="-1" autocomplete="off"></label></div>
 
@@ -345,7 +357,7 @@
     <!-- CONFIRMATION -->
     <section id="confirmation" class="hidden space-y-5">
       <div class="text-center space-y-2 pt-2">
-        <div class="w-14 h-14 rounded-full bg-blush-100 text-blush-600 flex items-center justify-center mx-auto"><i data-lucide="check" class="w-7 h-7"></i></div>
+
         <h1 class="font-serif text-2xl font-bold">Request received</h1>
 
       </div>
@@ -360,7 +372,7 @@
         <button id="copy-private" class="underline" type="button">Copy private link</button>
         <p id="copy-result" role="status" class="text-sm"></p>
       </div>
-      <div id="conf-summary" class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm text-sm space-y-2"></div>
+      <details><summary>Booking details</summary><div id="conf-summary" class="p-4 text-sm space-y-2"></div></details>
       <details class="bg-white rounded-3xl border border-blush-200 p-5 shadow-sm space-y-3">
         <summary class="font-bold cursor-pointer">What happens next</summary>
         <ol class="text-sm text-slate-600 space-y-2 list-decimal list-inside">
@@ -385,9 +397,9 @@
   <footer class="text-center text-[11px] text-slate-400 pb-8 px-4"><span id="footer-text"></span></footer>
 
   <script type="module">
-    import { depositMet, fitsHours, clientCalendarUrl } from './studio-core.js';
+    import { overlapsAppointment, depositMet, fitsHours, clientCalendarUrl } from './studio-core.js?v=booking-review-2';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, writeBatch, collection, query, where, documentId, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, getDocFromServer, setDoc, writeBatch, collection, query, where, documentId, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =========================================================================
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -445,7 +457,7 @@
     const busy = {};                 // 'YYYY-MM-DD' -> { slots, bookingCount, maxBookingsPerDay, capacityReached }
     let availabilityReady = false;
     let step = 1;
-    const blankPerson = () => ({name:'', phone:'', packageId:'', allergyChoice:'', allergies:''});
+    const blankPerson = () => ({name:'', look:'', packageId:'', allergyChoice:'', allergies:''});
     const people = [blankPerson()];
     const removedPeople = [];
     function service(person) { return mainPackages().find(p => p.id === person.packageId); }
@@ -490,7 +502,7 @@
       return slots.every(s => {
         const bs = toMin(s.s), be = s.e === '24:00' ? 1440 : toMin(s.e);
         if (bs === 0 && be >= 1440) return false; // whole day blocked
-        return !(start < be + buf && end + buf > bs);
+        return !overlapsAppointment(start,end,bs,be,buf);
       });
     }
     function freeStarts(date, dur) {
@@ -543,12 +555,14 @@
       },()=>{});
       lucide.createIcons();
     }
+    let availabilityFailed=false;
     let stopMonth;
     let monthGeneration=0;
     function watchMonth() {
       if (stopMonth) stopMonth();
       const generation=++monthGeneration;
       availabilityReady=false;
+      availabilityFailed=false;
       const first=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1));
       const next=dstr(new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1));
       const monthQuery=query(collection(db,'busy'),where(documentId(),'>=',first),where(documentId(),'<',next));
@@ -569,6 +583,7 @@
         if (step === 2) { renderCalendar(); refreshTimes(); }
       }, (err) => {
         if (generation!==monthGeneration) return;
+        availabilityFailed=true;
         console.warn('availability unavailable', err);
         availabilityReady = false;
         if (step === 2) { renderCalendar(); refreshTimes(); }
@@ -617,9 +632,10 @@
       const list = mainPackages();
       $('people-list').innerHTML = people.map((p,i)=>`<fieldset class="person" data-person="${i}"><legend>Person ${i+1}</legend>
         <label>${people.length===1?'Full name':'Name'}<input class="field" data-key="name" autocomplete="${people.length===1?'name':'off'}" maxlength="60" required value="${esc(p.name)}"></label>
-        <label>WhatsApp number <small data-phone-note></small><input class="field" data-key="phone" type="tel" inputmode="tel" autocomplete="${people.length===1?'tel':'off'}" maxlength="20" placeholder="0123456789" value="${esc(p.phone)}"></label>
         <fieldset class="services"><legend>Makeup service</legend>${list.map(item=>`<label><input type="radio" name="service-${i}" data-key="packageId" value="${esc(item.id)}" ${item.id===p.packageId?'checked':''}><span>${esc(item.name)}<small>${esc(fmtRM(item.price))} · ${esc(fmtDur(Math.max(30,num(item.durationMins)||120)))}</small></span></label>`).join('') || 'No services available.'}</fieldset>
         <p class="service-description" data-description>${esc(service(p)?.description||'')}</p>
+        <details class="look-choice" ${p.look?'open':''}><summary>Add a look preference</summary>
+          <label>Preferred look<input class="field" data-key="look" maxlength="120" value="${esc(p.look)}"></label></details>
         <fieldset class="allergy-choice">
           <legend>Allergies or sensitive skin?</legend>
           ${['no','yes'].map(choice => `<label><input type="radio" name="allergy-${i}" data-key="allergyChoice" value="${choice}" ${p.allergyChoice===choice?'checked':''}> ${choice==='yes'?'Yes':'No'}</label>`).join('')}
@@ -698,7 +714,13 @@
     function renderCalendar() {
       const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
       $('cal-title').textContent = viewMonth.toLocaleDateString('en-MY', { month: 'long', year: 'numeric' });
-      if (!availabilityReady) { $('capacity-hint').textContent = 'Loading availability… If dates do not appear, please refresh or message us on WhatsApp.'; }
+      if (!availabilityReady) {
+        $('capacity-hint').textContent=availabilityFailed?'Availability could not load. ':'Loading availability…';
+        if(availabilityFailed) {
+          const retry=document.createElement('button');retry.textContent='Try again';retry.className='underline';
+          retry.onclick=()=>{watchMonth();renderCalendar();};$('capacity-hint').append(retry);
+        }
+      }
       else {
         const limit = settingInt(busy[selDate]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
         $('capacity-hint').innerHTML = '<p><strong>Daily limit</strong> '+esc(limit)+' '+(limit===1?'person':'people')+'</p>'+
@@ -717,8 +739,8 @@
         const occupied = Number(busy[ds]?.paxCount) || 0;
         const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
         if (st === 'open') {
-          const availabilityLabel = occupied > 0 ? `${occupied}/${dailyCap} booked` : 'Available';
-          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[10px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${occupied}/${dailyCap}</span>` : ''}</button>`;
+          const availabilityLabel = occupied > 0 ? `${dailyCap-occupied} places left` : 'Available';
+          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[10px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${dailyCap-occupied} left</span>` : ''}</button>`;
         } else if (st === 'booked') {
           html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, unavailable for this party"><span class="text-sm font-semibold line-through">${d}</span><span class="text-[10px] uppercase mt-0.5">—</span></button>`;
         } else {
@@ -735,7 +757,7 @@
 
     function refreshTimes() {
       const info = $('busy-windows');
-      info.textContent = '';
+      info.textContent = ''; $('selected-session').textContent='';
       if (!availabilityReady || !selDate) { $('time-wrap').classList.add('hidden'); return; }
       const dur = currentDuration();
       const starts = freeStarts(selDate, dur);
@@ -750,6 +772,7 @@
       info.innerHTML = '<div class="availability-notes"><strong>'+esc(fmtDate(selDate))+'</strong>'+
         '<p>Unavailable times</p><ul>'+windows.map(range=>'<li>'+esc(range)+'</li>').join('')+'</ul>'+
         (status?'<p>'+esc(status)+'</p>':'')+'</div>';
+      if(!ranges.length && !status && !allDay) info.replaceChildren();
       if (!starts.length) {
         $('f-time').value = '';
         $('time-wrap').classList.add('hidden');
@@ -758,9 +781,10 @@
       const sel = $('f-time');
       const keep = sel.value;
       const deadline=$('f-ready').value;
-      const fitsDeadline=t=>!deadline || t+dur<=toMin(deadline);
+      const fitsDeadline=t=>deadline && t+dur<=toMin(deadline);
       sel.value = starts.some(t=>fromMin(t)===keep && fitsDeadline(t)) ? keep : '';
-      $('time-options').innerHTML=starts.map(t=>{
+      $('starts-label').hidden=!deadline;
+      $('time-options').innerHTML=starts.filter(fitsDeadline).map(t=>{
         const value=fromMin(t);
         return `<button type="button" data-time="${value}" aria-pressed="${sel.value===value}" ${fitsDeadline(t)?'':'disabled'}>${fmtTime(value)}</button>`;
       }).join('');
@@ -770,13 +794,14 @@
         sel.value=button.dataset.time;
         $('time-options').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
         $('e-date').classList.add('hidden');
+        $('selected-session').textContent='Session: '+fmtTime(sel.value)+' – '+fmtTime(fromMin(toMin(sel.value)+dur));
         validateReadyBy(false);
       };
+      $('selected-session').textContent=sel.value?'Session: '+fmtTime(sel.value)+' – '+fmtTime(fromMin(toMin(sel.value)+dur)):'';
       const travelMinutes = BUFFER();
       $('time-hint').innerHTML = '<strong>Session duration</strong> · '+esc(fmtDur(dur))+
         (travelMinutes > 0 ? '<br>We allow '+esc(travelMinutes)+' minutes between appointments for travel.' : '');
       if(deadline && !starts.some(fitsDeadline)) $('time-hint').append(' No start fits this deadline. Change the date or ready-by time.');
-      else if(deadline && starts.some(t=>!fitsDeadline(t))) $('time-hint').append(' Greyed-out times would finish after your ready-by time.');
       $('time-wrap').classList.remove('hidden');
     }
 
@@ -797,6 +822,8 @@
     function showStep(n) {
       step = n;
       for (let i = 1; i <= 4; i++) $(`step-${i}`).classList.toggle('hidden', i !== n);
+      const heading=$('step-'+n).querySelector('h2');
+      heading.tabIndex=-1;heading.focus({preventScroll:true});
       if (n === 2) { renderCalendar(); refreshTimes(); }
       if (n === 4) renderReview();
       renderProgress();
@@ -808,7 +835,9 @@
       if (selectedAddonObjs().length > 8) { showErr('e-package','Please select up to eight add-ons.'); return false; }
       for(const [i,p] of people.entries()) {
         const missing=p.name.trim().length<2?'name':!service(p)?'packageId':!p.allergyChoice?'allergyChoice':!p.allergies.trim()?'allergies':'';
-        if(missing) { showErr('e-package','Complete the highlighted field for person '+(i+1)+'.'); $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus(); return false; }
+        if(missing) {
+          const messages={name:'Enter a full name',packageId:'Choose a service',allergyChoice:'Choose Yes or No for allergies',allergies:'Describe the allergy or sensitivity'};
+          showErr('e-package',messages[missing]+' for Person '+(i+1)+'.'); $('people-list').children[i].querySelector('[data-key="'+missing+'"]')?.focus(); return false; }
       }
       if (people.some(p => typeof p.packageId !== 'string' || p.packageId.length > 60 || !service(p)?.name?.trim())) {
         showErr('e-package','This service has an invalid catalogue entry. Please contact the studio to book it.');
@@ -818,10 +847,7 @@
       if (ci === -1 && c.name.length < 2) { showErr('e-package','Enter the contact person’s full name.'); $('f-name').focus(); return false; }
       if (!validMyPhone(c.phone)) {
         showErr('e-package', people.length === 1 ? 'Enter a Malaysian WhatsApp number, e.g. 0123456789.' : 'Enter a Malaysian WhatsApp number for the contact person, e.g. 0123456789.');
-        (ci >= 0 ? $('people-list').children[ci].querySelector('[data-key="phone"]') : $('f-other-phone'))?.focus(); return false;
-      }
-      for (const [i,p] of people.entries()) if (i !== ci && p.phone.trim() && !validMyPhone(p.phone)) {
-        showErr('e-package','Check the WhatsApp number for person '+(i+1)+', or leave it empty.'); $('people-list').children[i].querySelector('[data-key="phone"]')?.focus(); return false;
+        $('f-other-phone').focus(); return false;
       }
       if(currentDuration()>900 || packageTotal()<0 || packageTotal()>100000) {showErr('e-package','This group exceeds the online booking limit. Contact the studio to arrange a session.');return false;}
       return true;
@@ -846,28 +872,29 @@
     }
     $('f-ready').addEventListener('change',()=>{ refreshTimes(); validateReadyBy(false); });
     function validateStep2() {
-      if (!availabilityReady) { showErr('e-date', 'Availability is still loading. Please wait a moment and try again.'); return false; }
+      if (!availabilityReady) { showErr('e-date',availabilityFailed?'Availability could not load. Choose Try again above.':'Availability is loading. Please wait a moment.'); return false; }
       if (selDate && dayState(selDate) !== 'open') { showErr('e-date','Please choose a currently available date.'); return false; }
       if (!selDate) { showErr('e-date', 'Please pick an available date.'); return false; }
+      if (!validateReadyBy()) return false;
       const t = $('f-time').value;
-      if (!t) { showErr('e-date', 'Please choose a start time.'); return false; }
+      if (!t) { showErr('e-date', 'Choose a start time that fits your ready-by time.'); $('time-options').querySelector('button')?.focus(); return false; }
       if (!startIsFree(selDate, toMin(t), currentDuration())) { showErr('e-date', 'That time was just taken. Please choose another.'); refreshTimes(); return false; }
       if (!validateReadyBy()) return false;
       return true;
     }
     function validateStep3() {
       if ($('f-venue').value.trim().length < 3) {
-        showErr('e-venue', 'Please enter the venue name and full address.');
+        $('f-venue').focus();showErr('e-venue', 'Please enter the venue name and full address.');
         return false;
       }
       const map = $('f-map').value.trim();
       if (map && (!safeUrl(map) || safeUrl(map).length > 500)) {
-        showErr('e-map', 'Use a valid map link of up to 500 characters.');
+        $('venue-options').open=true;$('f-map').focus();showErr('e-map', 'Use a valid map link of up to 500 characters.');
         return false;
       }
 
       let ok = true;
-      const bad = (id, msg) => { showErr(id, msg); ok = false; };
+      const bad = (id, msg) => { $('venue-options').open=true;$('f-mood').focus();showErr(id, msg); ok = false; };
       const mood = $('f-mood').value.trim(); if (mood && (!safeUrl(mood) || safeUrl(mood).length > 500)) bad('e-mood', 'Use a valid link of up to 500 characters. A short share link works best.');
       return ok;
     }
@@ -880,8 +907,7 @@
     }
     function contact() {
       const i = contactIndex();
-      return i >= 0 ? {name:people[i].name.trim(), phone:people[i].phone.trim()}
-                    : {name:$('f-name').value.trim(), phone:$('f-other-phone').value.trim()};
+      return {name: i>=0 ? people[i].name.trim() : $('f-name').value.trim(), phone:$('f-other-phone').value.trim()};
     }
     function renderContactChoices() {
       const group = people.length > 1;
@@ -894,10 +920,6 @@
     function updateContactUI() {
       const group = people.length > 1, ci = contactIndex();
       $('contact-other').classList.toggle('hidden', !(group && ci === -1));
-      document.querySelectorAll('[data-person]').forEach((row,i)=>{
-        const note = row.querySelector('[data-phone-note]'); if (!note) return;
-        note.textContent = !group ? '' : i === ci ? '(contact person)' : '(optional)';
-      });
     }
     $('f-contact').addEventListener('change', updateContactUI);
     function selectedAddonObjs() { return addonPackages().filter(a => selAddons.has(a.id)); }
@@ -917,19 +939,20 @@
       ];
       const start = $('f-time').value;
       const finish = fromMin(toMin(start) + currentDuration());
-      const ticketHeader = `<header class="review-heading"><h3>${esc(bookingName())}</h3><p>${esc(fmtDate(selDate))}</p>
+      const ticketHeader = `<header class="review-heading"><h3>${esc(fmtDate(selDate))}</h3>
         <div class="review-time"><time>${esc(fmtTime(start))}</time> – <time>${esc(fmtTime(finish))}</time> <small>· ${esc(fmtDur(currentDuration()))}</small></div></header>`;
       const guests = people.map((p,i) => `<div class="review-guest">
         <h4>${esc(p.name.trim())}</h4>
         <p>${esc(service(p).name)} · ${esc(fmtRM(service(p).price))}</p>
-        ${i!==contactIndex() && p.phone.trim() ? `<p>WhatsApp ${esc(p.phone.trim())}</p>` : ''}
+        ${p.look.trim() ? `<p>Look · ${esc(p.look.trim())}</p>` : ''}
         ${p.allergyChoice==='yes' ? `<p><strong>Allergies or sensitivities</strong> · ${esc(p.allergies.trim())}</p>` : '<p>No allergies reported</p>'}
       </div>`).join('');
       const details = rows.filter(([,value]) => value).map(([label,value]) =>
         `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('');
       $('review-card').innerHTML = ticketHeader + guests + `<dl class="ticket-rows review-details">${details}</dl>
         <div class="review-total"><span>Estimated total</span><strong>${esc(fmtRM(estimate()))}</strong></div>
-        <p class="text-sm text-slate-500">Travel fee to be confirmed before deposit.</p>`;
+        <p class="text-sm text-slate-500">Travel fee to be confirmed before deposit.</p>
+        <div class="edit-links"><button onclick="goStep(1)">Edit people</button><button onclick="goStep(2)">Edit time</button><button onclick="goStep(3)">Edit venue</button></div>`;
 
     }
 
@@ -964,9 +987,9 @@
       if ($('f-website').value) return;  // bot trap
       for (const [page, validate] of [[1, validateStep1], [2, validateStep2], [3, validateStep3]]) {
         if (validate()) continue;
-        if (page !== step) goStep(page);
+        if (page !== step) { showStep(page); validate(); }
         const error = $(`step-${page}`).querySelector('[id^="e-"]:not(.hidden)');
-        if (error) {
+        if (error && !($('step-'+page).contains(document.activeElement) && document.activeElement.matches('input,select,textarea,button'))) {
           error.tabIndex = -1;
           error.focus({preventScroll: true});
           error.scrollIntoView({block: 'center'});
@@ -992,9 +1015,10 @@
       let data;
       let trackingUrl;
       let uid = null;
+      const retrying = Boolean(attempt);
       try {
         const sensitivities=people.filter(p=>p.allergyChoice==='yes').map(p=>p.name.trim()+': '+p.allergies.trim());
-        const ref = makeRef();
+        const ref = attempt?.ref || makeRef();
         const addons = selectedAddonObjs().map(a => ({ id:String(a.id), name: String(a.name).slice(0, 80), price: num(a.price) }));
         data = {
           ref, status: 'pending',
@@ -1010,9 +1034,10 @@
           startTime: $('f-time').value,
           readyBy: $('f-ready').value || '',
           pax: people.length,
-          people: people.map((p,i)=>({name:p.name.trim(),packageId:p.packageId,packageName:service(p).name.slice(0,120),look:'',allergies:p.allergies.trim(),
-            // The contact person's number is already saved as the booking phone; only other people's numbers are added here.
-            ...(i!==contactIndex() && p.phone.trim() ? {phone:p.phone.replace(/[^\d+]/g,'').slice(0,16)} : {})})),
+          people: people.map(p=>({
+            name:p.name.trim(), packageId:p.packageId, packageName:service(p).name.slice(0,120),
+            look:p.look.trim(), allergies:p.allergies.trim()
+          })),
           venue: $('f-venue').value.trim(),
           mapLink: safeUrl($('f-map').value.trim()),
           allergyStatus: sensitivities.length ? 'yes' : 'none',
@@ -1030,6 +1055,8 @@
         secret ||= randomSecret();
         trackingUrl = new URL(location.pathname, location.origin);
         trackingUrl.hash = 'manage=' + requestId + '.' + secret;
+        attempt={id:requestId,key:secret,ref};
+        try { localStorage.setItem(attemptKey,JSON.stringify(attempt)); } catch {}
         stage = 'save-request';
         const batch = writeBatch(db);
         batch.set(doc(db,'guestKeys',requestId), {secret, creator:uid});
@@ -1037,20 +1064,30 @@
         await batch.commit();
       } catch (err) {
         console.warn('Booking submission failed', stage, err?.code || err?.name);
-        // The connection may have dropped after the studio already received the request.
-        // If this request really exists, treat it as sent instead of showing a misleading error.
-        const alreadySent = stage === 'save-request' && uid && requestId && await requestAlreadySaved(uid);
-        if (!alreadySent) {
-          showErr('e-submit', submissionError(err, stage));
-          btn.disabled = false; btn.textContent = 'Send booking request';
-          submitting = false;
+        if(stage==='save-request' && uid && await requestAlreadySaved(uid)) {
+          location.replace(trackingUrl.href);
           return;
         }
+        const denied=String(err?.code || '').replace(/^firestore\//,'')==='permission-denied';
+        const uncertain=stage==='save-request' && (!denied || retrying);
+        if(uncertain) {
+          showAttempt();
+          $('pending-attempt').scrollIntoView({block:'center'});
+          showErr('e-submit','We could not confirm receipt. Check request status, or retry this same request once connected. Reference '+attempt.ref+'.');
+        } else {
+          if(stage==='save-request') forgetAttempt();
+          showErr('e-submit',submissionError(err,stage));
+        }
+        btn.disabled=false; btn.textContent=uncertain?'Retry this request':'Send booking request';
+        submitting=false;
+        return;
       } finally { clearTimeout(slowTimer); }
 
       // A successful commit is final even if the confirmation UI has a problem.
       try { localStorage.setItem('lastRequestAt', String(Date.now())); } catch {}
       try {
+        history.replaceState(null,'',trackingUrl.href);
+        forgetAttempt();
         $('manage-link').href = trackingUrl.href;
         showConfirmation(data);
       } catch {
@@ -1061,14 +1098,14 @@
     async function requestAlreadySaved(uid) {
       try {
         await setDoc(doc(db,'guestSessions',uid,'bookings',requestId), {secret});
-        return (await getDoc(doc(db,'requests',requestId))).exists();
+        return (await getDocFromServer(doc(db,'requests',requestId))).exists();
       } catch { return false; }
     }
 
     function showConfirmation(d) {
       $('flow').classList.add('hidden');
       $('confirmation').classList.remove('hidden');
-      $('received-progress').innerHTML = progressTicket(d)+saveWhatsApp(d,$('manage-link').href);
+      $('received-progress').innerHTML = '<p>Reference '+esc(d.ref)+'</p>'+saveWhatsApp(d,$('manage-link').href);
       const rows = [
         ['Package', d.packageName], ...(d.addons.length ? [['Add-ons', d.addons.map(a => a.name).join(', ')]] : []),
         ['Date', fmtDate(d.eventDate)], ['Start time', fmtTime(d.startTime)], ['Ready by', fmtTime(d.readyBy)], ['Location', d.venue],
@@ -1093,6 +1130,41 @@
     let requestId = null;
     let secret = '';
     const managing = location.hash.startsWith('#manage=');
+    const attemptKey='studio.pendingGuestRequest.v1';
+    let attempt=null;
+    try {
+      const saved=JSON.parse(localStorage.getItem(attemptKey));
+      if(saved && /^[A-Za-z0-9]{20}$/.test(saved.id) && /^[a-f0-9]{64}$/.test(saved.key) && /^NB-[A-Z2-9]{6}$/.test(saved.ref)) attempt=saved;
+    } catch {}
+    function forgetAttempt() {
+      try {
+        if(JSON.parse(localStorage.getItem(attemptKey))?.id===attempt?.id) localStorage.removeItem(attemptKey);
+      } catch {}
+      attempt=null;
+      if(!submitting){requestId=null;secret='';}
+      $('pending-attempt').hidden=true;
+    }
+    function showAttempt() {
+      $('pending-message').textContent='Receipt is unconfirmed for '+attempt.ref+'. Check before starting again.';
+      $('pending-attempt').hidden=false;
+    }
+    if(attempt && !managing) {
+      requestId=attempt.id;
+      secret=attempt.key;
+      showAttempt();
+    }
+    $('check-attempt').onclick=async()=>{
+      if(!attempt || submitting)return;
+      const button=$('check-attempt');button.disabled=true;
+      try {
+        if(await requestAlreadySaved(await guestUid())) {
+          location.assign(location.pathname+'#manage='+requestId+'.'+secret);
+        } else {
+          $('pending-message').textContent='Receipt still unconfirmed for '+attempt.ref+'. Retry using this form or ask the studio to check the reference.';
+        }
+      } catch { $('pending-message').textContent='Could not connect. Check again when online.'; }
+      finally { button.disabled=false; }
+    };
     function randomSecret() {
       return Array.from(crypto.getRandomValues(new Uint8Array(32)), n=>n.toString(16).padStart(2,'0')).join('');
     }
@@ -1119,7 +1191,7 @@
       if(!validMyPhone(r.phone) || !url) return '';
       const number=waNum(r.phone);
       const msg='My booking '+r.ref+' · Private progress link: '+url;
-      return '<a class="save-wa" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+number+'?text='+encodeURIComponent(msg)+'">Save to my WhatsApp · '+esc(number.slice(-4))+'</a>';
+      return '<a class="save-wa" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+number+'?text='+encodeURIComponent(msg)+'">Save to my WhatsApp · '+esc(number.slice(-4))+'</a><p class="text-sm">Tap Send in WhatsApp to keep your private link.</p>';
     }
     function copyTicketButton() {
       return '<button type="button" id="ticket-copy" class="ticket-new">Copy private link</button><span id="ticket-copy-state" role="status"></span>';
@@ -1127,15 +1199,10 @@
     function progressTicket(r) {
       const cancelled = r.status === 'cancelled', declined = r.status === 'declined';
       const approved = r.status === 'approved', paid = approved && depositMet(r);
-      const current = cancelled || declined ? 1 : paid ? 2 : approved ? 1 : 0;
-      const labels = cancelled || declined ? ['Submitted', cancelled ? 'Cancelled' : 'Declined'] : ['Submitted','Approved',r.depositRequired===0?'Confirmed':'Deposit received'];
-      const title = cancelled ? 'Booking cancelled' : declined ? 'Request declined' : paid ? 'Booking confirmed' : approved ? 'Approved by the studio' : 'Awaiting studio review';
+      const title = cancelled ? 'Booking cancelled' : declined ? 'Request declined' : paid ? 'Booking confirmed' : approved ? 'Approved · awaiting deposit' : 'Awaiting studio review';
       const detail = cancelled || declined ? 'Contact the studio if you would like to discuss another date.'
         : paid ? (r.depositRequired===0?'Your date is secured.':'The studio has recorded your required payment.') : approved ? 'Follow the studio’s deposit instructions to secure your date.' : 'Your request is with the studio. You can check its progress here.';
-      return '<div class="ticket-head"><span class="ticket-ref">' + esc(r.ref) + '</span> <span class="tag '+(cancelled||declined?'tag-off':paid||approved?'tag-ok':'')+'">'+(cancelled?'Cancelled':declined?'Declined':paid?'Confirmed':approved?'Approved':'Pending')+'</span><h2>' + title + '</h2><p>'+detail+'</p></div>' +
-        '<ol class="track" aria-label="Booking progress">'+labels.map((label,i)=>
-          '<li class="'+(i < current ? 'done' : i === current ? 'current' : '')+'"'+(i === current ? ' aria-current="step"' : '')+'><span class="dot" aria-hidden="true">'+(i < current ? '✓' : '')+'</span><span>'+label+'</span></li>'
-        ).join('')+'</ol>';
+      return '<header class="ticket-head"><span class="ticket-ref">'+esc(r.ref)+'</span><h2>'+title+'</h2><p>'+detail+'</p></header>';
     }
     function renderClientBookings() {
       const box = $('client-list');
@@ -1159,7 +1226,7 @@
         esc(cfg?.depositText||'Contact the studio for deposit instructions.')+'</p>'+
         (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(cfg?.duitnowQr||'')?'<img alt="Studio DuitNow QR" width="180" src="'+esc(cfg.duitnowQr)+'">':'')+'</div>' : '';
       const calendar = r.status==='approved' && depositMet(r) ? '<a class="ticket-contact" href="'+esc(clientCalendarUrl(r))+'" target="_blank" rel="noopener">Save to Google Calendar ↗</a>' : '';
-      box.innerHTML = progressTicket(r)+saveWhatsApp(r,location.href)+copyTicketButton()+next+calendar + '<dl class="ticket-rows">'+rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>' +
+      box.innerHTML = progressTicket(r)+saveWhatsApp(r,location.href)+copyTicketButton()+next+calendar + '<details><summary>Booking details</summary><dl class="ticket-rows">'+rows.filter(([,v])=>v).map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl></details>' +
         '<div class="ticket-foot"><p>For corrections, contact the studio and quote your booking reference.</p>'+link+'</div>';
     }
     $('client-list').addEventListener('click',async event=>{
@@ -1193,6 +1260,7 @@
             if (snap.exists()) target.set(id,snap.data()); else target.delete(id);
             if (loaded === 2) {
               message(requests.size || approvals.size ? '' : 'Booking unavailable. Contact the studio for help.');
+              if(attempt?.id===id && (requests.size || approvals.size))forgetAttempt();
               renderClientBookings();
             }
           },fail);
