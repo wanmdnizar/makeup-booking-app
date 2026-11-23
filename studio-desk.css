@@ -1,0 +1,90 @@
+/* Shared studio palette. Layouts are scoped to their respective application pages. */
+:root {
+  --rose:#b83950; --rose-deep:#a13348; --rose-600:#b83950; --rose-500:#c34b60;
+  --ink:#282422; --rose-ink:#282422; --muted:#685e58; --bg:#fffcf8;
+  --paper:#fffcf8; --card:#fff; --petal:#fbe8e5; --petal-2:#efc7c3; --rule:#dcd4ce;
+  --grad:#b83950; --ok:#326450; --warn:#77480e; --warn-bg:#fff1d7; --bad:#a22c24;
+  --shadow-sm:none;
+}
+body {color:var(--ink);font-variant-numeric:tabular-nums}
+:where(button,a,input,textarea,select,summary):focus-visible {outline:2px solid var(--rose);outline-offset:2px}
+.client {background:var(--bg)}
+.client main,.client>header>div {width:100%;max-width:640px;margin-inline:auto;padding-inline:20px}
+.client #brand-name,#rec-business-name {font:italic 400 clamp(24px,6.7vw,29px)/1.18 Georgia,serif;color:var(--ink)}
+.client #brand-logo:not(:has(img)),#rec-logo-box:not(:has(img)) {display:none}
+.client .booking-intro h1,.client #flow section[id^="step-"]>h2,.client .ticket-head h2 {font:400 32px/1.15 Georgia,serif;color:var(--ink)}
+.client .booking-intro,.client #review-card,.client #client-panel,.client #confirmation>div,.client #step-2>.rounded-3xl {background:transparent;border:0;box-shadow:none;border-radius:0;padding-inline:0;text-align:left}
+.client #flow section[id^="step-"]>h2 {margin-bottom:24px}
+.client .services label>span {display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:start;width:100%;gap:10px}
+.client .service-name {overflow-wrap:anywhere}
+.client .services .rate {display:grid;text-align:right;color:var(--ink);font-size:16px}
+.client .rate small {font-size:14px;color:var(--muted)}
+.client .field,.admin .desk-field input {font-size:16px;min-height:46px;border:1px solid #8d807a;border-radius:6px;background:white;color:var(--ink);max-width:100%;min-width:0}
+.client .person>label,.admin .desk-field {color:var(--ink);font-size:14px}
+.client .person>legend {color:var(--ink);font-weight:700}
+.client .step-actions {position:static;background:none}
+.client .step-actions button {min-height:48px;border-radius:7px}
+.client .step-actions .bg-blush-700,.client #time-options [aria-pressed=true],.client #cal-grid [aria-pressed=true] {background:var(--rose);color:white}
+.client #selected-session:not(:empty),.client #selection-estimate:not(:empty) {padding:14px 0;border-top:1px solid var(--rule);font-size:18px;color:var(--ink)}
+.client #cal-grid {grid-template-columns:repeat(7,minmax(0,1fr))}
+.client #cal-grid .day {min-width:0;min-height:44px}
+.client .journey-intro,.client .payment-next {padding:16px 0;border-block:1px solid var(--rule)}
+.journey-intro h3,.payment-next h3 {font-weight:700;font-size:18px}
+.journey-list {list-style:none;margin:20px 0;padding:0;text-align:left}
+.journey-list li {position:relative;margin-left:7px;padding:0 0 17px 22px;border-left:1px solid var(--rule);line-height:1.4}
+.journey-list li:last-child {border-color:transparent;padding-bottom:0}
+.journey-list li::before {content:'';position:absolute;left:-6px;top:5px;width:11px;height:11px;border-radius:50%;border:1px solid #8d807a;background:var(--paper)}
+.journey-list .complete::before {background:var(--ink);border-color:var(--ink)}
+.journey-list [aria-current=step]::before {background:var(--rose);border-color:var(--rose)}
+.journey-list [aria-current=step] strong {color:var(--rose-deep)}
+.journey-list p,.payment-next p {font-size:14px;line-height:1.5;color:var(--muted)}
+.client .payment-next img {max-width:min(180px,100%);margin-block:12px}
+.client .ticket-contact,.client .save-wa {min-height:44px;align-content:center;border-radius:7px}
+.client #client-list {overflow-wrap:anywhere}
+.admin {background:#fff}
+.admin #review-content {padding:0;overflow-wrap:anywhere}
+.admin #review-content .req-card {padding:0;background:white;border-radius:0}
+.admin #review-content .desk-heading,.admin #review-content .review-group,.admin #review-content .approval {margin:0;padding:16px 20px;border:0;background:white}
+.desk-heading time {display:block;font-size:clamp(24px,6vw,32px);font-weight:700;line-height:1.25}
+.desk-heading .appointment-date {font-weight:650;color:var(--muted)}
+.desk-heading p,.desk-heading h3 {margin-block:5px}
+.review-tools {display:flex;flex-wrap:wrap;gap:0 18px;margin-top:8px}
+.review-tools :is(button,a) {display:inline-flex;align-items:center;min-height:44px;color:var(--rose-deep);text-decoration:underline;font-weight:650}
+.admin #review-content :is(.review-group,.approval)>h4 {margin:0 -20px 14px;padding:6px 20px;background:var(--petal);color:var(--ink);font-size:16px;text-transform:none;letter-spacing:normal}
+.admin #review-content .review-group li {padding:9px 0;border-bottom:1px solid var(--rule)}
+.admin #review-content .alert-line {padding:6px 10px;background:var(--warn-bg);color:var(--warn);border-left:3px solid var(--warn)}
+.admin #review-content .quote-total {display:flex;justify-content:space-between;gap:12px;padding:12px 0;font-weight:700;font-size:20px}
+.admin #review-content .approval-actions {display:grid;grid-template-columns:1fr;gap:8px}
+.admin .desk-btn.primary {background:var(--rose);border-color:var(--rose);color:#fff;border-radius:7px;min-height:46px}
+.admin #review-content .approval-actions .danger {justify-self:start;border:0;text-decoration:underline}
+.admin .desk-field {margin-block:8px}
+.admin #receipt-printable-area {border:0;border-radius:0;box-shadow:none;padding:20px;color:var(--ink)}
+.admin .document-head {display:block}
+.admin .document-meta {margin-top:14px;text-align:left}
+.admin #rec-doc-title,.admin #rec-status-badge {padding:0;border:0;background:none;color:var(--ink);border-radius:0;white-space:normal}
+.doc-service {display:grid;grid-template-columns:minmax(0,1fr) max-content;gap:12px;padding:6px 0;break-inside:avoid}
+.doc-service small {display:block;color:var(--muted)}
+.doc-service b:last-child {white-space:nowrap}
+@media(min-width:900px) {.admin #request-review>div:first-child{max-width:600px}.admin #receipt-modal>div{max-width:800px}}
+@media(max-width:480px) {.client>header{position:static}.client #top-whatsapp span{display:none}.client #top-whatsapp{min-width:44px;min-height:44px;justify-content:center}.admin .document-parties{grid-template-columns:1fr}.admin .document-parties>div{text-align:left}}
+@media(max-width:360px) {.client main,.client>header>div{padding-inline:16px}.client #brand-name{font-size:26px}}
+.guest-summary,.guest-rate {display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.guest-summary {padding:14px 0;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
+.guest-summary>div:last-child {flex-shrink:0;text-align:right}
+.guest-summary button {display:block;min-height:44px;margin-left:auto;color:var(--rose-deep);text-decoration:underline}
+.review-back {color:var(--rose-deep);min-height:44px;text-decoration:underline}
+.review-layout {display:flex;flex:1;min-height:0;min-width:0}
+.review-layout .work-scroll {flex:1;min-height:0;min-width:0}
+.review-summary {display:none}
+.admin .document-brand:not(:has(img)) {grid-template-columns:minmax(0,1fr)}
+.admin #review-content .approval-grid {grid-template-columns:1fr}
+.admin #review-content .review-tools svg {width:16px;height:16px;margin-inline-end:4px}
+@media(min-width:1000px) {
+  .admin #request-review>div:first-child {max-width:860px}
+  .review-summary {display:block;overflow:auto;width:260px;padding:24px;background:var(--paper);overflow-wrap:anywhere}
+  .review-summary h3,.review-summary dd {font-weight:700}
+  .review-summary dt {margin-top:20px;color:var(--muted)}
+}
+.journey-preview {counter-reset:stage;list-style:none;margin:12px 0 0;padding:0}
+.journey-preview li {counter-increment:stage;position:relative;padding:4px 0 8px 27px;font-size:14px;line-height:1.45}
+.journey-preview li::before {content:counter(stage);position:absolute;left:0;color:var(--rose-deep);font-weight:700}
