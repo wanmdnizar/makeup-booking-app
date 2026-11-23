@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Makeup by Nureen — Boutique Booking & Receipt Studio</title>
-  <meta name="theme-color" content="#C52D60" />
+  <meta name="theme-color" content="#B83950" />
 
   <!-- Google Fonts: Inter & Playfair Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +30,10 @@
           },
           colors: {
             blush: {
-              50: '#FFF1F4', 100: '#FFF1F4', 200: '#FFD3E3', 300: '#FFA8C8', 400: '#FF7FAE',
-              500: '#E35B7D', 600: '#CC385F', 700: '#C52D60', 800: '#A42350', 900: '#A42350',
+              50: '#FBE8E5', 100: '#FBE8E5', 200: '#EFC7C3', 300: '#E9A8A6', 400: '#DE7F85',
+              500: '#CC5866', 600: '#BF4356', 700: '#B83950', 800: '#A13348', 900: '#A13348',
             },
-            charcoal: '#282326'
+            charcoal: '#282422'
           }
         }
       }
@@ -46,11 +46,11 @@
        One palette, one set of components. Change colours in :root only.
        ===================================================================== */
     :root {
-      --rose:#C52D60; --rose-600:#CC385F; --rose-500:#E35B7D; --rose-deep:#A42350; --rose-ink:#282326;
-      --grad:linear-gradient(135deg,#E35B7D 0%,#C52D60 45%,#A42350 100%);
-      --bg:#FFF3F7; --paper:#FFF1F4; --card:#FFFFFF; --ink:#282326; --muted:#7D6571;
-      --rule:#F6D9E5; --petal:#FFF1F4; --petal-2:#FFD3E3; --peach:#FFDCCB;
-      --ok:#0F7B54; --ok-bg:#DDF6EA; --warn:#A1520A; --warn-bg:#FFEBCF; --bad:#BE123C; --bad-bg:#FFE1E7; --info:#A42350; --info-bg:#FFE0EC;
+      --rose:#B83950; --rose-600:#BF4356; --rose-500:#CC5866; --rose-deep:#A13348; --rose-ink:#282422;
+      --grad:linear-gradient(135deg,#CC5866 0%,#B83950 45%,#A13348 100%);
+      --bg:#FFF3F7; --paper:#FBE8E5; --card:#FFFFFF; --ink:#282422; --muted:#7D6571;
+      --rule:#F6D9E5; --petal:#FBE8E5; --petal-2:#EFC7C3; --peach:#FFDCCB;
+      --ok:#0F7B54; --ok-bg:#DDF6EA; --warn:#A1520A; --warn-bg:#FFEBCF; --bad:#BE123C; --bad-bg:#FFE1E7; --info:#A13348; --info-bg:#FFE0EC;
       --shadow:0 12px 32px -20px rgba(190,24,93,.55);
       --shadow-sm:0 2px 8px -4px rgba(190,24,93,.25);
     }
@@ -187,7 +187,7 @@
     .week-grid time { display:block; height:58px; color:var(--muted); font:500 .7rem/1.4 ui-monospace,monospace; }
     .day-track { height:var(--height); position:relative; border-left:1px solid var(--rule); background:repeating-linear-gradient(to bottom,#F6DCE7 0 1px,transparent 1px 29px,#FBEEF3 29px 30px,transparent 30px 58px); cursor:crosshair; }
     .slot { position:absolute; left:1px; right:2px; border-radius:8px; padding:4px 5px; overflow:hidden; font:600 .7rem/1.35 Inter,system-ui; text-align:left; overflow-wrap:anywhere; }
-    .slot.saved { background:linear-gradient(135deg,#FFD3E3,#FFBFD6); border-left:4px solid var(--rose); color:var(--rose-ink); cursor:pointer; }
+    .slot.saved { background:linear-gradient(135deg,#EFC7C3,#FFBFD6); border-left:4px solid var(--rose); color:var(--rose-ink); cursor:pointer; }
     .slot.proposed, .pending-line { background:#fff; border:1.5px dashed var(--rose-500); color:var(--rose-deep); }
     .slot.buffer, .slot.closed { background:repeating-linear-gradient(135deg,#FBEFF4 0 4px,#F4DFE8 4px 5px); color:#9B7A89; pointer-events:none; }
     .desk-btn.pending-line { width:100%; justify-content:flex-start; margin:.25rem 0; }
@@ -252,7 +252,7 @@
     .link-btn { font-size:.76rem; font-weight:650; color:var(--rose); text-decoration:underline; text-underline-offset:.2em; }
     /* Handled requests: one compact row, actions open underneath (no sideways overflow on phones) */
     #requests-pending,#requests-handled{min-width:0;max-width:100%}
-    .handled-row{border-radius:12px;background:#FFF1F4;border:1px solid var(--rule);font-size:.8rem;min-width:0}
+    .handled-row{border-radius:12px;background:#FBE8E5;border:1px solid var(--rule);font-size:.8rem;min-width:0}
     .handled-row>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto 1rem;align-items:center;gap:.6rem;min-height:48px;padding:.55rem .75rem;cursor:pointer}
     .handled-row>summary::-webkit-details-marker{display:none}
     .handled-row>summary::after{content:"\25BE";color:var(--muted);font-size:.8rem;transition:transform .15s}
@@ -308,7 +308,7 @@
     #app-shell :is(h1,h2,h3,h4).font-serif:not(#header-brand-name) { font-family:Inter,system-ui,sans-serif; letter-spacing:-.025em; }
     #app-shell input[type=text], #app-shell input[type=number], #app-shell input[type=date], #app-shell input[type=time], #app-shell input[type=tel], #app-shell input[type=email], #app-shell select, #app-shell textarea { border-radius:12px; }
     @media screen {
-      :root {--bg:#f8f7f6;--paper:#fbfaf9;--rule:#e6dfe2;--ink:#282326;--muted:#695f65;--shadow-sm:none;--grad:#C52D60;}
+      :root {--bg:#f8f7f6;--paper:#fbfaf9;--rule:#e6dfe2;--ink:#282422;--muted:#695f65;--shadow-sm:none;--grad:#B83950;}
       body {background:var(--bg);}
       .desk-card,.req-card,.kpi,.money-strip {border-radius:14px;box-shadow:none;}
       .kpi.hero {background:white;border:1px solid var(--rule);border-left:3px solid var(--rose);color:var(--ink);box-shadow:none;}
@@ -326,7 +326,7 @@
       .dateblock {background:var(--petal);color:var(--rose-deep);box-shadow:none;border-radius:10px;}
       #mobile-nav {left:0;right:0;bottom:0;border-radius:0;border-width:1px 0 0;box-shadow:none;background:white;padding-bottom:max(.4rem,env(safe-area-inset-bottom));}
       .mobile-nav-btn {color:var(--muted);}
-      .mobile-nav-btn.is-active {background:#FFF1F4;color:var(--rose-deep);border-radius:9px;box-shadow:none;}
+      .mobile-nav-btn.is-active {background:#FBE8E5;color:var(--rose-deep);border-radius:9px;box-shadow:none;}
       @media(max-width:767px){
         #app-shell main {padding-bottom:calc(6rem + env(safe-area-inset-bottom));}
         .page-head {align-items:flex-start;} .page-head .seg{max-width:100%;overflow-x:auto;}
@@ -367,12 +367,12 @@
     .reminder-sent{display:inline-flex;gap:.4rem;align-items:center;min-height:44px;cursor:pointer;color:var(--ink)}
     .reminder-sent input{width:1rem;height:1rem;accent-color:var(--rose)}
     .review-group{padding:1rem 1.1rem;border-top:1px solid var(--rule);overflow-wrap:anywhere}
-    .review-group h4,.approval h4{font-weight:700;margin-bottom:.5rem;color:#282326}
+    .review-group h4,.approval h4{font-weight:700;margin-bottom:.5rem;color:#282422}
     .review-group li+li{margin-top:.5rem}.review-group p,.review-group li{font-size:.9rem}
-    .approval-grid{margin-top:.75rem}.approval label,#request-editor label{color:#282326}
+    .approval-grid{margin-top:.75rem}.approval label,#request-editor label{color:#282422}
     .quote-total{display:flex;justify-content:space-between;gap:1rem;margin:.8rem 0;font-weight:700}
     #review-content .approval-actions .danger{background:white;color:var(--bad)}
-    #receipt-printable-area{box-sizing:border-box;width:100%;max-width:100%;min-width:0;color:#282326;background:#fff;overflow-wrap:anywhere}
+    #receipt-printable-area{box-sizing:border-box;width:100%;max-width:100%;min-width:0;color:#282422;background:#fff;overflow-wrap:anywhere}
     #receipt-printable-area :is(div,span,p,h2){min-width:0;max-width:100%}
     .document-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:flex-start}
     .document-brand{flex:1 1 17rem;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:.75rem}
@@ -385,13 +385,17 @@
     }
     @media(max-width:360px){.document-parties{grid-template-columns:minmax(0,1fr)}.document-parties>div{text-align:left}}
   </style>
+  <link rel="stylesheet" href="./studio-desk.css?v=1">
 </head>
-<body class="min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
+<body class="admin min-h-screen pb-24 md:pb-12 selection:bg-blush-200 selection:text-blush-900">
 
   <section id="request-review" class="work-page hidden" aria-labelledby="review-title">
-    <div><header class="p-4 border-b"><h2 class="font-bold text-xl" id="review-title">Review request</h2></header>
-    <div id="review-content" class="work-scroll"></div>
-    <div class="work-footer"><button class="desk-btn" onclick="closeWorkPage('request-review')">Back to requests</button></div></div>
+    <div><header class="p-4 border-b"><button class="review-back" onclick="closeWorkPage('request-review')">‹ Requests</button><h2 class="font-bold text-xl" id="review-title">Request review</h2></header>
+    <div class="review-layout"><div id="review-content" class="work-scroll"></div>
+    <aside class="review-summary"><h3>Appointment summary</h3><p id="desk-summary-date"></p>
+    <dl><dt>Contact</dt><dd id="desk-summary-contact"></dd><dt>Guests</dt><dd id="desk-summary-party"></dd>
+    <dt>Final quote</dt><dd id="desk-summary-total"></dd></dl></aside></div>
+    </div>
   </section>
   <section id="request-editor" class="work-page hidden" aria-labelledby="edit-request-title">
     <form id="request-edit-form">
@@ -1005,7 +1009,7 @@
             <label class="desk-field">Required deposit (RM)<input id="book-required" type="number" min="0" step=".01" placeholder="Legacy policy"></label>
             <label class="desk-field">Deposit due date<input id="book-due" type="date"></label>
             <div>
-              <label for="book-deposit" class="block text-[11px] font-semibold text-emerald-700 mb-1">Deposit Paid (RM)</label>
+              <label for="book-deposit" class="block text-[11px] font-semibold text-emerald-700 mb-1">Total received to date (RM)</label>
               <input type="number" id="book-deposit" step="0.01" min="0" value="0" oninput="recalculateBookingTotals()" class="w-full px-3 py-2 text-sm font-bold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:border-emerald-500">
             </div>
             <div>
@@ -1133,7 +1137,8 @@
               <span>Service Description</span>
               <span>Amount (RM)</span>
             </div>
-            <div class="flex justify-between items-start gap-2">
+            <div id="rec-service-lines"></div>
+            <div id="rec-package-row" class="flex justify-between items-start gap-2">
               <div>
                 <p id="rec-pkg-name" class="font-semibold text-charcoal"></p>
                 <p id="rec-pkg-desc" class="text-[11px] text-slate-500"></p>
@@ -1442,6 +1447,7 @@
         packageId: String(b.packageId || 'custom'),
         packageName: String(b.packageName || 'Custom Service'),
         packagePrice,
+        ...(Array.isArray(b.serviceLines) ? {serviceLines:b.serviceLines} : {}),
         packageDesc: String(b.packageDesc || ''),
         addonFee,
         addonDesc: String(b.addonDesc || ''),
@@ -1550,6 +1556,7 @@
       }
       if (code === 'daily-time-conflict') return 'That time now overlaps another appointment or does not leave enough travel buffer. Refresh the calendar and choose another time.';
       if (code === 'payment-changed') return 'A payment changed while this booking was open. Reopen it before saving.';
+      if (code === 'invalid-deposit-deadline') return 'Choose a deposit deadline on or before the appointment.';
       if (code === 'ready-deadline') return 'Set a ready-by time that allows the whole appointment to finish.';
       if (code === 'daily-date-blocked') return 'This appointment falls outside working hours or overlaps blocked time. Review the schedule before approval.';
       if (code === 'catalogue-changed') return 'The catalogue changed. Review the updated price and duration before approving.';
@@ -1884,6 +1891,8 @@
       if (!currentUser || !db) throw new Error('not-signed-in');
       if (!options.skipReadyCheck && (!bookingsLoaded || !bookingsServerLoaded || bookingsHasPendingWrites)) throw new Error('bookings-not-ready');
       if (!navigator.onLine) throw new Error('offline');
+      if (options.enforceBlockedDate && booking?.depositRequired > 0 && (!DATE_RE.test(booking.depositDue || '') || booking.depositDue > booking.eventDate))
+        throw new Error('invalid-deposit-deadline');
       if (!booking || !booking.id || !DATE_RE.test(String(booking.eventDate || ''))) throw new Error('invalid-booking');
 
       const bookingRef = userDoc('bookings', booking.id);
@@ -2983,7 +2992,7 @@
         b.clientPhone ? `Phone: ${b.clientPhone}` : '',
         `Package: ${b.packageName}`,
         `Total: ${formatRM(b.subtotal)}  |  Paid: ${formatRM(b.depositPaid)}  |  Balance: ${formatRM(b.balanceDue)}`,
-        `Status: ${b.status}`,
+        `Status: ${documentPaymentLabel(b)}`,
         b.notes ? `Notes: ${b.notes}` : '',
         b.receiptNo ? `Ref: ${b.receiptNo}` : ''
       ].filter(Boolean).join('\n');
@@ -3084,7 +3093,7 @@
     let editPaymentBaseline=null;
     const manualDue=byId('book-due');
     manualDue.addEventListener('input',()=>{manualDue.dataset.custom='yes';});
-    byId('book-required').addEventListener('input',()=>syncDepositDue(byId('book-required'),manualDue));
+    byId('book-required').addEventListener('input',()=>{syncDepositDue(byId('book-required'),manualDue);recalculateBookingTotals();});
     byId('book-date').addEventListener('change',()=>{
       const date=byId('book-date').value;
       manualDue.max=date;
@@ -3168,7 +3177,7 @@
 
       document.getElementById('book-subtotal').value = subtotal.toFixed(2);
       document.getElementById('book-balance').value = balance.toFixed(2);
-      document.getElementById('book-status').value = computeStatus(subtotal, deposit);
+      document.getElementById('book-status').value = documentPaymentLabel({depositRequired:byId('book-required').valueAsNumber,depositPaid:deposit,balanceDue:balance,status:computeStatus(subtotal,deposit)});
     };
 
     window.checkBookingConflicts = function() {
@@ -3241,6 +3250,7 @@
       const depositPaid = Math.max(0, num(document.getElementById('book-deposit').value));
 
       const required=byId('book-required').value===''?null:byId('book-required').valueAsNumber;
+      if(required>0 && !byId('book-due').value){showToast('Choose a due date for the required deposit.','error');byId('book-due').focus();return;}
       if(required!=null && required>subtotal){showToast('Required deposit exceeds the quote.','error');return;}
       if(byId('book-ready').value && byId('book-ready').value<endTime){showToast('The session finishes after the ready-by time.','error');return;}
       if(byId('book-due').value && byId('book-due').value>byId('book-date').value){showToast('Choose a deposit due date on or before the appointment.','error');return;}
@@ -3276,6 +3286,7 @@
           const fullBooking = {
             ...(old || {}),
             ...fields,
+            ...(old?.serviceLines && (!samePackage || cents(old.packagePrice)!==cents(packagePrice)) ? {serviceLines:[]} : {}),
             id: editId,
             packageDesc: samePackage && old.packageDesc ? old.packageDesc : (foundPkg ? foundPkg.description : '')
           };
@@ -3415,6 +3426,18 @@
     // =========================================================================
     // RECEIPT, PDF & WHATSAPP
     // =========================================================================
+    function documentPaymentLabel(b) {
+      if (b.depositRequired>0 && !depositMet(b)) {
+        return formatRM(b.depositPaid)+' received · '+formatRM((cents(b.depositRequired)-cents(b.depositPaid))/100)+' deposit remaining'+(b.depositDue?' · due '+formatDisplayDate(b.depositDue):'');
+      }
+      if (b.depositRequired===0 && b.balanceDue>0) return 'Deposit waived';
+      return b.status;
+    }
+    function documentServices(b) {
+      const lines=b.serviceLines;
+      if (!Array.isArray(lines) || !lines.length || lines.some(line=>!line || !line.service || !Number.isFinite(Number(line.price)))) return [];
+      return lines.reduce((sum,line)=>sum+cents(line.price),0)===cents(b.packagePrice)?lines:[];
+    }
     function getDocLabels(status) {
       if (status === 'Fully Paid') return { badge: 'RECEIPT', title: 'Official Boutique Receipt', plain: 'OFFICIAL RECEIPT' };
       if (status === 'Deposit Paid') return { badge: 'DEPOSIT RECEIPT', title: 'Deposit Receipt', plain: 'DEPOSIT RECEIPT' };
@@ -3467,6 +3490,9 @@
       document.getElementById('rec-pkg-desc').textContent = b.packageDesc || 'Professional Makeup & Beauty Session';
       document.getElementById('rec-pkg-price').textContent = num(b.packagePrice).toFixed(2);
 
+      const lines=documentServices(b);
+      byId('rec-package-row').classList.toggle('hidden',Boolean(lines.length));
+      byId('rec-service-lines').innerHTML=lines.map(line=>'<div class="doc-service"><div><b>'+esc(line.service)+'</b><small>'+esc(line.guest || '')+'</small></div><b>'+esc(num(line.price).toFixed(2))+'</b></div>').join('');
       const addonRow = document.getElementById('rec-addon-row');
       if (num(b.addonFee) > 0) {
         addonRow.classList.remove('hidden');
@@ -3482,7 +3508,7 @@
       document.getElementById('rec-terms').textContent = s.terms;
 
       const badge = document.getElementById('rec-status-badge');
-      badge.textContent = b.status.toUpperCase();
+      badge.textContent = documentPaymentLabel(b);
       const badgeBase = 'self-start sm:self-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider shrink-0 ';
       badge.className = badgeBase + (b.status === 'Fully Paid'
         ? 'bg-emerald-100 text-emerald-800'
@@ -3514,10 +3540,11 @@
 
       const prefix = getDocLabels(b.status).badge.replace(/\s+/g, '_');
       const opt = {
-        margin: [10, 10, 10, 10],
+        margin: [15, 15, 15, 15],
+        pagebreak: {mode:['css','legacy'],avoid:['.doc-service','#rec-addon-row','.document-head']},
         filename: `${prefix}_${b.receiptNo}_${b.clientName.replace(/[^\w]+/g, '_')}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, windowWidth: 960 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
@@ -3544,12 +3571,12 @@
         `*Time:* ${formatDisplayTime(b.startTime)} - ${formatDisplayTime(b.endTime)}\n` +
         `*Venue:* ${b.venue}\n` +
         `--------------------------------\n` +
-        `*Package:* ${b.packageName} (${formatRM(b.packagePrice)})\n` +
+        (documentServices(b).length ? documentServices(b).map(line=>line.guest+' · '+line.service+' ('+formatRM(line.price)+')').join('\n')+'\n' : `*Package:* ${b.packageName} (${formatRM(b.packagePrice)})\n`) +
         `${b.addonFee > 0 ? `*Add-on/Travel:* ${b.addonDesc || 'Extra'} (${formatRM(b.addonFee)})\n` : ''}` +
         `*Subtotal:* ${formatRM(b.subtotal)}\n` +
         `*Paid/Deposit:* ${formatRM(b.depositPaid)}\n` +
         `*Balance Due:* *${formatRM(b.balanceDue)}*\n` +
-        `*Status:* ${b.status.toUpperCase()}\n` +
+        `*Status:* ${documentPaymentLabel(b)}\n` +
         `--------------------------------\n` +
         `_${s.terms}_\n` +
         `Thank you for trusting ${s.businessName}! ✨`;
@@ -3925,7 +3952,7 @@
       const rs = tm(r.startTime), re = tm(requestEndTime(r));
       const hit = appState.bookings.find(b => b.eventDate === r.eventDate && overlapsAppointment(rs,re,tm(b.startTime),tm(b.endTime),buf));
       if (hit) return `Clashes with ${hit.clientName} (${formatDisplayTime(hit.startTime)} to ${formatDisplayTime(hit.endTime)}).`;
-      if ((appState.settings.blockedDates || []).some(x => x.date === r.eventDate)) return 'This date is blocked.';
+      if ((appState.settings.blockedDates || []).some(x => (x.date || x) === r.eventDate)) return 'This date is blocked.';
       const dayCount = countPeople(appState.bookings.filter(b => b.eventDate === r.eventDate));
       if(!fitsHours(appState.settings,r.eventDate,rs,re))return 'Outside public hours or overlaps a blocked period.';
       if (dayCount + bookingPax(r) > maxBookingsPerDay()) return `This party exceeds the daily limit. ${dayCount} already booked; ${maxBookingsPerDay()} people allowed.`;
@@ -3968,6 +3995,7 @@
       return {...first,base:{...first.base,id:services.length===1?first.base.id:'custom',name,price},
         serviceTotal:(cents(first.serviceTotal)+other.reduce((sum,p)=>sum+cents(p.price),0))/100,
         duration:first.duration+other.reduce((sum,p)=>sum+Math.max(30,Number(p.durationMins)||120),0),
+        serviceLines:services.map((p,i)=>({guest:r.people[i].name,service:p.name,price:p.price,duration:p.durationMins})),
         items:[...new Map([...services,...first.addons].map(p=>[p.id,p])).values()]};
     }
     function rosterText(people=[]) {
@@ -4069,22 +4097,35 @@
         ? `<a href="${esc(r.moodboardLink)}" target="_blank" rel="noopener" class="link-btn">Open moodboard ↗</a>` : '';
       const travelDefault = addons.filter(isTravelCharge).reduce((sum, a) => sum + num(a.price), 0).toFixed(2);
       const guests=r.people?.length?r.people:[{name:r.clientName,packageName:r.packageName}];
-      const guestRows=guests.map(person=>{
+      const guestRows=guests.map((person,index)=>{
+        const rate=preview?.serviceLines?.[index];
         const showName=guests.length>1 || person.name!==r.clientName;
         const allergy=person.allergies && !/^none$/i.test(person.allergies.trim());
         return `<li>${showName?'<strong>'+esc(person.name)+'</strong> · ':''}${esc(person.packageName)}
+          ${rate?'<p class="guest-rate"><span>'+esc(durLabel('00:00',clock(Math.max(30,num(rate.duration)||120))))+'</span><strong>'+esc(formatRM(rate.price))+'</strong></p>':''}
           ${person.look?'<p>Look · '+esc(person.look)+'</p>':''}
           ${person.phone && person.phone!==r.phone?'<p>WhatsApp · '+esc(person.phone)+'</p>':''}
           ${allergy?'<p class="alert-line">Allergies · '+esc(person.allergies)+'</p>':''}</li>`;
       }).join('');
       const jobs=dayJobs(r.eventDate), booked=countPeople(jobs), cap=maxBookingsPerDay();
       const left=Math.max(0,cap-booked);
-      const capacity=jobs.length?`${booked} of ${cap} places booked · ${left} ${left===1?'place':'places'} left`:'No other appointments that day';
+      const capacity=jobs.length?`${booked} of ${cap} places booked · ${left} ${left===1?'place':'places'} left`:`0 of ${cap} places booked · ${left} available`;
       const details=[['Contact number',r.phone],['Email',r.email],['Notes',r.notes]].filter(([,v])=>v)
         .map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
       return `
       <article id="${reviewing?'review-request-':'request-'}${id}" class="req-card">
-        <header class="req-head">
+        ${reviewing ? `<header class="desk-heading">
+          <p class="appointment-date">${esc(formatDisplayDate(r.eventDate))} · Pending</p>
+          <time>${esc(formatDisplayTime(r.startTime))} – ${esc(formatDisplayTime(requestEndTime(previewRequest)))}</time>
+          ${r.readyBy ? '<p>Ready by <strong>'+esc(formatDisplayTime(r.readyBy))+'</strong></p>' : ''}
+          <h3>${esc(r.clientName)} · ${bookingPax(r)} ${bookingPax(r)===1?'guest':'guests'}</h3>
+          <p class="ref">${esc(r.ref)}</p><p>${esc(r.venue)}</p>        <div class="review-tools">
+          <button type="button" onclick="editPendingRequest('${id}')" class="review-link"><i data-lucide="pencil"></i> Edit</button>
+          <button onclick="requestWA('${id}','chat')" class="review-link"><i data-lucide="message-circle"></i> WhatsApp</button>
+          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="review-link"><i data-lucide="map-pin"></i> Maps</a>
+          <a href="${esc(waze)}" target="_blank" rel="noopener" class="review-link"><i data-lucide="navigation"></i> Waze</a>
+          ${r.guest===true?`<button type="button" onclick="replaceGuestLink('${id}')" class="review-link">Replace tracking link</button>`:''}
+        </div></header>` : `<header class="req-head">
           ${dateBlockHTML(r.eventDate, false)}
           <div class="req-main">
             <div class="req-meta"><span class="pill warn">Pending</span><span class="ref">${esc(r.ref)}</span></div>
@@ -4093,7 +4134,7 @@
             <p class="req-venue"><i data-lucide="map-pin"></i><span>${esc(r.venue)}</span></p>
           </div>
           ${reviewing?'':`<div class="req-amount"><small>Estimate</small><b>${esc(formatRM(total))}</b></div>`}
-        </header>
+        </header>`}
         ${reviewing?'':`<div class="req-service"><b>${esc(r.packageName)}</b>${num(r.pax) > 1 ? ' · ' + esc(r.pax) + ' pax' : ''}
           ${addons.length ? `<div class="chips">${addons.map(a => `<span>${esc(a.name)}</span>`).join('')}</div>` : ''}
         </div>`}
@@ -4107,36 +4148,32 @@
           <dl class="mini-rows">${details}</dl>${mood}
         </section>
         <section class="review-group"><h4>Availability</h4><p>${esc(capacity)}</p>
-          ${clash?'<p class="alert-line warn">'+esc(clash)+'</p>':''}
+          ${clash?'<p class="alert-line warn">'+esc(clash)+'</p>':left===bookingPax(r)?'<p>Approval fills this date.</p>':''}
           ${jobs.map(b=>'<p>'+esc(formatDisplayTime(b.startTime)+' – '+formatDisplayTime(b.endTime)+' · '+b.clientName)+'</p>').join('')}
         </section>
-        <section class="approval" id="review-approval-${id}"><h4>Quote and deposit</h4>
+        <section class="approval" id="review-approval-${id}"><h4>Quotation</h4>
           <p>Service estimate <strong>${esc(formatRM(total))}</strong></p>
           ${!preview?'<p class="alert-line warn">Review the services in Edit before approving.</p>':cents(preview.serviceTotal)!==cents(total)?'<p>Current catalogue price <strong>'+esc(formatRM(preview.serviceTotal))+'</strong></p>':''}
           <div class="approval-grid">
             <label class="desk-field">Travel fee (RM)<input type="number" min="0" max="100000" step="0.01" id="travel-${id}" value="${travelDefault}"></label>
-            <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
-            <label class="desk-field">Deposit due by<input id="due-${id}" type="date" value="${esc(defaultDepositDue(r.eventDate))}" max="${esc(r.eventDate)}"></label>
           </div>
           <p class="quote-total">Final quote <output id="quote-total-${id}" aria-live="polite"></output></p>
+          <h4>Deposit</h4>
+          <label class="desk-field">Deposit required (RM)<input required id="required-${id}" type="number" min="0" step=".01" placeholder="0 to waive"></label>
           <div class="quick-dep"><span>Quick deposit:</span>
             <button type="button" class="chip" onclick="setDepositPct('${id}',30)">30%</button>
             <button type="button" class="chip" onclick="setDepositPct('${id}',50)">50%</button>
             <button type="button" class="chip" onclick="setDepositPct('${id}',100)">Full</button>
             <button type="button" class="chip" onclick="setDepositPct('${id}',0)">Waive</button>
           </div>
+          <label class="desk-field">Deposit due by<input id="due-${id}" type="date" value="${esc(defaultDepositDue(r.eventDate))}" max="${esc(r.eventDate)}"></label>
+          <p>Approval reserves the places. Confirmation follows when the required deposit is recorded or waived.</p>
           <div class="approval-actions">
-            <button id="approve-${id}" data-service="${preview ? preview.serviceTotal : 'NaN'}" onclick="approveRequest('${id}')" class="desk-btn primary"><i data-lucide="check"></i> Approve</button>
+            <button id="approve-${id}" data-conflict="${Boolean(clash)}" data-service="${preview ? preview.serviceTotal : 'NaN'}" onclick="approveRequest('${id}')" class="desk-btn primary"><i data-lucide="check"></i> Approve</button>
             <button onclick="declineRequest('${id}')" class="desk-btn danger"><i data-lucide="x"></i> Decline</button>
           </div>
         </section>
-        <footer class="req-tools">
-          <button type="button" onclick="editPendingRequest('${id}')" class="desk-btn"><i data-lucide="pencil"></i> Edit</button>
-          <button onclick="requestWA('${id}','chat')" class="desk-btn"><i data-lucide="message-circle"></i> WhatsApp</button>
-          <a href="${esc(mapHref)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="map-pin"></i> Maps</a>
-          <a href="${esc(waze)}" target="_blank" rel="noopener" class="desk-btn"><i data-lucide="navigation"></i> Waze</a>
-          ${r.guest===true?`<button type="button" onclick="replaceGuestLink('${id}')" class="desk-btn">Replace tracking link</button>`:''}
-        </footer>`}
+`}
       </article>`;
     }
 
@@ -4147,10 +4184,31 @@
       const version=JSON.stringify([request,appState.packages,dayJobs(request.eventDate),appState.settings.workingHours,
         appState.settings.timeBlocks,appState.settings.blockedDates,appState.settings.bufferMins,appState.settings.maxBookingsPerDay,appState.settings.depositLeadDays]);
       if(version===reviewVersion)return;
+      const focusedId=byId('review-content').contains(document.activeElement)?document.activeElement.id:'';
+      const draft = [];
+      if (reviewVersion) {
+        for (const input of byId('review-content').querySelectorAll('input[data-edited]')) {
+          draft.push({id:input.id,value:input.value,previous:input.dataset.previous});
+        }
+      }
       if(reviewVersion)showToast('Booking details or availability changed. Review the latest quote.');
       reviewVersion=version;
       byId('review-content').innerHTML=requestCardHTML(request,true);
+      byId('desk-summary-date').textContent=formatDisplayDate(request.eventDate);
+      byId('desk-summary-contact').textContent=request.clientName;
+      byId('desk-summary-party').textContent=bookingPax(request)+' requested';
+      for (const field of draft) {
+        const input=byId(field.id);
+        if (!input) continue;
+        input.value=field.value;
+        input.dataset.edited='yes';
+        if (field.previous!=null) input.dataset.previous=field.previous;
+      }
+      const amount=byId('required-'+reviewId), due=byId('due-'+reviewId);
+      if (amount.value==='0' && due.dataset.previous) due.disabled=true;
+      syncDepositDue(amount,due);
       refreshApprovalPrice(reviewId);
+      if (focusedId) byId(focusedId)?.focus({preventScroll:true});
       lucide.createIcons();
     }
     window.openRequestReview=id=>{
@@ -4159,14 +4217,16 @@
     };
     function syncDepositDue(amount,due) {
       const waived=amount.value!=='' && amount.valueAsNumber===0;
-      if(waived && !due.disabled){due.dataset.previous=due.value;due.value='';}
+      if(waived && !due.disabled){due.dataset.edited='yes';due.dataset.previous=due.value;due.value='';}
       if(!waived && due.disabled)due.value=due.dataset.previous||'';
       due.disabled=waived;
+      due.required=amount.valueAsNumber>0;
     }
     window.setDepositPct = function(id, pct) {
       const button = byId('approve-' + id), travel = byId('travel-' + id)?.valueAsNumber, base = Number(button?.dataset.service);
       const field = byId('required-' + id);
       if (!field) return;
+      field.dataset.edited='yes';
       if (pct === 0) { field.value = '0'; syncDepositDue(field,byId('due-'+id));return; }
       if (!Number.isFinite(base) || !Number.isFinite(travel)) { showToast('Enter the travel fee first.', 'error'); return; }
       field.value = ((base + travel) * pct / 100).toFixed(2);
@@ -4277,11 +4337,13 @@
       const valid=Number.isFinite(travel) && travel>=0 && Number.isFinite(base);
       const total=valid?formatRM((cents(base)+cents(travel))/100):'';
       byId('quote-total-'+id).textContent=total||'—';
+      byId('desk-summary-total').textContent=total||'—';
       button.textContent=valid?'Approve · '+total:'Approve';
-      button.disabled=approvalsSaving.has(id) || !valid;
+      button.disabled=approvalsSaving.has(id) || !valid || button.dataset.conflict==='true';
       if(approvalsSaving.has(id))button.textContent='Approving…';
     }
     byId('review-content').addEventListener('input',event=>{
+      event.target.dataset.edited='yes';
       if(event.target.id.startsWith('required-'))syncDepositDue(event.target,byId('due-'+event.target.id.slice(9)));
       if(event.target.id.startsWith('travel-'))refreshApprovalPrice(event.target.id.slice(7));
     });
@@ -4333,6 +4395,7 @@
               clientName: r.clientName, clientPhone: r.phone,
               eventDate: r.eventDate, startTime: r.startTime, endTime: requestEndTime(revised), readyBy:r.readyBy,depositRequired,depositDue,
               venue: r.venue, packageId: quote.base.id, packageName: quote.base.name,
+              serviceLines: quote.serviceLines || [],
               packagePrice: quote.base.price, packageDesc: quote.base.description||'',
               addonFee: addons.reduce((t, a) => t + num(a.price), 0),
               addonDesc: addons.map(a => a.name).join(', '),
