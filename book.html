@@ -168,7 +168,7 @@
     @media(max-width:480px){.step-actions{position:static}.booking-fields input,.booking-fields textarea{font-size:16px}}
     .text-slate-400:not(:disabled){color:#695e63}
   </style>
-  <link rel="stylesheet" href="./studio-glass.css?v=planner-1">
+  <link rel="stylesheet" href="./studio-glass.css?v=mbnf-v1.1">
 </head>
 <body class="client min-h-screen">
 
@@ -218,7 +218,7 @@
         
         <h1 class="font-serif text-3xl sm:text-4xl font-bold leading-tight">Book your makeup session</h1>
         <div class="flex flex-wrap gap-x-4 gap-y-1 pt-1"><a id="ig-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline"><i data-lucide="instagram" class="w-4 h-4"></i> Instagram</a><a id="tt-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-sm font-semibold text-blush-700 underline"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 1c.4 2.8 2 4.5 5 4.8v4a9.6 9.6 0 0 1-5-1.5v7.9a7.4 7.4 0 1 1-6.4-7.3v4.1a3.4 3.4 0 1 0 2.3 3.2V1z"/></svg> TikTok</a></div></div>
-<aside class="planner-journey"><h2>How booking works</h2><ol><li>Send request</li><li>Studio review</li><li>Booking confirmed</li></ol><p>We review your venue and travel fee, then confirm once your deposit is recorded or waived.</p></aside>
+<details class="booking-help"><summary>How booking works</summary><p>Send a request. We review your venue and travel fee, then confirm after your deposit is recorded or waived.</p></details>
       </section>
 
       <!-- Progress -->
@@ -236,13 +236,13 @@
         </div>
         <p id="selection-estimate" role="status" class="text-sm"></p>
         <p id="e-package" class="hidden text-xs font-medium text-red-600"></p>
-        <div class="step-actions"><button onclick="goStep(2)" class="action-primary w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue to date &amp; time</button></div>
+        <div class="step-actions"><button onclick="goStep(2)" class="action-primary w-full py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button></div>
       </section>
 
       <!-- STEP 2: date & time -->
       <section id="step-2" class="hidden space-y-4">
         <h2 class="font-serif text-xl font-bold"><span class="step-icon" aria-hidden="true"><i data-lucide="calendar-days"></i></span>Date &amp; time</h2>
-        <p class="text-sm text-slate-500"><span id="date-help">Choose a date to see start times for your whole booking.</span></p>
+        <p class="text-sm text-slate-500"><span id="date-help">Choose an appointment date</span></p>
         <div class="bg-white rounded-3xl border border-blush-200 p-4 shadow-sm">
           <div class="flex items-center justify-between mb-3">
             <button onclick="shiftMonth(-1)" id="cal-prev" class="p-2 rounded-xl hover:bg-blush-50" aria-label="Previous month"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
@@ -254,9 +254,9 @@
           </div>
           <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
           <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-slate-500">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-blush-300"></span>Available</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Unavailable for your party</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blush-700"></span>Your choice</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded date-legend-open"></span>Available</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded date-legend-closed"></span>Unavailable</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded date-legend-selected"></span>Selected</span>
           </div>
           <div id="capacity-hint" class="availability-notes text-sm text-slate-600 mt-3"></div>
         </div>
@@ -265,12 +265,12 @@
         <div class="booking-fields">
         <div id="time-wrap" class="hidden space-y-3">
           <div>
-            <label for="f-ready" class="block text-sm font-semibold mb-1">When must everyone be ready? *</label>
+            <label for="f-ready" class="block text-sm font-semibold mb-1">Ready by *</label>
             <input type="time" id="f-ready" class="field" required aria-describedby="e-ready">
             <p id="e-ready" role="alert" class="hidden text-xs text-red-600 mt-1"></p>
           </div>
           <div>
-            <label id="starts-label" class="block text-sm font-semibold mb-1">Makeup start time *</label>
+            <label id="starts-label" class="block text-sm font-semibold mb-1">Available start times *</label>
             <input type="hidden" id="f-time"><div id="time-options" role="group" aria-labelledby="starts-label"></div>
             <p id="time-hint" class="text-xs text-slate-500 mt-1"></p>
           </div>
@@ -281,7 +281,7 @@
 
         <div class="step-actions flex gap-2">
           <button onclick="goStep(1)" class="px-5 py-3.5 rounded-2xl bg-white border border-blush-200 text-sm font-semibold">Back</button>
-          <button id="date-next" onclick="goStep(3)" class="action-primary flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue to people &amp; venue</button>
+          <button id="date-next" onclick="goStep(3)" class="action-primary flex-1 py-3.5 rounded-2xl bg-blush-700 hover:bg-blush-800 text-white font-semibold text-sm transition">Continue</button>
         </div>
       </section>
 
@@ -722,9 +722,7 @@
         }
       }
       else {
-        const limit = settingInt(busy[selDate]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
-        $('capacity-hint').innerHTML = '<p><strong>Daily limit</strong> '+esc(limit)+' '+(limit===1?'person':'people')+'</p>'+
-          '<p>Pending requests do not reserve a time.</p>';
+        $('capacity-hint').textContent = '';
       }
       const first = (new Date(y, m, 1).getDay() + 6) % 7;
       const days = new Date(y, m + 1, 0).getDate();
@@ -736,17 +734,13 @@
         const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
         const st = dayState(ds);
         const sel = ds === selDate;
-        const occupied = Number(busy[ds]?.paxCount) || 0;
-        const dailyCap = settingInt(busy[ds]?.maxBookingsPerDay, MAX_PER_DAY(), 1, 3);
         if (st === 'open') {
-          const availabilityLabel = occupied > 0 ? `${dailyCap-occupied} places left` : 'Available';
-          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl text-sm font-semibold border flex flex-col items-center justify-center leading-tight gap-0.5 ${sel ? 'bg-blush-700 text-white border-blush-700' : 'bg-white border-blush-300 hover:bg-blush-50'}" aria-label="${esc(fmtDate(ds))}, ${availabilityLabel}"><span>${d}</span>${occupied > 0 ? `<span class="text-[10px] font-semibold ${sel ? 'text-blush-100' : 'text-blush-700'}">${dailyCap-occupied} left</span>` : ''}</button>`;
-        } else if (st === 'booked') {
-          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center leading-none" aria-label="${esc(fmtDate(ds))}, unavailable for this party"><span class="text-sm font-semibold line-through">${d}</span><span class="text-[10px] uppercase mt-0.5">—</span></button>`;
+          html += `<button type="button" data-date="${ds}" aria-pressed="${sel}" class="day date-available ${sel ? 'date-selected' : ''}" aria-label="${esc(fmtDate(ds))}, Available">${d}</button>`;
         } else {
-          html += `<div class="day rounded-xl text-slate-300 flex items-center justify-center text-sm">${d}</div>`;
+          html += `<button type="button" disabled class="day date-unavailable" aria-label="${esc(fmtDate(ds))}, ${st === 'loading' ? 'Checking availability' : 'Unavailable'}">${d}</button>`;
         }
       }
+      if (selDate && dayState(selDate) !== 'open' && availabilityReady) { selDate=''; $('f-time').value=''; }
       $('cal-grid').innerHTML = html;
       $('cal-grid').querySelectorAll('button[data-date]').forEach(b => b.addEventListener('click', () => {
         selDate = b.dataset.date;
@@ -761,18 +755,8 @@
       if (!availabilityReady || !selDate) { $('time-wrap').classList.add('hidden'); return; }
       const dur = currentDuration();
       const starts = freeStarts(selDate, dur);
-      const slots = busy[selDate]?.slots || [];
-      const closed = cfg.workingHours?.[new Date(selDate+'T12:00:00').getDay()]?.closed;
-      const allDay = closed || slots.some(slot => slot.s === '00:00' && slot.e === '24:00');
-      const blocked=(cfg.timeBlocks||[]).filter(b=>b.date===selDate);
-      const ranges = [...slots,...blocked.map(b=>({s:b.start,e:b.end}))].map(slot => fmtTime(slot.s) + ' – ' + (slot.e === '24:00' ? 'midnight' : fmtTime(slot.e)));
-      const windows = allDay ? ['Unavailable all day'] : ranges.length ? ranges : ['No booked times'];
-      const status = capacityReached(selDate) ? 'There are too few places left for this party.' :
-        !starts.length && !allDay ? 'No start time fits this service.' : '';
-      info.innerHTML = '<div class="availability-notes"><strong>'+esc(fmtDate(selDate))+'</strong>'+
-        '<p>Unavailable times</p><ul>'+windows.map(range=>'<li>'+esc(range)+'</li>').join('')+'</ul>'+
-        (status?'<p>'+esc(status)+'</p>':'')+'</div>';
-      if(!ranges.length && !status && !allDay) info.replaceChildren();
+      // Availability is computed internally; do not expose booked intervals or remaining capacity.
+      if (!starts.length) info.textContent = 'This date is no longer available. Choose another date';
       if (!starts.length) {
         $('f-time').value = '';
         $('time-wrap').classList.add('hidden');
@@ -798,10 +782,8 @@
         validateReadyBy(false);
       };
       $('selected-session').textContent=sel.value?'Selected finish · '+fmtTime(fromMin(toMin(sel.value)+dur))+' ('+fmtTime(sel.value)+' start)':'';
-      const travelMinutes = BUFFER();
-      $('time-hint').innerHTML = '<strong>Session duration</strong> · '+esc(fmtDur(dur))+
-        (travelMinutes > 0 ? '<br>We allow '+esc(travelMinutes)+' minutes between appointments for travel.' : '');
-      if(deadline && !starts.some(fitsDeadline)) $('time-hint').append(' No start fits this deadline. Change the date or ready-by time.');
+      $('time-hint').textContent = deadline ? 'Session duration · '+fmtDur(dur) : '';
+      if(deadline && !starts.some(fitsDeadline)) $('time-hint').append(' — No matching start time. Change the date or ready-by time');
       $('time-wrap').classList.remove('hidden');
     }
 
