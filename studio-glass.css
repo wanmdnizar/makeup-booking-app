@@ -1,0 +1,143 @@
+/* Shared studio colours and mobile wordmark */
+body.client, body.admin {
+  --rose:#b62b61; --rose-deep:#96204c; --rose-ink:#3d202e; --rose-500:#c94c7b;
+  --rose-600:#ad315d; --grad:#b62b61; --bg:#fcecf2; --paper:#fff7fa;
+  --card:#fffafb; --ink:#30242b; --muted:#694d59; --rule:#ecd3dd;
+  --petal:#fbe2ec; --petal-2:#e7b5c8; --shadow-sm:0 2px 12px #68213b09;
+  background:linear-gradient(150deg,#f5ccdc 0%,var(--bg) 19rem,#fff7fa 55rem);
+  color:var(--ink); min-height:100vh;
+}
+body.client #brand-name, body.admin #header-brand-name {
+  font:700 clamp(.85rem,4.2vw,1.125rem)/1.15 'Playfair Display',Georgia,serif;
+  letter-spacing:-.018em; color:var(--rose-ink); overflow-wrap:anywhere;
+}
+body.client header.sticky, body.admin .glass-header {
+  background:#fff2f7eb!important; backdrop-filter:blur(12px); border-color:var(--rule)!important;
+}
+body.client .action-primary,body.admin .action-primary,.admin .desk-btn.primary {
+  background:var(--rose); color:white; border-color:transparent;
+}
+.client #brand-logo { border-radius:50%; }
+.client .booking-main { max-width:46rem; margin:auto; padding:.5rem clamp(.65rem,3vw,1.2rem) 3rem; }
+.client .booking-intro {
+  background:#ffe7ef;
+  border-radius:1.2rem; overflow:hidden;
+}
+.client .hero-copy {
+  width:max-content; max-width:65%; padding:.9rem 1rem;
+  background:linear-gradient(100deg,#fff3f8ed,#fff3f8ce); border-radius:0 1rem 1rem 0;
+  backdrop-filter:blur(4px);
+}
+.client .booking-intro h1 { font:600 clamp(1.1rem,3vw,1.55rem)/1.16 'Playfair Display',Georgia,serif; color:#37212a; }
+#browse-dates { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; color:var(--rose-deep); font-weight:650; font-size:.87rem; text-decoration:underline; }
+.client .hero-copy :is(#ig-link,#tt-link) { font-size:.75rem; min-height:36px; }
+.client #progress { margin:.55rem 0; background:#fff1f6db; border-radius:.8rem; }
+.client #progress .stage { font-size:.76rem; min-width:0; }
+.client #flow > section[id^="step-"], .next-visit-panel {
+  padding:clamp(.9rem,3vw,1.4rem); border:1px solid #fff6fa;
+  border-radius:1.2rem; background:#fff6fadf; box-shadow:0 6px 24px #7723450c;
+}
+.client #flow section > h2 { display:flex; align-items:center; gap:.5rem; font-size:1.08rem; }
+.step-icon { display:inline-grid; place-items:center; width:1.9rem; height:1.9rem; border-radius:50%; background:var(--petal); color:var(--rose-deep); }
+.step-icon svg { width:1rem; height:1rem; }
+.client .party-count button { border-radius:50%; color:var(--rose-deep); }
+.client .person { min-width:0; }
+.client .services .rate { display:grid; margin-inline-start:auto; text-align:right; font-variant-numeric:tabular-nums; }
+.client .services label:has(:checked) { background:var(--petal); }
+.client .travel-note,.client .booking-details { font-size:.84rem; color:var(--muted); }
+.client .contact-options { display:flex; flex-wrap:wrap; gap:.4rem; }
+.client .contact-options label,.client .allergy-choice label { display:inline-flex; align-items:center; gap:.4rem; min-height:44px; padding:.35rem .8rem; border-radius:2rem; border:1px solid var(--petal-2); overflow-wrap:anywhere; }
+.client :is(.contact-options,.allergy-choice) label:has(:checked) { background:var(--petal); border-color:var(--rose); }
+.client #cal-grid .day { min-width:0; border-radius:.7rem; }
+.client #cal-grid [aria-pressed=true],.client #time-options [aria-pressed=true] { background:var(--rose); color:white; }
+.client .step-actions { background:var(--paper); }
+.client .step-actions button { border-radius:2rem; min-height:44px; }
+.client #reviews-wrap,.client #faq-wrap { margin-top:1rem; }
+.admin .next-visit-panel { background:linear-gradient(120deg,#fff9fce8,#f8d7e6ec); }
+.admin .next-visit-panel h2 { margin:.4rem 0; font-size:clamp(1.75rem,5vw,2.4rem); font-weight:650; line-height:1.1; }
+.admin .next-visit-panel p { margin:.4rem 0; }
+.admin .next-visit-panel .desk-actions { margin-top:.8rem; }
+.admin #tab-dashboard .desk-layout { display:block; }
+.admin .desk-card,.admin .req-card { background:#fffbfd; border:1px solid var(--rule); box-shadow:none; }
+.admin .mobile-nav-btn.is-active,.admin .cal-day.is-selected { color:var(--rose-deep); background:var(--petal); }
+.admin #mobile-nav { background:#fff6faed; backdrop-filter:blur(10px); }
+.admin .review-layout { display:flex; flex:1; min-height:0; }
+.admin #review-content { flex:1; min-width:0; overflow:auto; }
+.admin .review-summary { display:none; }
+.admin #review-content .desk-heading { background:var(--petal); padding:1rem; }
+.review-tools { display:flex; gap:.4rem .85rem; flex-wrap:wrap; align-items:center; }
+.review-link { display:inline-flex; align-items:center; min-height:44px; gap:.3rem; color:var(--rose-deep); font-weight:600; font-size:.85rem; }
+.review-link svg { width:1rem; height:1rem; }
+.admin #review-content .review-group,.admin #review-content .approval { margin:0; border:0; border-top:1px solid var(--rule); padding:1rem; background:#fffbfd; }
+.admin #review-content .desk-field { display:grid; gap:.35rem; min-width:0; }
+.admin #review-content input { min-width:0; width:100%; }
+.admin .amount-row,.admin .guest-rate { display:flex; justify-content:space-between; gap:.7rem; }
+.admin .approval-actions { flex-wrap:wrap; }
+#rec-service-lines > *,#rec-package-row,#rec-addon-row,.document-totals { break-inside:avoid; }
+@media(min-width:900px){
+  .admin #request-review > div { max-width:68rem; }
+  .admin .review-summary { display:block; width:16rem; padding:1.25rem; background:var(--paper); overflow:auto; }
+}
+@media(max-width:480px){
+  .client .hero-copy { padding:.7rem .75rem; }
+  .client #flow input:not([type=radio]):not([type=checkbox]),.client #flow textarea,.admin .work-page input:not([type=checkbox]) {font-size:16px;}
+  .client .step-actions { position:static; background:transparent; }
+}
+.review-day-list li { border-bottom:1px solid var(--rule); padding:.45rem 0; font-size:.86rem; }
+
+/* Pink planner shared by the customer and studio pages. */
+body.client, body.admin {
+  --rose:#b51a50; --rose-deep:#91103e; --petal:#ffdee9;
+  --paper:#fffafb; --bg:#fff8fa; --rule:#f0cedb;
+  background:linear-gradient(145deg,#ffe9f0,#fffafb 42rem);
+}
+body.client #brand-name,body.admin #header-brand-name {
+  font:750 clamp(.94rem,4vw,1.2rem)/1.2 Inter,system-ui,sans-serif;
+  letter-spacing:-.035em;
+}
+.client .booking-intro,.admin #tab-schedule .page-head,.admin .next-visit-panel {
+  background:radial-gradient(circle at 104% -35%,#fff7fa 0 22%,#ffdce8 22% 34%,transparent 34%),#ffebf2;
+  border-radius:18px 18px 48% 5% / 18px 18px 16px 12px;
+  padding:clamp(14px,3vw,22px);
+}
+.client .hero-copy {width:100%;max-width:none;padding:0;background:none;backdrop-filter:none}
+.client .booking-intro h1 {font:750 clamp(1.35rem,4vw,1.85rem)/1.15 Inter,system-ui,sans-serif;letter-spacing:-.04em}
+.client .hero-copy>div:has(a.hidden+a.hidden) {display:none}
+.planner-journey {background:#ffdbe8;border-radius:16px;padding:14px;margin-top:12px}
+.planner-journey ol {counter-reset:journey;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;padding:0;margin:10px 0}
+.planner-journey li {counter-increment:journey;position:relative;text-align:center;font-size:.8rem;font-weight:650;padding:0 .2rem}
+.planner-journey li::before {content:counter(journey);position:relative;z-index:1;display:grid;place-items:center;width:24px;height:24px;background:var(--rose);color:white;border-radius:50%;margin:0 auto 5px}
+.planner-journey li:not(:last-child)::after {content:"";position:absolute;top:11px;left:50%;width:100%;border-top:1px solid #db7898}
+.planner-journey p {font-size:.8rem;color:#644451}
+.client #progress {grid-template-columns:1fr .8fr 1.6fr .9fr}
+.client #flow > section[id^="step-"] {background:white;border-color:var(--rule);box-shadow:none}
+.client .services {display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.client .services label,.client .services label:last-of-type {border:1px solid var(--rule);border-radius:11px}
+.client .services label:has(:checked) {border-color:var(--rose);box-shadow:none}
+.client .services label>span {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.client .service-name,.admin .entry-body {overflow-wrap:anywhere}
+.client #step-2>.rounded-3xl {background:#ffe0eb;border:none;box-shadow:none}
+.client #time-options {grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}
+.client #time-options button {text-align:left;padding:.5rem .75rem}
+.client #time-options small {display:block;font-size:.75rem}
+.client .review-lines {list-style:disc;padding-inline-start:1.25rem;line-height:1.65}
+.client .edit-links button {display:inline-flex;align-items:center;gap:.35rem}
+.client .edit-links svg {width:15px;height:15px;stroke-width:1.7}
+.client .step-actions button {border-radius:12px}
+.admin .planner-entry {display:grid;grid-template-columns:minmax(3.7rem,auto) minmax(0,1fr) 4.4rem;align-items:center;gap:.55rem;width:100%;padding:.75rem .5rem;text-align:left;border-bottom:1px solid var(--rule)}
+.admin .planner-entry time {font-size:.78rem;font-weight:650}
+.admin .entry-body {display:grid;justify-items:start;gap:.15rem;background:#ffedf3;border-inline-start:2px solid #df7197;border-radius:0 9px 9px 0;padding:.55rem .65rem}
+.admin .pending .entry-body {background:#fff9fb}
+.admin .entry-action {width:100%;text-align:center;color:var(--rose-deep);font-size:.8rem;font-weight:700;border-radius:8px;background:#ffe5ef;padding:.45rem .15rem}
+.admin .todo .desk-btn {min-width:4.4rem;margin-inline-start:auto}
+.admin #studio-seg {border-radius:12px;gap:4px}
+.admin #studio-seg button {min-width:0;border-radius:8px;min-height:44px}
+:is(.admin,.client) :is(input[type=date],input[type=time],.field,textarea) {box-sizing:border-box;width:100%;min-width:0;max-width:100%}
+:is(.admin,.client) :is(input[type=date],input[type=time]) {appearance:none;-webkit-appearance:none}
+.admin :is(fieldset,.block-fields>*,.hours-line>*,.work-page .grid>*) {min-width:0}
+@media(max-width:480px){
+  .admin .block-fields,.admin .block-fields.whole-day,.admin #weekday-hours .hours-line {grid-template-columns:minmax(0,1fr)}
+  .admin #weekday-hours .hours-line>* {grid-column:1}
+  .admin #review-content,.admin .work-page {overflow-wrap:anywhere}
+  .client .stage {text-align:center;line-height:1.15}
+}
