@@ -1,0 +1,1 @@
+(function(){var app=document.getElementById('app');setTimeout(function(){if(app.querySelector('.loading-state')){app.innerHTML='<section class="panel"><h1>Unable to load the application</h1><p>Refresh the page. If the issue continues, check your internet connection or contact the studio.</p><a class="btn" href="">Reload</a></section>';}},12000);})();
